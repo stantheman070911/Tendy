@@ -1,23 +1,24 @@
 // supabase/seed.ts
-import 'dotenv/config'; 
+
+import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import { farmers } from '../src/data/farmers';
 import { sampleProducts } from '../src/data/products';
-
-console.log("--- V V V DEBUGGING V V V ---");
-console.log("Is Supabase URL loaded?", supabaseUrl ? `Yes, starts with ${supabaseUrl.substring(0, 20)}` : "No, it's MISSING!");
-console.log("Is Supabase Key loaded?", supabaseKey ? "Yes" : "No, it's MISSING!");
-console.log("--- ^ ^ ^ DEBUGGING ^ ^ ^ ---");
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Supabase URL and service key are required in your .env file.");
-}
 
 // Load environment variables
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_SERVICE_KEY;
 
+// --- Debugging Block ---
+// This will now run correctly after the variables have been declared.
+console.log("--- V V V DEBUGGING V V V ---");
+console.log("Is Supabase URL loaded?", supabaseUrl ? `Yes, starts with ${supabaseUrl.substring(0, 20)}` : "No, it's MISSING!");
+console.log("Is Supabase Key loaded?", supabaseKey ? "Yes" : "No, it's MISSING!");
+console.log("--- ^ ^ ^ DEBUGGING ^ ^ ^ ---");
+
+
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Supabase URL and service key are required in your .env file.");
+  throw new Error("Stopping script: Supabase URL and service key are required in your .env file.");
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -80,8 +81,6 @@ async function seedDatabase() {
     progress: product.progress,
     spots_left: product.spotsLeft,
     days_left: product.daysLeft,
-    // Note: We are not seeding members or hosts here as they depend on user accounts (profiles)
-    // which should be created through the app's sign-up flow.
   }));
 
   const { data: seededProducts, error: insertProductsError } = await supabase
