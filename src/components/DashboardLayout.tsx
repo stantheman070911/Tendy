@@ -24,20 +24,46 @@ export const DashboardLayout: React.FC = () => {
         { id: 'host-profile', icon: 'ph-user-circle-gear', label: 'Host Profile', path: '/dashboard/host-profile' }
     ];
 
-    // For now, default to supporter navigation since we don't have role management yet
-    // This will be enhanced when we add user profiles and role assignment
-    const currentNav = supporterNav;
-
-    // Get user display name from Supabase user metadata
-    const getUserDisplayName = () => {
-        if (user?.user_metadata?.full_name) {
-            return user.user_metadata.full_name;
+    // Get navigation based on user role
+    const getCurrentNav = () => {
+        switch (user?.role) {
+            case 'host':
+                return hostNav;
+            case 'farmer':
+                return farmerNav;
+            case 'supporter':
+            default:
+                return supporterNav;
         }
-        if (user?.email) {
-            return user.email.split('@')[0]; // Use part before @ as fallback
-        }
-        return 'User';
     };
+
+    // Get dashboard title based on user role
+    const getDashboardTitle = () => {
+        switch (user?.role) {
+            case 'host':
+                return 'Host Dashboard';
+            case 'farmer':
+                return 'Farmer Dashboard';
+            case 'supporter':
+            default:
+                return 'Supporter Dashboard';
+        }
+    };
+
+    // Get dashboard icon based on user role
+    const getDashboardIcon = () => {
+        switch (user?.role) {
+            case 'host':
+                return 'ph-house-line';
+            case 'farmer':
+                return 'ph-leaf';
+            case 'supporter':
+            default:
+                return 'ph-hand-heart';
+        }
+    };
+
+    const currentNav = getCurrentNav();
 
     const handleLogout = async () => {
         await logout();
@@ -46,11 +72,11 @@ export const DashboardLayout: React.FC = () => {
     return (
         <main className="container mx-auto max-w-screen-xl px-md md:px-lg py-lg md:py-xl">
             <div className="mb-lg max-w-2xl mx-auto text-center">
-                <h1 className="text-4xl lg:text-5xl font-lora">Welcome back, {getUserDisplayName()}!</h1>
+                <h1 className="text-4xl lg:text-5xl font-lora">Welcome back, {user?.fullName}!</h1>
                 <p className="text-lg text-charcoal/80 mt-2">Manage your account and activities.</p>
                 <div className="mt-md inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-stone/20">
-                    <i className="ph-hand-heart text-harvest-gold text-xl"></i>
-                    <span className="font-semibold text-charcoal">Supporter Dashboard</span>
+                    <i className={`${getDashboardIcon()} text-harvest-gold text-xl`}></i>
+                    <span className="font-semibold text-charcoal">{getDashboardTitle()}</span>
                 </div>
             </div>
 

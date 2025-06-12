@@ -36,17 +36,6 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
     handleLinkClick();
   };
 
-  // Get user display name from Supabase user metadata
-  const getUserDisplayName = () => {
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name;
-    }
-    if (user?.email) {
-      return user.email.split('@')[0]; // Use part before @ as fallback
-    }
-    return 'User';
-  };
-
   return (
     <>
       <header className="h-24 flex items-center sticky top-0 z-50 bg-parchment/80 backdrop-blur-md border-b border-stone/10">
@@ -71,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
             {actualIsLoggedIn ? (
               <div className="flex items-center space-x-sm">
                 <Link to="/dashboard" className="flex items-center gap-3">
-                  <span className="font-semibold text-charcoal">{getUserDisplayName()}</span>
+                  <span className="font-semibold text-charcoal">{user?.fullName}</span>
                   <img src="https://i.pravatar.cc/40?img=10" alt="User Avatar" className="w-10 h-10 rounded-full border-2 border-harvest-gold"/>
                 </Link>
                 <button

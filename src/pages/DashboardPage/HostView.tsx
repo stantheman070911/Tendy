@@ -25,13 +25,6 @@ const activeGroups = [
     }
 ];
 
-const hostStats = {
-    totalGroupsHosted: 23,
-    totalMembersServed: 156,
-    creditsEarned: 89.50,
-    currentRating: 4.9
-};
-
 interface HostViewProps {
   activeSection: HostSection;
 }
@@ -173,19 +166,19 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
                     <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
                         <p className="text-stone font-semibold">Total Credits Earned</p>
-                        <p className="text-3xl font-lora text-evergreen">${hostStats.creditsEarned}</p>
+                        <p className="text-3xl font-lora text-evergreen">$89.50</p>
                     </div>
                     <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
                         <p className="text-stone font-semibold">Groups Hosted</p>
-                        <p className="text-3xl font-lora text-evergreen">{hostStats.totalGroupsHosted}</p>
+                        <p className="text-3xl font-lora text-evergreen">{user?.groupsHosted || 0}</p>
                     </div>
                     <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
                         <p className="text-stone font-semibold">Members Served</p>
-                        <p className="text-3xl font-lora text-evergreen">{hostStats.totalMembersServed}</p>
+                        <p className="text-3xl font-lora text-evergreen">{user?.totalMembersServed || 0}</p>
                     </div>
                     <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
                         <p className="text-stone font-semibold">Host Rating</p>
-                        <p className="text-3xl font-lora text-evergreen">{hostStats.currentRating} ⭐</p>
+                        <p className="text-3xl font-lora text-evergreen">4.9 ⭐</p>
                     </div>
                 </div>
                 
@@ -224,7 +217,7 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
                     <div className="flex items-center gap-md">
                         <img src="https://i.pravatar.cc/80?img=10" alt="Host Avatar" className="w-20 h-20 rounded-full"/>
                         <div>
-                            <h3 className="text-xl font-semibold">{user?.user_metadata?.full_name || 'Host'}</h3>
+                            <h3 className="text-xl font-semibold">{user?.fullName}</h3>
                             <p className="text-stone">Verified Host since March 2024</p>
                             <button className="mt-2 h-10 px-4 bg-evergreen/10 text-evergreen font-bold text-sm rounded-lg hover:bg-evergreen/20">
                                 Change Photo
@@ -250,7 +243,7 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
                         <input 
                             id="zip-code" 
                             type="text" 
-                            defaultValue="94105" 
+                            defaultValue={user?.zipCode || ''} 
                             placeholder="Enter your zip code"
                             className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30" 
                             required

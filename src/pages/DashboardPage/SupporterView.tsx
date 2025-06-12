@@ -19,22 +19,7 @@ interface SupporterViewProps {
 }
 
 export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) => {
-  const { logout, user } = useAuth();
-
-  // Get user display name from Supabase user metadata
-  const getUserDisplayName = () => {
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name;
-    }
-    if (user?.email) {
-      return user.email.split('@')[0]; // Use part before @ as fallback
-    }
-    return 'User';
-  };
-
-  const getUserEmail = () => {
-    return user?.email || 'user@example.com';
-  };
+  const { user } = useAuth();
 
   return (
     <div className="space-y-xl">
@@ -101,7 +86,7 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
               <input 
                 id="supporter-name" 
                 type="text" 
-                defaultValue={getUserDisplayName()} 
+                defaultValue={user?.fullName || ''} 
                 className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30"
               />
             </div>
@@ -110,7 +95,17 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
               <input 
                 id="supporter-email" 
                 type="email" 
-                defaultValue={getUserEmail()} 
+                defaultValue={user?.email || ''} 
+                className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30"
+              />
+            </div>
+            <div>
+              <label htmlFor="supporter-zip" className="font-semibold text-charcoal mb-1 block">Zip Code</label>
+              <input 
+                id="supporter-zip" 
+                type="text" 
+                defaultValue={user?.zipCode || ''} 
+                placeholder="Enter your zip code"
                 className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30"
               />
             </div>
