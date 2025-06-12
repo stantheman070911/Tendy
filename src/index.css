@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F9F8F5;
+    color: #333333;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4 {
+    font-family: 'Lora', serif;
+    color: #2E4034;
+    font-weight: 500;
+  }
+}
+
+@layer components {
+  .text-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: #333333;
+  }
+  
+  .link-underline {
+    @apply relative inline-block no-underline pb-1;
+  }
+  
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-harvest-gold transform scale-x-0 origin-bottom-right transition-transform duration-300 ease-out;
+  }
+  
+  .link-underline:hover::after {
+    @apply scale-x-100 origin-bottom-left;
+  }
+  
+  /* Active navigation link styles */
+  .nav-link-active {
+    @apply text-harvest-gold font-bold;
+  }
+  
+  .nav-link-active::after {
+    @apply scale-x-100 bg-harvest-gold;
+  }
+  
+  .scroll-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .fade-in-section {
+    @apply opacity-0 translate-y-5 transition-all duration-700 ease-out;
+  }
+  
+  .fade-in-section.is-visible {
+    @apply opacity-100 translate-y-0;
+  }
+  
+  /* Styles for Login/Sign Up Page */
+  .form-input {
+    @apply w-full h-[52px] pl-12 bg-white rounded-lg border border-stone/20 font-medium text-evergreen transition-colors duration-200;
+  }
+  .form-input::placeholder {
+    @apply text-stone font-normal;
+  }
+  .form-input:focus {
+    @apply outline-none border-harvest-gold ring-2 ring-harvest-gold/20;
+  }
+  .input-icon {
+    @apply absolute left-4 top-1/2 -translate-y-1/2 text-stone text-2xl;
+  }
+  .user-type-toggle {
+    @apply flex bg-parchment rounded-lg p-1 border border-stone/20;
+  }
+  .user-type-toggle button {
+    @apply flex-1 p-2.5 rounded-md font-semibold text-base flex items-center justify-center gap-2 transition-all duration-300 border-2 border-transparent cursor-pointer;
+  }
+  .user-type-toggle button.active {
+    @apply bg-white text-evergreen shadow-sm;
+  }
+  .user-type-toggle button:not(.active) {
+    @apply text-stone;
+  }
+
+  /* Styles for Dashboard Navigation */
+  .dashboard-nav-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 text-evergreen;
+  }
+  .dashboard-nav-link:hover {
+    @apply bg-stone/10;
+  }
+  .dashboard-nav-link.active {
+    @apply bg-evergreen text-parchment;
+  }
+  .dashboard-nav-link i {
+    @apply text-2xl;
+  }
+
+  /* Styles for Product Cards */
+  .product-card {
+    @apply bg-white border border-stone/10 rounded-xl shadow-sm flex flex-col transition-transform duration-300;
+  }
+  .product-card:hover {
+    @apply -translate-y-2 shadow-lg;
+  }
+}
+
+@layer utilities {
+  .focus-visible {
+    @apply outline-none ring-2 ring-harvest-gold ring-offset-2 rounded;
+  }
+  
+  /* Ensure counter text is always visible */
+  .text-evergreen {
+    color: #2E4034 !important;
+  }
+}
