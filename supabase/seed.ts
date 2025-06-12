@@ -8,7 +8,9 @@ console.log("--- V V V DEBUGGING V V V ---");
 console.log("Is Supabase URL loaded?", supabaseUrl ? `Yes, starts with ${supabaseUrl.substring(0, 20)}` : "No, it's MISSING!");
 console.log("Is Supabase Key loaded?", supabaseKey ? "Yes" : "No, it's MISSING!");
 console.log("--- ^ ^ ^ DEBUGGING ^ ^ ^ ---");
-
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Supabase URL and service key are required in your .env file.");
+}
 
 // Load environment variables
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
