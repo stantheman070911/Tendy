@@ -1,22 +1,14 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { productService, type CreateProductData } from '../services/productService';
+import { farmerService } from '../services/farmerService';
+import { toast } from 'react-hot-toast';
+import type { ProductWithFarmer } from '../types';
 
 interface CreateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
-}
-
-interface ProductFormData {
-  title: string;
-  description: string;
-  weight: string;
-  price: number;
-  originalPrice: number;
-  imageUrl: string;
-  spotsTotal: number;
-  daysActive: number;
+  onSuccess: (newProduct: ProductWithFarmer) => void;
 }
 
 export const CreateProductModal: React.FC<CreateProductModalProps> = ({ 
@@ -26,8 +18,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 }) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<ProductFormData>({
+  const [formData, setFormData] = useState<CreateProductData>({
     title: '',
     description: '',
     weight: '',
@@ -48,50 +39,24 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user?.email) {
+      toast.error('User not authenticated');
+      return;
+    }
 
     setIsSubmitting(true);
-    setError(null);
 
     try {
-      // First, get the farmer_id from the farmers table using the user's email
-      const { data: farmerData, error: farmerError } = await supabase
-        .from('farmers')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-      if (farmerError || !farmerData) {
+      // Get the farmer's ID using the service
+      const farmer = await farmerService.getFarmerByEmail(user.email);
+      
+      if (!farmer) {
         throw new Error('Farmer profile not found. Please contact support.');
       }
 
-      // Create the new product
-      const { data, error } = await supabase
-        .from('products')
-        .insert([
-          {
-            title: formData.title,
-            description: formData.description,
-            weight: formData.weight,
-            price: formData.price,
-            original_price: formData.originalPrice,
-            image_url: formData.imageUrl,
-            farmer_id: farmerData.id,
-            progress: 0,
-            spots_left: formData.spotsTotal,
-            days_left: formData.daysActive,
-            members: [],
-            gallery: [formData.imageUrl]
-          }
-        ])
-        .select();
+      // Create the new product using the service
+      const newProduct = await productService.createProduct(formData, parseInt(farmer.id));
 
-      if (error) {
-        throw error;
-      }
-
-      console.log('Successfully created new listing:', data);
-      
       // Reset form
       setFormData({
         title: '',
@@ -104,12 +69,14 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
         daysActive: 7
       });
 
-      onSuccess();
+      toast.success('Product listing created successfully!');
+      onSuccess(newProduct);
       onClose();
 
-    } catch (err: any) {
-      console.error('Error creating new listing:', err);
-      setError(err.message || 'Failed to create listing. Please try again.');
+    } catch (error) {
+      console.error('Error creating new listing:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create listing. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -269,13 +236,6 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 />
               </div>
             </div>
-
-            {error && (
-              <div className="p-md rounded-lg bg-error-light text-error border border-error/20">
-                <p className="font-semibold">Error creating listing</p>
-                <p className="text-sm">{error}</p>
-              </div>
-            )}
 
             <div className="flex flex-col sm:flex-row gap-sm pt-md">
               <button

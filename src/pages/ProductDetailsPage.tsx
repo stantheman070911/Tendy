@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLoaderData, Link, useNavigate } from 'react-router-dom';
 import { ConfirmationModal } from '../components/ConfirmationModal';
-import { supabase } from '../lib/supabaseClient';
+import { productService } from '../services/productService';
+import { toast } from 'react-hot-toast';
 import type { ProductWithFarmer } from '../types';
 
 interface ProductLoaderData {
@@ -16,8 +17,6 @@ export const ProductDetailsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     // State to track if user has joined this group (optimistic UI)
     const [hasJoined, setHasJoined] = useState(false);
-    // State for handling join errors
-    const [joinError, setJoinError] = useState<string | null>(null);
     // State for join loading
     const [isJoining, setIsJoining] = useState(false);
 
@@ -29,30 +28,24 @@ export const ProductDetailsPage: React.FC = () => {
 
     // --- OPTIMISTIC UI LOGIC FOR JOINING A GROUP ---
     const handleJoinClick = () => {
-        setJoinError(null);
         setIsModalOpen(true);
     };
 
     const handleConfirmJoin = async () => {
         setIsJoining(true);
-        setJoinError(null);
         setIsModalOpen(false); // Close modal immediately
 
+        const loadingToast = toast.loading('Joining group...');
+
         try {
-            // Call the PostgreSQL function from your client
-            const { data, error } = await supabase.rpc('join_group', {
-                product_id_to_join: product.id
-            });
+            // Use the service to join the group
+            const result = await productService.joinGroup(product.id);
 
-            if (error) {
-                throw new Error('A database error occurred. Please try again.');
-            }
-
-            // The 'data' returned from the function will be true or false
-            if (data === true) {
+            if (result === true) {
                 // Success! The spot was claimed.
                 setHasJoined(true); // Keep the optimistic UI state
-                console.log(`Successfully joined group for ${product.title}`);
+                toast.success(`Successfully joined group for ${product.title}!`, { duration: 4000 });
+                
                 // Optional: Redirect to dashboard after a short delay
                 setTimeout(() => {
                     navigate('/dashboard');
@@ -65,15 +58,16 @@ export const ProductDetailsPage: React.FC = () => {
         } catch (error) {
             // Revert optimistic update on any error
             setHasJoined(false);
-            setJoinError(error instanceof Error ? error.message : 'An unexpected error occurred');
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+            toast.error(errorMessage);
         } finally {
+            toast.dismiss(loadingToast);
             setIsJoining(false);
         }
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setJoinError(null);
     };
 
     const filledSpots = Math.floor((product.members?.length || 0));
@@ -83,23 +77,6 @@ export const ProductDetailsPage: React.FC = () => {
     return (
         <>
             <main className="container mx-auto max-w-screen-xl px-md md:px-lg py-lg md:py-xl">
-                {/* Error Message */}
-                {joinError && (
-                    <div className="mb-lg p-md rounded-lg bg-error-light text-error border border-error/20 flex items-center gap-3">
-                        <i className="ph-bold ph-warning-circle text-2xl"></i>
-                        <div>
-                            <p className="font-semibold">Failed to join group</p>
-                            <p className="text-sm">{joinError}</p>
-                        </div>
-                        <button 
-                            onClick={() => setJoinError(null)}
-                            className="ml-auto text-error hover:text-error/70"
-                        >
-                            <i className="ph-bold ph-x text-xl"></i>
-                        </button>
-                    </div>
-                )}
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-xl">
                     
                     {/* Left Column: Image Gallery */}

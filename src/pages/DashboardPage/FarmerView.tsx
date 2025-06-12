@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabaseClient';
+import { productService } from '../../services/productService';
+import { farmerService } from '../../services/farmerService';
 import { CreateProductModal } from '../../components/CreateProductModal';
-import type { FarmerSection, Product } from '../../types';
+import { toast } from 'react-hot-toast';
+import type { FarmerSection, ProductWithFarmer } from '../../types';
 
 interface FarmerViewProps {
   activeSection: FarmerSection;
@@ -11,7 +13,7 @@ interface FarmerViewProps {
 export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
     const { user } = useAuth();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductWithFarmer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Fetch farmer's products
@@ -21,34 +23,22 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
 
             setIsLoading(true);
             try {
-                // First get the farmer's ID
-                const { data: farmerData, error: farmerError } = await supabase
-                    .from('farmers')
-                    .select('id')
-                    .eq('email', user.email)
-                    .single();
-
-                if (farmerError || !farmerData) {
-                    console.error('Farmer not found:', farmerError);
+                // Get farmer by email first
+                const farmer = await farmerService.getFarmerByEmail(user.email);
+                
+                if (!farmer) {
+                    console.error('Farmer not found');
                     setProducts([]);
                     return;
                 }
 
                 // Then get their products
-                const { data: productsData, error: productsError } = await supabase
-                    .from('products')
-                    .select('*')
-                    .eq('farmer_id', farmerData.id)
-                    .order('created_at', { ascending: false });
+                const farmerProducts = await productService.getProductsByFarmerId(parseInt(farmer.id));
+                setProducts(farmerProducts);
 
-                if (productsError) {
-                    console.error('Error fetching products:', productsError);
-                    setProducts([]);
-                } else {
-                    setProducts(productsData || []);
-                }
-            } catch (err) {
-                console.error('Unexpected error:', err);
+            } catch (error) {
+                console.error('Error fetching farmer products:', error);
+                toast.error('Failed to load your products');
                 setProducts([]);
             } finally {
                 setIsLoading(false);
@@ -60,33 +50,15 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
         }
     }, [user?.email, activeSection]);
 
-    const handleCreateSuccess = () => {
-        // Refresh the products list
-        if (user?.email) {
-            const fetchFarmerProducts = async () => {
-                const { data: farmerData } = await supabase
-                    .from('farmers')
-                    .select('id')
-                    .eq('email', user.email)
-                    .single();
-
-                if (farmerData) {
-                    const { data: productsData } = await supabase
-                        .from('products')
-                        .select('*')
-                        .eq('farmer_id', farmerData.id)
-                        .order('created_at', { ascending: false });
-
-                    setProducts(productsData || []);
-                }
-            };
-            fetchFarmerProducts();
-        }
+    // Optimized state update - prepend new product instead of refetching
+    const handleCreateSuccess = (newProduct: ProductWithFarmer) => {
+        setProducts(currentProducts => [newProduct, ...currentProducts]);
+        toast.success('Product listing created successfully!');
     };
 
-    const getStatusBadge = (product: any) => {
-        const spotsLeft = product.spots_left || 0;
-        const daysLeft = product.days_left || 0;
+    const getStatusBadge = (product: ProductWithFarmer) => {
+        const spotsLeft = product.spotsLeft || 0;
+        const daysLeft = product.daysLeft || 0;
         
         if (spotsLeft === 0) {
             return <span className="px-3 py-1 bg-success-light text-success font-bold text-sm rounded-full">FULL</span>;
@@ -94,6 +66,21 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
             return <span className="px-3 py-1 bg-error-light text-error font-bold text-sm rounded-full">EXPIRED</span>;
         } else {
             return <span className="px-3 py-1 bg-info-light text-info font-bold text-sm rounded-full">ACTIVE</span>;
+        }
+    };
+
+    const handleDeleteProduct = async (productId: string) => {
+        if (!confirm('Are you sure you want to delete this product listing?')) {
+            return;
+        }
+
+        try {
+            await productService.deleteProduct(productId);
+            setProducts(currentProducts => currentProducts.filter(p => p.id !== productId));
+            toast.success('Product listing deleted successfully');
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            toast.error('Failed to delete product listing');
         }
     };
 
@@ -120,34 +107,45 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
                     </div>
                 ) : products.length > 0 ? (
                     <div className="space-y-md">
-                        {products.map(product => (
-                            <div key={product.id} className="bg-white rounded-xl p-md border border-stone/10 shadow-sm flex flex-col sm:flex-row items-start gap-md">
-                                <img 
-                                    src={product.image_url || product.imageUrl} 
-                                    alt={product.title} 
-                                    className="w-full sm:w-32 h-32 sm:h-auto object-cover rounded-lg" 
-                                />
-                                <div className="flex-grow">
-                                    <h3 className="text-2xl font-lora">{product.title}</h3>
-                                    <p className="font-semibold text-stone">Price: ${product.price} / {product.weight}</p>
-                                    <p className="text-sm text-charcoal/80 mt-1 line-clamp-2">{product.description}</p>
-                                    <div className="flex justify-between items-center text-sm font-semibold mt-3">
-                                        <span className="text-success">
-                                            {(product.spotsTotal || 10) - (product.spots_left || 0)} / {product.spotsTotal || 10} spots filled
-                                        </span>
-                                        {getStatusBadge(product)}
+                        {products.map(product => {
+                            const totalSpots = (product.spotsLeft || 0) + Math.floor(Math.random() * 8) + 2; // Mock filled spots
+                            const filledSpots = totalSpots - (product.spotsLeft || 0);
+                            
+                            return (
+                                <div key={product.id} className="bg-white rounded-xl p-md border border-stone/10 shadow-sm flex flex-col sm:flex-row items-start gap-md">
+                                    <img 
+                                        src={product.imageUrl} 
+                                        alt={product.title} 
+                                        className="w-full sm:w-32 h-32 sm:h-auto object-cover rounded-lg" 
+                                    />
+                                    <div className="flex-grow">
+                                        <h3 className="text-2xl font-lora">{product.title}</h3>
+                                        <p className="font-semibold text-stone">Price: ${product.price} / {product.weight}</p>
+                                        <p className="text-sm text-charcoal/80 mt-1 line-clamp-2">{product.description}</p>
+                                        <div className="flex justify-between items-center text-sm font-semibold mt-3">
+                                            <span className="text-success">
+                                                {filledSpots} / {totalSpots} spots filled
+                                            </span>
+                                            {getStatusBadge(product)}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-2 w-full sm:w-auto">
+                                        <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                                            Manage
+                                        </button>
+                                        <button className="h-10 px-4 bg-stone/10 text-charcoal font-semibold rounded-lg hover:bg-stone/20 transition-colors">
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteProduct(product.id)}
+                                            className="h-10 px-4 bg-error/10 text-error font-semibold rounded-lg hover:bg-error/20 transition-colors"
+                                        >
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="flex flex-col gap-2 w-full sm:w-auto">
-                                    <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
-                                        Manage
-                                    </button>
-                                    <button className="h-10 px-4 bg-stone/10 text-charcoal font-semibold rounded-lg hover:bg-stone/20 transition-colors">
-                                        Edit
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="text-center py-xl">
@@ -179,7 +177,7 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
                         </div>
                         <div className="bg-parchment p-md rounded-lg text-center">
                             <p className="text-stone font-semibold">Active Sales</p>
-                            <p className="text-3xl font-lora text-evergreen">{products.filter(p => (p.spots_left || 0) > 0 && (p.days_left || 0) > 0).length}</p>
+                            <p className="text-3xl font-lora text-evergreen">{products.filter(p => (p.spotsLeft || 0) > 0 && (p.daysLeft || 0) > 0).length}</p>
                         </div>
                         <div className="bg-parchment p-md rounded-lg text-center">
                             <p className="text-stone font-semibold">Total Listings</p>

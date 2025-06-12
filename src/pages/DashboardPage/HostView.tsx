@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
+import { toast } from 'react-hot-toast';
 import type { HostSection } from '../../types';
 
 // Mock data for host dashboard
@@ -37,6 +38,8 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
     const handleBoostClick = async (groupId: number) => {
         setBoostingGroupId(groupId);
         
+        const loadingToast = toast.loading('Activating Community Boost...');
+        
         try {
             const { data, error } = await supabase.functions.invoke('community-boost', {
                 body: { groupId },
@@ -50,19 +53,23 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
             const message = data.message || 'Community Boost activated!';
             const details = data.details;
             
+            toast.success(message, { duration: 4000 });
+            
             if (details) {
-                alert(`${message}\n\nGroup: ${details.groupTitle}\nFarm: ${details.farmName}\nArea: ${details.zipCode}\nNotifications sent: ${details.notificationsSent}`);
-            } else {
-                alert(message);
+                toast.success(
+                    `Notified ${details.notificationsSent} neighbors in ${details.zipCode}`, 
+                    { duration: 6000 }
+                );
             }
 
         } catch (error) {
             console.error("Error boosting community:", error);
             
             // Show user-friendly error message
-            const errorMessage = error.message || 'Failed to boost the community. Please try again.';
-            alert(`Community Boost Error: ${errorMessage}`);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to boost the community. Please try again.';
+            toast.error(errorMessage);
         } finally {
+            toast.dismiss(loadingToast);
             setBoostingGroupId(null);
         }
     };
