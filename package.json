@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-   "db:seed": "node --loader ts-node/esm --require dotenv/config supabase/seed.ts"
+  "db:seed": "node --loader ts-node/esm supabase/seed.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
