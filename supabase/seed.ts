@@ -4,11 +4,11 @@ import { createClient } from '@supabase/supabase-js';
 import { farmers } from '../src/data/farmers';
 import { sampleProducts } from '../src/data/products';
 
-// IMPORTANT: Create a .env file in your root directory and add your Supabase credentials
-// VITE_SUPABASE_URL=your_supabase_url
-// VITE_SUPABASE_SERVICE_KEY=your_supabase_service_role_key 
-// Note: Use the SERVICE_KEY for admin actions like seeding, NOT the anon key.
-// You can find this in your Supabase project settings under API.
+console.log("--- V V V DEBUGGING V V V ---");
+console.log("Is Supabase URL loaded?", supabaseUrl ? `Yes, starts with ${supabaseUrl.substring(0, 20)}` : "No, it's MISSING!");
+console.log("Is Supabase Key loaded?", supabaseKey ? "Yes" : "No, it's MISSING!");
+console.log("--- ^ ^ ^ DEBUGGING ^ ^ ^ ---");
+
 
 // Load environment variables
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
