@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Base Farmer Schema
 export const FarmerSchema = z
   .object({
-    id: z.string(),
+    id: z.number(), // CHANGED: Accept number from database
     name: z.string(),
     farm_name: z.string(),
     image_url: z.string(),
@@ -16,7 +16,7 @@ export const FarmerSchema = z
     created_at: z.string(),
   })
   .transform((data) => ({
-    id: data.id,
+    id: data.id.toString(), // CHANGED: Convert to string
     name: data.name,
     farmName: data.farm_name,
     imageUrl: data.image_url,
@@ -34,7 +34,7 @@ export type Farmer = z.infer<typeof FarmerSchema>;
 // Base Product Schema (without farmer relation)
 export const ProductSchema = z
   .object({
-    id: z.string(),
+    id: z.number(), // CHANGED: Accept number from database
     created_at: z.string(),
     title: z.string(),
     description: z.string(),
@@ -43,7 +43,7 @@ export const ProductSchema = z
     original_price: z.number(),
     image_url: z.string(),
     gallery: z.array(z.string()).nullable(),
-    farmer_id: z.string(),
+    farmer_id: z.number(), // CHANGED: Accept number from database
     progress: z.number().optional().default(0),
     spots_left: z.number().optional().default(0),
     days_left: z.number().optional().default(0),
@@ -56,7 +56,7 @@ export const ProductSchema = z
     })).optional().default([]),
   })
   .transform((data) => ({
-    id: data.id,
+    id: data.id.toString(), // CHANGED: Convert to string
     createdAt: data.created_at,
     title: data.title,
     description: data.description,
@@ -65,7 +65,7 @@ export const ProductSchema = z
     originalPrice: data.original_price,
     imageUrl: data.image_url,
     gallery: data.gallery ?? [],
-    farmerId: data.farmer_id,
+    farmerId: data.farmer_id.toString(), // CHANGED: Convert to string
     progress: data.progress,
     spotsLeft: data.spots_left,
     daysLeft: data.days_left,
@@ -78,7 +78,7 @@ export type Product = z.infer<typeof ProductSchema>;
 // Product with Farmer relation (for queries that include farmer data)
 export const ProductWithFarmerSchema = z
   .object({
-    id: z.string(),
+    id: z.number(), // CHANGED: Accept number from database
     created_at: z.string(),
     title: z.string(),
     description: z.string(),
@@ -87,7 +87,7 @@ export const ProductWithFarmerSchema = z
     original_price: z.number(),
     image_url: z.string(),
     gallery: z.array(z.string()).nullable(),
-    farmer_id: z.string(),
+    farmer_id: z.number(), // CHANGED: Accept number from database
     progress: z.number().optional().default(0),
     spots_left: z.number().optional().default(0),
     days_left: z.number().optional().default(0),
@@ -112,7 +112,7 @@ export const ProductWithFarmerSchema = z
     }).nullable().optional(),
   })
   .transform((data) => ({
-    id: data.id,
+    id: data.id.toString(), // CHANGED: Convert to string
     createdAt: data.created_at,
     title: data.title,
     description: data.description,
@@ -121,7 +121,7 @@ export const ProductWithFarmerSchema = z
     originalPrice: data.original_price,
     imageUrl: data.image_url,
     gallery: data.gallery ?? [],
-    farmerId: data.farmer_id,
+    farmerId: data.farmer_id.toString(), // CHANGED: Convert to string
     farmer: data.farmers
       ? { name: data.farmers.name, avatar: data.farmers.image_url }
       : { name: 'Unknown Farmer', avatar: '' },
