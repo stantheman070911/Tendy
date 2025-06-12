@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "db:seed": "tsx supabase/seed.ts",
-    "supabase": "supabase"
+    "supabase": "./node_modules/.bin/supabase"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
