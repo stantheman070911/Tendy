@@ -1,5 +1,5 @@
 // supabase/seed.ts
-
+import 'dotenv/config'; 
 import { createClient } from '@supabase/supabase-js';
 import { farmers } from '../src/data/farmers';
 import { sampleProducts } from '../src/data/products';
