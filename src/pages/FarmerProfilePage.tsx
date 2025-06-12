@@ -2,11 +2,11 @@ import React from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
-import type { Farmer, Product } from '../types';
+import type { Farmer, ProductWithFarmer } from '../types';
 
 interface FarmerLoaderData {
   farmer: Farmer;
-  products: Product[];
+  products: ProductWithFarmer[];
 }
 
 export const FarmerProfilePage: React.FC = () => {

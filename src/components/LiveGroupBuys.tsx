@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { ProductCard } from './ProductCard';
 import { supabase } from '../lib/supabaseClient';
-import type { Product } from '../types';
+import { ProductWithFarmerSchema } from '../types';
+import { z } from 'zod';
+import type { ProductWithFarmer } from '../types';
 
 interface LiveGroupBuysProps {
   isLoggedIn?: boolean;
@@ -10,7 +12,7 @@ interface LiveGroupBuysProps {
 
 export const LiveGroupBuys: React.FC<LiveGroupBuysProps> = ({ isLoggedIn = false }) => {
   const { ref, isIntersecting } = useIntersectionObserver();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductWithFarmer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchState, setSearchState] = useState<'idle' | 'loading' | 'success'>('idle');
   const [zipCode, setZipCode] = useState('');
@@ -29,25 +31,16 @@ export const LiveGroupBuys: React.FC<LiveGroupBuysProps> = ({ isLoggedIn = false
 
         if (error) {
           console.error("Error fetching products:", error);
-          setProducts([]); // Set empty array on error
+          setProducts([]);
         } else {
-          // Transform the data to match our Product interface
-          const transformedProducts = data?.map(product => ({
-            ...product,
-            farmer: {
-              name: product.farmer?.name || 'Unknown Farmer',
-              avatar: product.farmer?.image_url || 'https://i.pravatar.cc/80?img=1'
-            },
-            // Add default values for fields that might not exist in database yet
-            progress: product.progress || Math.floor(Math.random() * 80) + 10,
-            spotsLeft: product.spots_left || Math.floor(Math.random() * 8) + 2,
-            daysLeft: product.days_left || Math.floor(Math.random() * 6) + 1,
-            members: product.members || [],
-            gallery: product.gallery || [product.image_url],
-            host: product.host || null
-          })) || [];
-          
-          setProducts(transformedProducts);
+          // Parse and transform the data using Zod schema
+          try {
+            const transformedProducts = z.array(ProductWithFarmerSchema).parse(data || []);
+            setProducts(transformedProducts);
+          } catch (parseError) {
+            console.error("Data parsing error:", parseError);
+            setProducts([]);
+          }
         }
       } catch (err) {
         console.error("Unexpected error fetching products:", err);

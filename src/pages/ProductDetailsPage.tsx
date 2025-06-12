@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLoaderData, Link, useNavigate } from 'react-router-dom';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { supabase } from '../lib/supabaseClient';
-import type { Product } from '../types';
+import type { ProductWithFarmer } from '../types';
 
 interface ProductLoaderData {
-  product: Product;
+  product: ProductWithFarmer;
 }
 
 export const ProductDetailsPage: React.FC = () => {
@@ -21,10 +21,10 @@ export const ProductDetailsPage: React.FC = () => {
     // State for join loading
     const [isJoining, setIsJoining] = useState(false);
 
-    const [activeImage, setActiveImage] = useState(product.image_url);
+    const [activeImage, setActiveImage] = useState(product.imageUrl);
 
     useEffect(() => {
-        setActiveImage(product.image_url);
+        setActiveImage(product.imageUrl);
     }, [product]);
 
     // --- OPTIMISTIC UI LOGIC FOR JOINING A GROUP ---
@@ -76,13 +76,8 @@ export const ProductDetailsPage: React.FC = () => {
         setJoinError(null);
     };
 
-    // Handle both database field names and interface field names
-    const spotsLeft = product.spots_left || product.spotsLeft || 0;
-    const daysLeft = product.days_left || product.daysLeft || 0;
-    const originalPrice = product.original_price || product.originalPrice || 0;
-    
     const filledSpots = Math.floor((product.members?.length || 0));
-    const totalSpots = filledSpots + spotsLeft;
+    const totalSpots = filledSpots + product.spotsLeft;
     const progressPercent = totalSpots > 0 ? (filledSpots / totalSpots) * 100 : 0;
 
     return (
@@ -131,18 +126,18 @@ export const ProductDetailsPage: React.FC = () => {
                         <div className="mt-6 flex flex-wrap items-center justify-between gap-md">
                             <div>
                                 <p className="text-4xl font-bold text-evergreen">${product.price.toFixed(2)}</p>
-                                <p className="text-lg line-through text-stone">${originalPrice.toFixed(2)} Retail</p>
+                                <p className="text-lg line-through text-stone">${product.originalPrice.toFixed(2)} Retail</p>
                             </div>
                             <div className="w-full sm:w-auto">
                                 <button 
                                     onClick={handleJoinClick}
-                                    disabled={hasJoined || isJoining || spotsLeft <= 0}
+                                    disabled={hasJoined || isJoining || product.spotsLeft <= 0}
                                     className={`w-full h-14 px-8 flex items-center justify-center font-bold text-lg rounded-lg transition-all shadow-lg ${
                                         hasJoined 
                                         ? 'bg-success text-white cursor-not-allowed' 
                                         : isJoining
                                         ? 'bg-stone/50 text-stone cursor-not-allowed'
-                                        : spotsLeft <= 0
+                                        : product.spotsLeft <= 0
                                         ? 'bg-error/20 text-error cursor-not-allowed'
                                         : 'bg-harvest-gold text-evergreen hover:scale-105 shadow-harvest-gold/20'
                                     }`}
@@ -157,7 +152,7 @@ export const ProductDetailsPage: React.FC = () => {
                                             <i className="ph-bold ph-check-circle mr-2"></i>
                                             Successfully Joined!
                                         </>
-                                    ) : spotsLeft <= 0 ? (
+                                    ) : product.spotsLeft <= 0 ? (
                                         'Group Full'
                                     ) : (
                                         'Join Group'
@@ -173,7 +168,7 @@ export const ProductDetailsPage: React.FC = () => {
                         <div className="bg-white rounded-xl p-md mt-lg border border-stone/10 shadow-sm">
                             <div className="flex justify-between items-center text-sm font-semibold mb-2">
                                 <span className="text-success">{filledSpots} of {totalSpots} spots filled!</span>
-                                <span className="text-stone">{daysLeft} days left</span>
+                                <span className="text-stone">{product.daysLeft} days left</span>
                             </div>
                             <div className="w-full bg-success-light rounded-full h-4">
                                 <div className="bg-success h-4 rounded-full transition-all duration-300" style={{width: `${progressPercent}%`}}></div>
@@ -193,11 +188,11 @@ export const ProductDetailsPage: React.FC = () => {
 
                         <div className="mt-lg space-y-md">
                             <div className="bg-white rounded-xl p-md border border-stone/10 shadow-sm flex items-center gap-md">
-                                <img width="80" height="80" className="w-20 h-20 rounded-full flex-shrink-0" src={product.farmer?.avatar || 'https://i.pravatar.cc/80?img=1'} alt="Farmer Avatar"/>
+                                <img width="80" height="80" className="w-20 h-20 rounded-full flex-shrink-0" src={product.farmer.avatar} alt="Farmer Avatar"/>
                                 <div>
                                     <p className="text-sm font-semibold text-stone">FROM</p>
-                                    <h4 className="text-2xl font-lora">{product.farmer?.name || 'Local Farmer'}</h4>
-                                    <Link to={`/farmer/${product.farmer_id || product.farmerId}`} className="text-md font-semibold text-evergreen hover:text-harvest-gold transition-colors flex items-center gap-1 group">
+                                    <h4 className="text-2xl font-lora">{product.farmer.name}</h4>
+                                    <Link to={`/farmer/${product.farmerId}`} className="text-md font-semibold text-evergreen hover:text-harvest-gold transition-colors flex items-center gap-1 group">
                                         <span>View Profile</span>
                                         <i className="ph-bold ph-arrow-right text-lg group-hover:translate-x-1 transition-transform"></i>
                                     </Link>

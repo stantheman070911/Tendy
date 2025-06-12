@@ -1,6 +1,7 @@
 // src/loaders/productLoader.ts
 import { LoaderFunctionArgs } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import { ProductWithFarmerSchema } from '../types';
 
 export const productLoader = async ({ params }: LoaderFunctionArgs) => {
   const { productId } = params;
@@ -10,11 +11,11 @@ export const productLoader = async ({ params }: LoaderFunctionArgs) => {
   }
 
   // Fetch product with farmer information
-  const { data: product, error } = await supabase
+  const { data: productData, error } = await supabase
     .from('products')
     .select(`
       *,
-      farmer:farmers(name, avatar)
+      farmer:farmers(name, image_url)
     `)
     .eq('id', productId)
     .single();
@@ -24,9 +25,16 @@ export const productLoader = async ({ params }: LoaderFunctionArgs) => {
     throw new Response('Failed to load product data.', { status: 500 });
   }
   
-  if (!product) {
+  if (!productData) {
     throw new Response('Product not found', { status: 404 });
   }
 
-  return { product };
+  // Parse and transform the data using Zod schema
+  try {
+    const product = ProductWithFarmerSchema.parse(productData);
+    return { product };
+  } catch (parseError) {
+    console.error('Data parsing error:', parseError);
+    throw new Response('Invalid data format received from database.', { status: 500 });
+  }
 };

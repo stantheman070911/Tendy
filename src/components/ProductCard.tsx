@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Product } from '../types';
+import type { Product, ProductWithFarmer } from '../types';
 
 interface ProductCardProps {
-  product: Product;
+  product: Product | ProductWithFarmer;
   isLoggedIn?: boolean;
 }
 
@@ -18,12 +18,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
     }
   };
 
-  // Handle both database field names and interface field names
-  const imageUrl = product.image_url || product.imageUrl;
-  const spotsLeft = product.spots_left || product.spotsLeft;
-  const daysLeft = product.days_left || product.daysLeft;
-  const originalPrice = product.originalPrice || product.original_price;
-
   return (
     <div 
       className="flex-shrink-0 w-[90vw] sm:w-[400px] group cursor-pointer"
@@ -35,7 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
             width="800"
             height="600"
             loading="lazy"
-            src={imageUrl}
+            src={product.imageUrl}
             alt={product.title}
             className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -65,7 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
         <div className="mt-auto pt-md">
           <div className="flex justify-between items-center text-sm font-semibold mb-1">
             <span className="text-success">{product.progress}% Funded</span>
-            <span className="text-stone">{daysLeft} days left</span>
+            <span className="text-stone">{product.daysLeft} days left</span>
           </div>
           <div className="w-full bg-success-light rounded-full h-2.5">
             <div
@@ -87,14 +81,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
               ))}
             </div>
             <span className="text-sm font-semibold text-charcoal/80">
-              {spotsLeft} spots left
+              {product.spotsLeft} spots left
             </span>
           </div>
           <div className="mt-md pt-md border-t border-stone/10">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-2xl font-bold text-evergreen">${product.price}</span>
-                <span className="text-sm line-through text-stone ml-2">${originalPrice}</span>
+                <span className="text-sm line-through text-stone ml-2">${product.originalPrice}</span>
               </div>
               <span className="text-sm font-semibold text-harvest-gold">
                 {isLoggedIn ? 'View Details →' : 'Sign In to View →'}
