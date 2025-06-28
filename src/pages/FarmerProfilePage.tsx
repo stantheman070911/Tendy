@@ -9,9 +9,38 @@ interface FarmerLoaderData {
   products: ProductWithFarmer[];
 }
 
+// SPECIFICATION FIX: Helper to get tier details for verification badge
+const getTierDetails = (tierName: string) => {
+  if (tierName?.includes('Landmark Farm')) {
+    return { 
+      icon: 'ph-trophy', 
+      color: 'bg-success text-white', 
+      label: 'Landmark Farm',
+      description: 'Premium verified farm with virtual tour'
+    };
+  }
+  if (tierName?.includes('Verified Harvest')) {
+    return { 
+      icon: 'ph-star', 
+      color: 'bg-harvest-gold text-evergreen', 
+      label: 'Verified Harvest',
+      description: 'Manually reviewed and rated farm'
+    };
+  }
+  return { 
+    icon: 'ph-check-circle', 
+    color: 'bg-info text-white', 
+    label: 'Tendy Sprout',
+    description: 'Business license verified'
+  };
+};
+
 export const FarmerProfilePage: React.FC = () => {
     const { farmer, products } = useLoaderData() as FarmerLoaderData;
     const { isLoggedIn } = useAuth();
+
+    // SPECIFICATION FIX: Get tier details for the verification badge
+    const tierDetails = getTierDetails(farmer.bio || '');
 
     return (
         <main>
@@ -31,8 +60,16 @@ export const FarmerProfilePage: React.FC = () => {
                             className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg bg-white mx-auto md:mx-0" 
                         />
                         <div className="md:ml-md mb-2 text-center md:text-left mt-md md:mt-0">
-                            <h1 className="text-3xl md:text-5xl font-lora font-bold text-evergreen">{farmer.farmName}</h1>
+                            <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+                                <h1 className="text-3xl md:text-5xl font-lora font-bold text-evergreen">{farmer.farmName}</h1>
+                                {/* SPECIFICATION FIX: Add the verification badge */}
+                                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${tierDetails.color}`}>
+                                    <i className={`${tierDetails.icon} text-lg`}></i>
+                                    <span>{tierDetails.label}</span>
+                                </div>
+                            </div>
                             <p className="text-lg md:text-xl font-semibold text-charcoal/80">with {farmer.name}</p>
+                            <p className="text-sm text-charcoal/60 mt-1">{tierDetails.description}</p>
                         </div>
                     </div>
                 </div>
@@ -69,6 +106,21 @@ export const FarmerProfilePage: React.FC = () => {
                                         <span>{practice}</span>
                                     </div>
                                 ))}
+                            </div>
+
+                            {/* SPECIFICATION FIX: Add verification status section */}
+                            <div className="pt-md border-t border-stone/20">
+                                <h4 className="font-semibold text-evergreen mb-2 flex items-center gap-2">
+                                    <i className="ph-bold ph-shield-check text-harvest-gold"></i>
+                                    Verification Status
+                                </h4>
+                                <div className={`p-3 rounded-lg ${tierDetails.color.replace('text-white', 'text-white').replace('text-evergreen', 'text-evergreen')} bg-opacity-10 border border-current border-opacity-20`}>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <i className={`${tierDetails.icon} text-lg`}></i>
+                                        <span className="font-semibold">{tierDetails.label}</span>
+                                    </div>
+                                    <p className="text-sm opacity-80">{tierDetails.description}</p>
+                                </div>
                             </div>
                         </div>
                     </aside>

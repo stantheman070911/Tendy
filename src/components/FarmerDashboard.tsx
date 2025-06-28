@@ -22,6 +22,119 @@ interface FarmerDashboardProps {
   farmer?: FarmerUser;
 }
 
+// SPECIFICATION FIX: Add verification status component
+const VerificationStatus: React.FC<{ farmer: FarmerUser }> = ({ farmer }) => {
+  const tiers = [
+    { 
+      name: 'Level 1: Tendy Sprout', 
+      icon: 'ph-check-circle', 
+      color: 'bg-info text-white', 
+      description: 'Automated business license check passed.',
+      requirements: ['Business License Verified']
+    },
+    { 
+      name: 'Level 2: Tendy Verified Harvest', 
+      icon: 'ph-star', 
+      color: 'bg-harvest-gold text-evergreen', 
+      description: 'Manual credential review and positive ratings required.',
+      requirements: ['Business License Verified', 'Manual Review Completed', 'Average Rating 4.0+']
+    },
+    { 
+      name: 'Level 3: Tendy Landmark Farm', 
+      icon: 'ph-trophy', 
+      color: 'bg-success text-white', 
+      description: 'Sustained high ratings and an optional virtual farm tour.',
+      requirements: ['Business License Verified', 'Manual Review Completed', 'Virtual Farm Tour', 'Average Rating 4.5+']
+    },
+  ];
+
+  const currentTierIndex = tiers.findIndex(t => farmer.verificationTier.includes(t.name.split(': ')[1]));
+  const currentTier = currentTierIndex >= 0 ? currentTierIndex : 0;
+
+  const getRequirementStatus = (requirement: string) => {
+    switch (requirement) {
+      case 'Business License Verified':
+        return farmer.businessLicenseVerified;
+      case 'Manual Review Completed':
+        return farmer.manualReviewCompleted || false;
+      case 'Virtual Farm Tour':
+        return farmer.virtualTourCompleted || false;
+      case 'Average Rating 4.0+':
+        return (farmer.averageRating || 0) >= 4.0;
+      case 'Average Rating 4.5+':
+        return (farmer.averageRating || 0) >= 4.5;
+      default:
+        return false;
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm mb-xl">
+      <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+        <i className="ph-bold ph-shield-check text-harvest-gold"></i>
+        Farm Verification Status
+      </h3>
+      
+      <div className="space-y-md">
+        {tiers.map((tier, index) => (
+          <div 
+            key={tier.name} 
+            className={`p-md rounded-lg border-2 transition-all ${
+              index <= currentTier 
+                ? 'border-harvest-gold/30 bg-harvest-gold/5' 
+                : 'border-stone/20 bg-stone/5'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <i className={`${tier.icon} text-2xl mt-1 ${
+                index <= currentTier ? 'text-harvest-gold' : 'text-stone'
+              }`}></i>
+              <div className="flex-grow">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className={`font-semibold ${
+                    index <= currentTier ? 'text-evergreen' : 'text-stone'
+                  }`}>
+                    {tier.name}
+                  </h4>
+                  {index === currentTier && (
+                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${tier.color}`}>
+                      Current Tier
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-charcoal/80 mb-3">{tier.description}</p>
+                
+                {/* Requirements */}
+                <div className="space-y-1">
+                  {tier.requirements.map((req) => (
+                    <div key={req} className="flex items-center gap-2 text-sm">
+                      <i className={`ph-bold ${
+                        getRequirementStatus(req) ? 'ph-check text-success' : 'ph-x text-error'
+                      }`}></i>
+                      <span className={getRequirementStatus(req) ? 'text-success' : 'text-charcoal/60'}>
+                        {req}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {currentTier < tiers.length - 1 && (
+          <div className="bg-info/10 rounded-lg p-md border border-info/20">
+            <p className="text-sm text-info font-semibold">
+              <i className="ph-bold ph-lightbulb mr-2"></i>
+              Keep up the great work and positive ratings to reach the next tier!
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
   const [products, setProducts] = useState<ProductWithFarmer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -240,6 +353,9 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
           </div>
         </div>
       </div>
+
+      {/* SPECIFICATION FIX: Add the new VerificationStatus component */}
+      <VerificationStatus farmer={farmer} />
 
       {/* Analytics Charts Section */}
       <div className="grid md:grid-cols-2 gap-lg mb-xl">
