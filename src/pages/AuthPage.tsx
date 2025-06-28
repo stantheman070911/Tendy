@@ -7,7 +7,6 @@ export const AuthPage: React.FC = () => {
   const { loginAsPlaceholder } = usePlaceholderAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleDemoLogin = (role: 'customer' | 'farmer' | 'host') => {
     try {
@@ -15,11 +14,11 @@ export const AuthPage: React.FC = () => {
       const user = loginAsPlaceholder(role);
       
       if (user) {
-        // Navigate to dashboard after successful login
-        navigate(from, { replace: true });
+        // Navigate to the homepage (/) after successful login
+        navigate('/', { replace: true });
       } else {
         console.error(`Could not log in as placeholder for role: ${role}`);
-        alert(`Setup Error: No placeholder user found for role "${role}".`);
+        alert(`Setup Error: No placeholder user found for role "${role}". Please check public/placeholder-users.json`);
       }
     } catch (error) {
       console.error('Demo login error:', error);

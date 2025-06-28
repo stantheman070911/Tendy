@@ -1,118 +1,25 @@
 [
   {
-    "userId": "user001",
-    "role": "Customer",
-    "name": "Alex Smith",
-    "email": "alex.smith@example.com",
-    "joinDate": "2024-08-15",
-    "avatar": "https://i.pravatar.cc/80?img=1"
+    "id": "user_001",
+    "name": "Alex Doe (Customer)",
+    "email": "alex.doe@example.com",
+    "role": "customer",
+    "isHost": false
   },
   {
-    "userId": "user002",
-    "role": "Customer",
-    "name": "Brenda Martinez",
-    "email": "brenda.m@example.com",
-    "joinDate": "2024-09-01",
-    "avatar": "https://i.pravatar.cc/80?img=2"
+    "id": "user_002",
+    "name": "Jordan Smith (Host)",
+    "email": "jordan.smith@example.com",
+    "role": "customer",
+    "isHost": true,
+    "verificationLevel": "Verified Host"
   },
   {
-    "userId": "host01",
-    "role": "Verified Host",
-    "name": "Charles Green",
-    "email": "charles.green@example.com",
-    "joinDate": "2024-07-20",
-    "verificationStatus": "Completed",
-    "groupsManaged": ["group01"],
-    "avatar": "https://i.pravatar.cc/80?img=10",
-    "successfulGroups": 15,
-    "totalMembersServed": 127,
-    "hostRating": 4.9
-  },
-  {
-    "userId": "host02",
-    "role": "Verified Host",
-    "name": "Diana Chen",
-    "email": "diana.chen@example.com",
-    "joinDate": "2024-06-15",
-    "verificationStatus": "Completed",
-    "groupsManaged": ["group02", "group03"],
-    "avatar": "https://i.pravatar.cc/80?img=15",
-    "successfulGroups": 23,
-    "totalMembersServed": 189,
-    "hostRating": 4.8
-  },
-  {
-    "userId": "host03",
-    "role": "Verified Host",
-    "name": "Marcus Johnson",
-    "email": "marcus.j@example.com",
-    "joinDate": "2024-05-10",
-    "verificationStatus": "Completed",
-    "groupsManaged": ["group04"],
-    "avatar": "https://i.pravatar.cc/80?img=20",
-    "successfulGroups": 31,
-    "totalMembersServed": 245,
-    "hostRating": 4.9
-  },
-  {
-    "userId": "host04",
-    "role": "Verified Host",
-    "name": "Sarah Williams",
-    "email": "sarah.w@example.com",
-    "joinDate": "2024-04-22",
-    "verificationStatus": "Completed",
-    "groupsManaged": ["group05", "group06"],
-    "avatar": "https://i.pravatar.cc/80?img=25",
-    "successfulGroups": 18,
-    "totalMembersServed": 156,
-    "hostRating": 4.7
-  },
-  {
-    "userId": "host05",
-    "role": "Verified Host",
-    "name": "Kevin Park",
-    "email": "kevin.park@example.com",
-    "joinDate": "2024-03-18",
-    "verificationStatus": "Completed",
-    "groupsManaged": ["group07"],
-    "avatar": "https://i.pravatar.cc/80?img=30",
-    "successfulGroups": 12,
-    "totalMembersServed": 98,
-    "hostRating": 4.6
-  },
-  {
-    "userId": "farmer01",
-    "role": "Farmer",
-    "farmName": "Sunrise Organics",
-    "name": "Diana Prince",
-    "verificationTier": "Level 1: Tendy Sprout",
-    "businessLicenseVerified": true,
-    "products": ["prod01", "prod02"],
-    "avatar": "https://i.pravatar.cc/80?img=3"
-  },
-  {
-    "userId": "farmer02",
-    "role": "Farmer",
-    "farmName": "Green Valley Produce",
-    "name": "Edward Kent",
-    "verificationTier": "Level 2: Tendy Verified Harvest",
-    "businessLicenseVerified": true,
-    "manualReviewCompleted": true,
-    "averageRating": 4.8,
-    "products": ["prod03", "prod04"],
-    "avatar": "https://i.pravatar.cc/80?img=5"
-  },
-  {
-    "userId": "farmer03",
-    "role": "Farmer",
-    "farmName": "Landmark Heritage Farm",
-    "name": "Fiona Glenanne",
-    "verificationTier": "Level 3: Tendy Landmark Farm",
-    "businessLicenseVerified": true,
-    "manualReviewCompleted": true,
-    "virtualTourCompleted": true,
-    "averageRating": 4.9,
-    "products": ["prod05", "prod06"],
-    "avatar": "https://i.pravatar.cc/80?img=9"
+    "id": "user_003",
+    "name": "Sunnyvale Farm (Farmer)",
+    "email": "contact@sunnyvalefarm.com",
+    "role": "farmer",
+    "isHost": false,
+    "verificationLevel": "Tendy Verified Harvest"
   }
 ]

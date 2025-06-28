@@ -6,31 +6,19 @@ const placeholderUsers = (usersData as any).default || usersData;
 
 // Define the User type - updated to match the JSON structure exactly
 interface User {
-  userId: string;
-  role: "Customer" | "Verified Host" | "Farmer";
+  id: string;
+  role: "customer" | "farmer";
   name: string;
   email: string;
-  joinDate: string;
-  avatar?: string;
-  farmName?: string;
-  verificationTier?: string;
-  successfulGroups?: number;
-  totalMembersServed?: number;
-  hostRating?: number;
-  verificationStatus?: string;
-  groupsManaged?: string[];
-  businessLicenseVerified?: boolean;
-  products?: string[];
-  manualReviewCompleted?: boolean;
-  averageRating?: number;
-  virtualTourCompleted?: boolean;
+  isHost?: boolean;
+  verificationLevel?: string;
 }
 
 // Define the shape of the context
 interface PlaceholderAuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  loginAsPlaceholder: (role: "customer" | "host" | "farmer") => void;
+  loginAsPlaceholder: (role: "customer" | "host" | "farmer") => User | null;
   logout: () => void;
 }
 
@@ -48,26 +36,27 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
   });
 
   // The new function for placeholder login
-  const loginAsPlaceholder = (role: "customer" | "host" | "farmer") => {
+  const loginAsPlaceholder = (role: "customer" | "host" | "farmer"): User | null => {
     console.log("🔍 Looking for user with role:", role);
     console.log("📋 Available users:", placeholderUsers);
     
     let userToLogin: User | undefined;
 
+    // This logic is now more robust to find the correct user type
     switch (role) {
       case "customer":
-        // Look for users with role "Customer" (capitalized)
+        // Finds the first user who is a customer but NOT a host.
         userToLogin = placeholderUsers.find(
-          (u: User) => u.role === "Customer"
+          (u: User) => u.role === "customer" && u.isHost !== true
         );
         break;
       case "host":
-        // Look for users with role "Verified Host"
-        userToLogin = placeholderUsers.find((u: User) => u.role === "Verified Host");
+        // The most reliable way to find the host is to look for `isHost: true`.
+        userToLogin = placeholderUsers.find((u: User) => u.isHost === true);
         break;
       case "farmer":
-        // Look for users with role "Farmer" (capitalized)
-        userToLogin = placeholderUsers.find((u: User) => u.role === "Farmer");
+        // This condition is usually correct.
+        userToLogin = placeholderUsers.find((u: User) => u.role === "farmer");
         break;
     }
 
@@ -78,9 +67,11 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
       // Persist the user session in localStorage
       localStorage.setItem("tendy_demo_user", JSON.stringify(userToLogin));
       console.log(`🎭 Demo login successful as ${role}:`, userToLogin.name);
+      return userToLogin;
     } else {
       console.error(`No placeholder user found for role: ${role}`);
-      console.error("Available users:", placeholderUsers.map((u: User) => ({ userId: u.userId, role: u.role, name: u.name })));
+      console.error("Available users:", placeholderUsers.map((u: User) => ({ id: u.id, role: u.role, name: u.name })));
+      return null;
     }
   };
 
