@@ -461,6 +461,65 @@
   .dispute-action-btn.secondary {
     @apply border border-stone/30 text-charcoal hover:bg-stone/10;
   }
+
+  /* Chart Container Styles */
+  .chart-container {
+    @apply bg-white rounded-xl p-lg border border-stone/10 shadow-sm;
+  }
+
+  .chart-body {
+    @apply flex justify-around items-end h-64 border-l-2 border-b-2 border-stone/30 pl-md relative;
+  }
+
+  .chart-bar-group {
+    @apply flex flex-col items-center h-full justify-end;
+  }
+
+  .chart-bar {
+    @apply w-12 rounded-t-md flex items-start justify-center relative transition-all duration-700 ease-out;
+    min-height: 4px; /* Ensure bars are visible even with small values */
+  }
+
+  .bar-label-top {
+    @apply absolute -top-6 text-xs font-bold text-charcoal whitespace-nowrap;
+  }
+
+  .bar-label-bottom {
+    @apply mt-2 text-sm text-stone font-medium;
+  }
+
+  /* Chart animations */
+  .chart-bar {
+    animation: growBar 1s ease-out;
+  }
+
+  @keyframes growBar {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--final-height);
+    }
+  }
+
+  /* Responsive chart adjustments */
+  @media (max-width: 640px) {
+    .chart-body {
+      @apply h-48;
+    }
+    
+    .chart-bar {
+      @apply w-8;
+    }
+    
+    .bar-label-top {
+      @apply text-xs;
+    }
+    
+    .bar-label-bottom {
+      @apply text-xs;
+    }
+  }
 }
 
 @layer utilities {

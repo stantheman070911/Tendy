@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { InteractiveProductCard } from './InteractiveProductCard';
+import { SimpleBarChart } from './SimpleBarChart';
 import { productService } from '../services/productService';
 import { useNotifications } from '../context/NotificationContext';
 import type { ProductWithFarmer } from '../types';
@@ -112,6 +113,33 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
     .filter(p => p.status === 'pending' || p.status === 'processed')
     .reduce((sum, payout) => sum + payout.amount, 0);
 
+  // Analytics data for charts
+  const monthlyEarningsData = [
+    { label: 'Jan', value: 1200 },
+    { label: 'Feb', value: 1800 },
+    { label: 'Mar', value: 1550 },
+    { label: 'Apr', value: 2100 },
+    { label: 'May', value: 2400 },
+    { label: 'Jun', value: 2850 },
+  ];
+
+  const productPerformanceData = [
+    { label: 'Tomatoes', value: 45 },
+    { label: 'Eggs', value: 38 },
+    { label: 'Honey', value: 22 },
+    { label: 'Bread', value: 31 },
+    { label: 'Apples', value: 28 },
+  ];
+
+  const customerSatisfactionData = [
+    { label: 'Jan', value: 4.2 },
+    { label: 'Feb', value: 4.5 },
+    { label: 'Mar', value: 4.3 },
+    { label: 'Apr', value: 4.7 },
+    { label: 'May', value: 4.8 },
+    { label: 'Jun', value: 4.9 },
+  ];
+
   const getVerificationBadgeColor = () => {
     if (farmer.verificationTier.includes('Level 3')) return 'bg-success text-white';
     if (farmer.verificationTier.includes('Level 2')) return 'bg-harvest-gold text-evergreen';
@@ -213,7 +241,33 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
         </div>
       </div>
 
-      {/* Farmer Payout Wallet - NEW */}
+      {/* Analytics Charts Section */}
+      <div className="grid md:grid-cols-2 gap-lg mb-xl">
+        <SimpleBarChart 
+          data={monthlyEarningsData} 
+          title="Monthly Earnings" 
+          valuePrefix="$"
+          color="#2E4034"
+        />
+        <SimpleBarChart 
+          data={productPerformanceData} 
+          title="Product Sales (Units)" 
+          valuePrefix=""
+          color="#EAAA00"
+        />
+      </div>
+
+      {/* Additional Analytics */}
+      <div className="mb-xl">
+        <SimpleBarChart 
+          data={customerSatisfactionData} 
+          title="Customer Satisfaction Rating" 
+          valuePrefix=""
+          color="#22c55e"
+        />
+      </div>
+
+      {/* Farmer Payout Wallet */}
       <div className="bg-gradient-to-r from-success/10 to-success/5 rounded-xl p-lg border border-success/20 mb-xl">
         <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
           <i className="ph-bold ph-wallet text-success"></i>
@@ -248,7 +302,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
         </div>
       </div>
 
-      {/* Payout History - NEW */}
+      {/* Payout History */}
       {payoutHistory.length > 0 && (
         <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm mb-xl">
           <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
@@ -374,7 +428,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
         )}
       </div>
 
-      {/* Payout Process Info - NEW */}
+      {/* Payout Process Info */}
       <div className="bg-success/5 rounded-xl p-lg border border-success/20 mb-xl">
         <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
           <i className="ph-bold ph-info text-success"></i>
