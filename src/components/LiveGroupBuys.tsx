@@ -15,18 +15,24 @@ export const LiveGroupBuys: React.FC<LiveGroupBuysProps> = ({ isLoggedIn = false
   const [isLoading, setIsLoading] = useState(true);
   const [searchState, setSearchState] = useState<'idle' | 'loading' | 'success'>('idle');
   const [zipCode, setZipCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch products from Supabase when the component mounts
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
+      setError(null);
       try {
+        console.log('Fetching products...');
         // Use the service to fetch products
         const fetchedProducts = await productService.getAllProducts(4); // Limit to 4 for homepage
+        console.log('Products fetched successfully:', fetchedProducts);
         setProducts(fetchedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
-        toast.error('Failed to load group buys');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load group buys';
+        setError(errorMessage);
+        toast.error(errorMessage);
         setProducts([]);
       } finally {
         setIsLoading(false);
@@ -111,6 +117,17 @@ export const LiveGroupBuys: React.FC<LiveGroupBuysProps> = ({ isLoggedIn = false
         </div>
       )}
 
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="mb-lg p-4 rounded-md bg-red-50 text-red-700 flex items-center gap-3">
+          <i className="ph-bold ph-warning-circle text-2xl"></i>
+          <div>
+            <span className="font-semibold">Unable to load group buys</span>
+            <p className="text-sm mt-1">{error}</p>
+          </div>
+        </div>
+      )}
+
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-xl">
@@ -122,7 +139,7 @@ export const LiveGroupBuys: React.FC<LiveGroupBuysProps> = ({ isLoggedIn = false
       )}
 
       {/* Product Cards */}
-      {!isLoading && (
+      {!isLoading && !error && (
         <>
           {products.length > 0 ? (
             <div className={`flex overflow-x-auto gap-lg md:gap-xl pb-md -mx-md px-md scroll-container transition-opacity duration-300 ${searchState === 'loading' ? 'opacity-50' : 'opacity-100'}`}>
