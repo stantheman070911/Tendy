@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { NotificationPanel } from './NotificationPanel';
 import { useAuth } from '../context/AuthContext';
 
 export const Layout: React.FC = () => {
@@ -48,6 +49,9 @@ export const Layout: React.FC = () => {
           },
         }}
       />
+      
+      {/* Notification Panel */}
+      <NotificationPanel />
     </div>
   );
 };
