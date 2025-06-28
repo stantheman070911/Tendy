@@ -1,0 +1,64 @@
+[
+  {
+    "productId": "prod01",
+    "type": "Standard Listing",
+    "farmerId": "farmer01",
+    "title": "Organic Gala Apples - 2kg Bag",
+    "description": "Crisp, sweet, and juicy Gala apples, freshly picked from Sunrise Organics. Perfect for snacking and baking.",
+    "price": 8.50,
+    "imageUrl": "https://images.unsplash.com/photo-1593280424033-4c969b854817?q=80&w=2940&auto=format&fit=crop",
+    "moq": 20
+  },
+  {
+    "productId": "prod02",
+    "type": "Standard Listing",
+    "farmerId": "farmer01",
+    "title": "Heirloom Tomatoes - 1kg",
+    "description": "A colorful mix of our best heirloom tomatoes. Incredible flavor that you won't find in a supermarket.",
+    "price": 6.00,
+    "imageUrl": "https://images.unsplash.com/photo-1588650364232-38997a78336b?q=80&w=2940&auto=format&fit=crop",
+    "moq": 30
+  },
+  {
+    "productId": "prod03",
+    "type": "Standard Listing",
+    "farmerId": "farmer02",
+    "title": "Free-Range Eggs - Dozen",
+    "description": "Farm fresh, large brown eggs from our happy, free-range chickens at Green Valley Produce.",
+    "price": 5.25,
+    "imageUrl": "https://images.unsplash.com/photo-1587486913049-52fc082a934b?q=80&w=2894&auto=format&fit=crop",
+    "moq": 40
+  },
+  {
+    "productId": "prod04",
+    "type": "Standard Listing",
+    "farmerId": "farmer02",
+    "title": "Sourdough Bread - Large Loaf",
+    "description": "Naturally leavened sourdough, baked fresh in our farm kitchen. Crusty on the outside, soft on the inside.",
+    "price": 7.00,
+    "imageUrl": "https://images.unsplash.com/photo-1533083328223-2396395d8523?q=80&w=2940&auto=format&fit=crop",
+    "moq": 15
+  },
+  {
+    "productId": "prod05",
+    "type": "Waste-Warrior Listing",
+    "farmerId": "farmer03",
+    "title": "Farmer's Surplus Selection - Medium Box",
+    "description": "Help us reduce food waste! This box contains a surprise mix of cosmetically imperfect but perfectly delicious and fresh produce from our harvest this week. Contents are variable but always high quality.",
+    "price": 15.00,
+    "estimatedWeight": "Approx. 5-7kg",
+    "imageUrl": "https://images.unsplash.com/photo-1598254505245-5ecd46d79a24?q=80&w=2940&auto=format&fit=crop",
+    "moq": 10,
+    "uiBadge": "Waste-Warrior"
+  },
+  {
+    "productId": "prod06",
+    "type": "Standard Listing",
+    "farmerId": "farmer03",
+    "title": "Raw Wildflower Honey - 500g Jar",
+    "description": "Pure, unfiltered honey from our heritage farm's beehives. Each jar captures the essence of our wildflower meadows.",
+    "price": 18.00,
+    "imageUrl": "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=800&auto=format&fit=crop",
+    "moq": 25
+  }
+]

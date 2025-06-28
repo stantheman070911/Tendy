@@ -1,0 +1,57 @@
+[
+  {
+    "userId": "user001",
+    "role": "Customer",
+    "name": "Alex Smith",
+    "email": "alex.smith@example.com",
+    "joinDate": "2024-08-15"
+  },
+  {
+    "userId": "user002",
+    "role": "Customer",
+    "name": "Brenda Martinez",
+    "email": "brenda.m@example.com",
+    "joinDate": "2024-09-01"
+  },
+  {
+    "userId": "host01",
+    "role": "Verified Host",
+    "name": "Charles Green",
+    "email": "charles.green@example.com",
+    "joinDate": "2024-07-20",
+    "verificationStatus": "Completed",
+    "groupsManaged": ["group01"]
+  },
+  {
+    "userId": "farmer01",
+    "role": "Farmer",
+    "farmName": "Sunrise Organics",
+    "name": "Diana Prince",
+    "verificationTier": "Level 1: Tendy Sprout",
+    "businessLicenseVerified": true,
+    "products": ["prod01", "prod02"]
+  },
+  {
+    "userId": "farmer02",
+    "role": "Farmer",
+    "farmName": "Green Valley Produce",
+    "name": "Edward Kent",
+    "verificationTier": "Level 2: Tendy Verified Harvest",
+    "businessLicenseVerified": true,
+    "manualReviewCompleted": true,
+    "averageRating": 4.8,
+    "products": ["prod03", "prod04"]
+  },
+  {
+    "userId": "farmer03",
+    "role": "Farmer",
+    "farmName": "Landmark Heritage Farm",
+    "name": "Fiona Glenanne",
+    "verificationTier": "Level 3: Tendy Landmark Farm",
+    "businessLicenseVerified": true,
+    "manualReviewCompleted": true,
+    "virtualTourCompleted": true,
+    "averageRating": 4.9,
+    "products": ["prod05", "prod06"]
+  }
+]
