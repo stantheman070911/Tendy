@@ -6,6 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { DashboardProvider } from './context/DashboardContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
+import { GroupManagementProvider } from './context/GroupManagementContext';
+import { DisputeProvider } from './context/DisputeContext';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -13,9 +15,13 @@ createRoot(document.getElementById('root')!).render(
     <NotificationProvider>
       <DashboardProvider>
         <SubscriptionProvider>
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
+          <GroupManagementProvider>
+            <DisputeProvider>
+              <AuthProvider>
+                <RouterProvider router={router} />
+              </AuthProvider>
+            </DisputeProvider>
+          </GroupManagementProvider>
         </SubscriptionProvider>
       </DashboardProvider>
     </NotificationProvider>
