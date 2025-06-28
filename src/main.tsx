@@ -8,22 +8,25 @@ import { DashboardProvider } from './context/DashboardContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import { GroupManagementProvider } from './context/GroupManagementContext';
 import { DisputeProvider } from './context/DisputeContext';
+import { PlaceholderAuthProvider } from './context/PlaceholderAuthContext';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <NotificationProvider>
-      <DashboardProvider>
-        <SubscriptionProvider>
-          <GroupManagementProvider>
-            <DisputeProvider>
-              <AuthProvider>
-                <RouterProvider router={router} />
-              </AuthProvider>
-            </DisputeProvider>
-          </GroupManagementProvider>
-        </SubscriptionProvider>
-      </DashboardProvider>
-    </NotificationProvider>
+    <PlaceholderAuthProvider>
+      <NotificationProvider>
+        <DashboardProvider>
+          <SubscriptionProvider>
+            <GroupManagementProvider>
+              <DisputeProvider>
+                <AuthProvider>
+                  <RouterProvider router={router} />
+                </AuthProvider>
+              </DisputeProvider>
+            </GroupManagementProvider>
+          </SubscriptionProvider>
+        </DashboardProvider>
+      </NotificationProvider>
+    </PlaceholderAuthProvider>
   </StrictMode>
 );
