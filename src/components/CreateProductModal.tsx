@@ -27,6 +27,12 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const { addNotification } = useNotifications();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // SPECIFICATION FIX: Check farmer verification tier for Waste-Warrior eligibility
+  const isEligibleForWasteWarrior = user?.role === 'farmer' && (
+    user?.verificationTier?.includes('Verified Harvest') || 
+    user?.verificationTier?.includes('Landmark Farm')
+  );
+  
   // State for the Waste-Warrior toggle
   const [isWasteWarrior, setIsWasteWarrior] = useState(false);
   
@@ -157,33 +163,53 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-md">
-            {/* Waste-Warrior Toggle */}
-            <div className="bg-parchment rounded-lg p-md border border-stone/20">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="wasteWarriorCheck"
-                  checked={isWasteWarrior}
-                  onChange={(e) => setIsWasteWarrior(e.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-stone/50 text-harvest-gold focus:ring-harvest-gold"
-                />
-                <div className="flex-grow">
-                  <label htmlFor="wasteWarriorCheck" className="font-semibold text-evergreen cursor-pointer">
-                    🌱 This is a "Waste-Warrior" Surplus Listing
-                  </label>
-                  <p className="text-sm text-charcoal/80 mt-1">
-                    Help reduce food waste! Contents will be variable based on the week's surplus but always meet high quality standards.
-                  </p>
-                  {isWasteWarrior && (
-                    <div className="mt-2 p-2 bg-harvest-gold/10 rounded border border-harvest-gold/30">
-                      <p className="text-xs text-harvest-gold font-semibold">
-                        ✓ Waste-Warrior listings help reduce food waste while providing customers with high-quality produce at reduced prices.
-                      </p>
+            {/* SPECIFICATION FIX: Waste-Warrior Toggle with Eligibility Check */}
+            {user?.role === 'farmer' && (
+              <div className="bg-parchment rounded-lg p-md border border-stone/20">
+                <div className="flex items-start gap-3">
+                  {isEligibleForWasteWarrior ? (
+                    <>
+                      <input
+                        type="checkbox"
+                        id="wasteWarriorCheck"
+                        checked={isWasteWarrior}
+                        onChange={(e) => setIsWasteWarrior(e.target.checked)}
+                        className="mt-1 h-5 w-5 rounded border-stone/50 text-harvest-gold focus:ring-harvest-gold"
+                      />
+                      <div className="flex-grow">
+                        <label htmlFor="wasteWarriorCheck" className="font-semibold text-evergreen cursor-pointer flex items-center gap-2">
+                          <i className="ph-bold ph-leaf text-success"></i>
+                          This is a "Waste-Warrior" Surplus Listing
+                        </label>
+                        <p className="text-sm text-charcoal/80 mt-1">
+                          Help reduce food waste! Contents will be variable based on the week's surplus but always meet high quality standards.
+                        </p>
+                        {isWasteWarrior && (
+                          <div className="mt-2 p-2 bg-harvest-gold/10 rounded border border-harvest-gold/30">
+                            <p className="text-xs text-harvest-gold font-semibold">
+                              ✓ Waste-Warrior listings help reduce food waste while providing customers with high-quality produce at reduced prices.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-start gap-3">
+                      <i className="ph-bold ph-lock text-stone text-xl mt-1"></i>
+                      <div>
+                        <h4 className="font-semibold text-stone">Waste-Warrior Listings</h4>
+                        <p className="text-sm text-stone/80">
+                          Reach 'Tendy Verified Harvest' status to create Waste-Warrior listings and help reduce food waste!
+                        </p>
+                        <div className="mt-2 text-xs text-info">
+                          Current tier: {user?.verificationTier || 'Tendy Sprout'}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
+            )}
 
             <div>
               <label htmlFor="title" className="block font-semibold text-charcoal mb-2">
