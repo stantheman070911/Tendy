@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { CreateGroupButtons } from '../../components/CreateGroupButtons';
+import { CustomerGroupView } from '../../components/CustomerGroupView';
 import { HostLeaderboard } from '../../components/HostLeaderboard';
 import type { SupporterSection } from '../../types';
 
@@ -30,6 +31,12 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
         
         {/* Create Group Buttons - Role-based permissions */}
         <CreateGroupButtons />
+        
+        {/* Customer Group Management */}
+        <div className="mt-lg">
+          <h3 className="text-xl font-semibold mb-md">Your Group Activity</h3>
+          <CustomerGroupView />
+        </div>
         
         <div className="mt-lg">
           <h3 className="text-xl font-semibold mb-md">Groups You've Joined</h3>

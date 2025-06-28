@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { CreateProductModal } from '../../components/CreateProductModal';
+import { HostTimeChangeModal } from '../../components/HostTimeChangeModal';
 import { useNotifications } from '../../context/NotificationContext';
+import { useGroupManagement } from '../../context/GroupManagementContext';
 import type { HostSection, ProductWithFarmer } from '../../types';
 
 interface HostViewProps {
@@ -11,7 +13,9 @@ interface HostViewProps {
 export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
+  const { groupData } = useGroupManagement();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isTimeChangeModalOpen, setIsTimeChangeModalOpen] = useState(false);
   const [createdGroups, setCreatedGroups] = useState<ProductWithFarmer[]>([]);
   const [boostingGroupId, setBoostingGroupId] = useState<number | null>(null);
 
@@ -131,14 +135,65 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
       <section className={activeSection === 'manage-groups' ? '' : 'hidden'}>
         <div className="flex flex-wrap justify-between items-center gap-md mb-md">
           <h2 className="text-3xl font-lora">Manage Groups</h2>
-          <button 
-            onClick={() => setIsCreateModalOpen(true)}
-            className="h-12 px-6 flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg rounded-lg hover:scale-105 transition-transform"
-          >
-            <i className="ph-bold ph-plus-circle mr-2"></i> 
-            Create New Public Group
-          </button>
+          <div className="flex gap-sm">
+            <button 
+              onClick={() => setIsTimeChangeModalOpen(true)}
+              className="h-12 px-6 flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg rounded-lg hover:scale-105 transition-transform"
+            >
+              <i className="ph-bold ph-clock mr-2"></i> 
+              Propose Time Change
+            </button>
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="h-12 px-6 flex items-center justify-center bg-evergreen text-parchment font-bold text-lg rounded-lg hover:scale-105 transition-transform"
+            >
+              <i className="ph-bold ph-plus-circle mr-2"></i> 
+              Create New Group
+            </button>
+          </div>
         </div>
+
+        {/* Time Change Status */}
+        {groupData?.proposedTime && (
+          <div className="bg-gradient-to-r from-harvest-gold/10 to-harvest-gold/5 rounded-xl p-lg border-2 border-harvest-gold/30 mb-lg">
+            <div className="flex items-center gap-3 mb-md">
+              <i className="ph-bold ph-clock text-harvest-gold text-3xl"></i>
+              <div>
+                <h3 className="text-xl font-bold text-evergreen">Active Time Change Proposal</h3>
+                <p className="text-charcoal/80">Waiting for member responses</p>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-md">
+              <div>
+                <p className="text-sm font-semibold text-charcoal/80">Current Time:</p>
+                <p className="text-lg font-bold text-charcoal">{groupData.pickupTime}</p>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-charcoal/80">Proposed Time:</p>
+                <p className="text-lg font-bold text-evergreen">{groupData.proposedTime}</p>
+              </div>
+            </div>
+
+            {/* Response Summary */}
+            {groupData.memberResponses && Object.keys(groupData.memberResponses).length > 0 && (
+              <div className="mt-md pt-md border-t border-harvest-gold/20">
+                <p className="text-sm font-semibold text-charcoal/80 mb-2">Member Responses:</p>
+                <div className="flex gap-md">
+                  <span className="text-success font-semibold">
+                    ✓ {Object.values(groupData.memberResponses).filter(r => r === 'accept').length} Accepted
+                  </span>
+                  <span className="text-error font-semibold">
+                    ✗ {Object.values(groupData.memberResponses).filter(r => r === 'decline').length} Declined
+                  </span>
+                  <span className="text-stone font-semibold">
+                    ⏳ {(groupData.totalMembers || 8) - Object.keys(groupData.memberResponses).length} Pending
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Host-Created Groups */}
         {createdGroups.length > 0 && (
@@ -170,6 +225,13 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 w-full sm:w-auto">
+                      <button 
+                        onClick={() => setIsTimeChangeModalOpen(true)}
+                        className="h-10 px-4 bg-harvest-gold text-evergreen font-semibold rounded-lg hover:scale-105 transition-transform"
+                      >
+                        <i className="ph-bold ph-clock mr-1"></i>
+                        Change Time
+                      </button>
                       <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
                         Manage
                       </button>
@@ -229,6 +291,13 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 w-full sm:w-auto">
+                  <button 
+                    onClick={() => setIsTimeChangeModalOpen(true)}
+                    className="h-10 px-4 bg-harvest-gold text-evergreen font-semibold rounded-lg hover:scale-105 transition-transform"
+                  >
+                    <i className="ph-bold ph-clock mr-1"></i>
+                    Change Time
+                  </button>
                   <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
                     Manage
                   </button>
@@ -262,51 +331,29 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
           ))}
         </div>
 
-        {/* Host Group Creation Benefits */}
+        {/* Time Change Management Info */}
         <div className="mt-xl bg-harvest-gold/10 rounded-xl p-lg border border-harvest-gold/20">
           <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
-            <i className="ph-bold ph-star text-harvest-gold"></i>
-            Benefits of Creating Public Groups
+            <i className="ph-bold ph-clock text-harvest-gold"></i>
+            Time Change Management
           </h3>
           <div className="grid md:grid-cols-2 gap-md text-sm text-charcoal/90">
             <div>
-              <h4 className="font-semibold mb-2">🎯 Curate Your Community</h4>
-              <p>Choose products that match your neighborhood's preferences and dietary needs.</p>
+              <h4 className="font-semibold mb-2">📅 Flexible Scheduling</h4>
+              <p>Propose new pickup times when your schedule changes or weather affects original plans.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">💰 Higher Host Rewards</h4>
-              <p>Earn 3% (instead of 2%) on groups you create, plus standard hosting fees.</p>
+              <h4 className="font-semibold mb-2">👥 Member Consensus</h4>
+              <p>All group members are notified instantly and can accept or decline the proposed change.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">📈 Build Your Reputation</h4>
-              <p>Successful groups increase your host rating and unlock premium features.</p>
+              <h4 className="font-semibold mb-2">⚡ Real-time Updates</h4>
+              <p>See member responses in real-time and finalize changes when you have enough agreement.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">🤝 Strengthen Connections</h4>
-              <p>Become the go-to person for fresh, local food in your neighborhood.</p>
+              <h4 className="font-semibold mb-2">🔄 Easy Reversal</h4>
+              <p>Cancel proposals anytime before finalizing if circumstances change again.</p>
             </div>
-          </div>
-        </div>
-
-        {/* Community Boost Info */}
-        <div className="mt-lg bg-harvest-gold/10 rounded-xl p-lg border border-harvest-gold/20">
-          <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
-            <i className="ph-bold ph-megaphone text-harvest-gold"></i>
-            About Community Boost
-          </h3>
-          <div className="space-y-sm text-charcoal/90">
-            <p>
-              <strong>Community Boost</strong> helps you fill your group buys by notifying neighbors in your area who might be interested.
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Sends notifications to users in your zip code</li>
-              <li>Includes details about the product and farmer</li>
-              <li>Helps build local food community connections</li>
-              <li>Only available to verified hosts</li>
-            </ul>
-            <p className="text-sm text-charcoal/70 mt-md">
-              <strong>Note:</strong> Use responsibly. Boost notifications are limited to prevent spam.
-            </p>
           </div>
         </div>
       </section>
@@ -439,6 +486,13 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
         title="Create New Public Group"
         submitButtonText="Publish Group"
         isHostCreated={true}
+      />
+
+      {/* Time Change Modal */}
+      <HostTimeChangeModal
+        isOpen={isTimeChangeModalOpen}
+        onClose={() => setIsTimeChangeModalOpen(false)}
+        hostId={user?.id || 'host01'}
       />
     </div>
   );

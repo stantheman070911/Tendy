@@ -287,6 +287,37 @@
       transform: translateX(0);
     }
   }
+
+  /* Time Change Notification Styles */
+  .time-change-notification {
+    @apply bg-gradient-to-r from-harvest-gold/10 to-harvest-gold/5 border-2 border-harvest-gold/30 rounded-xl;
+  }
+
+  .time-change-notification.active {
+    animation: pulseGlow 2s infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(234, 170, 0, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(234, 170, 0, 0.6);
+    }
+  }
+
+  /* Response status indicators */
+  .response-accepted {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+
+  .response-declined {
+    @apply bg-error/20 text-error border border-error/30;
+  }
+
+  .response-pending {
+    @apply bg-stone/20 text-stone border border-stone/30;
+  }
 }
 
 @layer utilities {
