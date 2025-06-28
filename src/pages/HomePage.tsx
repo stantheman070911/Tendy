@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Hero } from '../components/Hero';
 import { CommunityStats } from '../components/CommunityStats';
 import { LiveGroupBuys } from '../components/LiveGroupBuys';
@@ -14,6 +15,21 @@ export const HomePage: React.FC = () => {
 
   return (
     <main>
+      {/* Demo Banner */}
+      <div className="bg-harvest-gold text-evergreen py-3">
+        <div className="container mx-auto max-w-screen-xl px-md md:px-lg text-center">
+          <p className="font-semibold">
+            🎯 <strong>Hackathon Demo:</strong> Experience the complete platform with interactive features! 
+            <Link 
+              to="/demo" 
+              className="ml-2 underline hover:no-underline font-bold"
+            >
+              Try Interactive Demo →
+            </Link>
+          </p>
+        </div>
+      </div>
+
       <div className="container mx-auto max-w-screen-xl px-md md:px-lg">
         <Hero />
       </div>
