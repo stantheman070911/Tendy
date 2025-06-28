@@ -132,6 +132,42 @@
   .demo-progress-bar {
     @apply progress-bar-animated;
   }
+
+  /* Create Group Form Styles */
+  .create-group-form {
+    @apply bg-white rounded-xl border border-stone/10 shadow-sm;
+  }
+
+  .form-group {
+    @apply flex flex-direction-column;
+  }
+
+  .form-group label {
+    @apply mb-2 font-bold text-evergreen;
+  }
+
+  .form-group select,
+  .form-group input {
+    @apply h-12 px-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold;
+  }
+
+  /* Private Group Badge */
+  .private-group-badge {
+    @apply bg-evergreen text-parchment px-3 py-1 rounded-full text-sm font-bold;
+  }
+
+  /* Enhanced form styling */
+  .enhanced-form {
+    @apply space-y-md;
+  }
+
+  .enhanced-form .form-section {
+    @apply bg-parchment rounded-lg p-md;
+  }
+
+  .enhanced-form .form-preview {
+    @apply bg-white rounded-lg p-md border border-stone/20;
+  }
 }
 
 @layer utilities {

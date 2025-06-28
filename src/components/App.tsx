@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ProductList } from './ProductList';
+import { CustomerDashboard } from './CustomerDashboard';
 import { FarmerDashboard } from './FarmerDashboard';
 import { HostDashboard } from './HostDashboard';
 import { useAuth } from '../context/AuthContext';
@@ -87,11 +87,7 @@ export const DemoApp: React.FC = () => {
         return <HostDashboard host={hostUser} />;
       case 'customer':
       default:
-        return (
-          <div className="container mx-auto max-w-screen-xl px-md md:px-lg">
-            <ProductList isLoggedIn={isLoggedIn} />
-          </div>
-        );
+        return <CustomerDashboard />;
     }
   };
 
@@ -103,7 +99,7 @@ export const DemoApp: React.FC = () => {
         return 'Host group buys in your neighborhood and earn rewards';
       case 'customer':
       default:
-        return 'Discover fresh, local produce through community group buying';
+        return 'Discover fresh, local produce and create private groups with friends';
     }
   };
 
@@ -183,7 +179,7 @@ export const DemoApp: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-3xl font-lora text-evergreen">
-                  {activeView === 'customer' ? 'Customer View' : 
+                  {activeView === 'customer' ? 'Customer Dashboard' : 
                    activeView === 'farmer' ? `${farmerUser?.farmName}` : 
                    `Host Dashboard`}
                 </h2>
@@ -218,8 +214,8 @@ export const DemoApp: React.FC = () => {
               <div className="bg-evergreen/50 rounded-lg p-md">
                 <h4 className="font-bold mb-2 text-harvest-gold">👥 Customer Experience</h4>
                 <ul className="space-y-1 text-left">
-                  <li>• Browse live group buys</li>
-                  <li>• Join groups and see real-time updates</li>
+                  <li>• Create private groups with friends</li>
+                  <li>• Join public group buys</li>
                   <li>• Experience payment authorization flow</li>
                   <li>• See community member participation</li>
                 </ul>
