@@ -6,7 +6,7 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { LoadingFallback } from './components/LoadingFallback';
 import { ScrollToTop } from './components/ScrollToTop';
 import ErrorBoundary from './components/ErrorBoundary';
-import { DemoApp } from './components/DemoApp';
+import { DemoApp } from './components/App';
 import { productLoader } from './loaders/productLoader';
 import { farmerLoader } from './loaders/farmerLoader';
 
