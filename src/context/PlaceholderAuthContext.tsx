@@ -6,13 +6,12 @@ const placeholderUsers = (usersData as any).default || usersData;
 
 // Define the User type - updated to match the JSON structure exactly
 interface User {
-  id: string;
-  role: "customer" | "host" | "farmer";
+  userId: string;
+  role: "Customer" | "Verified Host" | "Farmer";
   name: string;
   email: string;
   joinDate: string;
   avatar?: string;
-  isHost?: boolean;
   farmName?: string;
   verificationTier?: string;
   successfulGroups?: number;
@@ -22,9 +21,9 @@ interface User {
   groupsManaged?: string[];
   businessLicenseVerified?: boolean;
   products?: string[];
-  // Additional properties that might be in the JSON
-  zipCode?: string;
-  verificationLevel?: string;
+  manualReviewCompleted?: boolean;
+  averageRating?: number;
+  virtualTourCompleted?: boolean;
 }
 
 // Define the shape of the context
@@ -57,15 +56,18 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
 
     switch (role) {
       case "customer":
+        // Look for users with role "Customer" (capitalized)
         userToLogin = placeholderUsers.find(
-          (u: User) => u.role === "customer" && !u.isHost
+          (u: User) => u.role === "Customer"
         );
         break;
       case "host":
-        userToLogin = placeholderUsers.find((u: User) => u.role === "host" || u.isHost === true);
+        // Look for users with role "Verified Host"
+        userToLogin = placeholderUsers.find((u: User) => u.role === "Verified Host");
         break;
       case "farmer":
-        userToLogin = placeholderUsers.find((u: User) => u.role === "farmer");
+        // Look for users with role "Farmer" (capitalized)
+        userToLogin = placeholderUsers.find((u: User) => u.role === "Farmer");
         break;
     }
 
@@ -78,7 +80,7 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
       console.log(`🎭 Demo login successful as ${role}:`, userToLogin.name);
     } else {
       console.error(`No placeholder user found for role: ${role}`);
-      console.error("Available users:", placeholderUsers.map((u: User) => ({ id: u.id, role: u.role, name: u.name })));
+      console.error("Available users:", placeholderUsers.map((u: User) => ({ userId: u.userId, role: u.role, name: u.name })));
     }
   };
 
