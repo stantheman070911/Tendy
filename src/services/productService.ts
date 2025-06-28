@@ -14,7 +14,7 @@ export interface CreateProductData {
   daysActive: number;
 }
 
-// --- MOCK DATA (Corrected and Standardized) ---
+// --- MOCK DATA (Corrected with Gallery) ---
 const mockProducts: ProductWithFarmer[] = [
   {
     id: '1',
@@ -25,6 +25,7 @@ const mockProducts: ProductWithFarmer[] = [
     spots_total: 20,
     spots_left: 8,
     image_url: 'https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg',
+    gallery: ['https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg'],
     farmer_id: 'farmer-1',
     created_at: new Date().toISOString(),
     end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -52,6 +53,7 @@ const mockProducts: ProductWithFarmer[] = [
     spots_total: 15,
     spots_left: 3,
     image_url: 'https://images.pexels.com/photos/209206/pexels-photo-209206.jpeg',
+    gallery: ['https://images.pexels.com/photos/209206/pexels-photo-209206.jpeg'],
     farmer_id: 'farmer-2',
     created_at: new Date().toISOString(),
     end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
@@ -79,6 +81,7 @@ const mockProducts: ProductWithFarmer[] = [
     spots_total: 30,
     spots_left: 15,
     image_url: 'https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg',
+    gallery: ['https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg'],
     farmer_id: 'farmer-1',
     created_at: new Date().toISOString(),
     end_date: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString(),
@@ -106,6 +109,7 @@ const mockProducts: ProductWithFarmer[] = [
     spots_total: 25,
     spots_left: 0,
     image_url: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg',
+    gallery: ['https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg'],
     farmer_id: 'farmer-2',
     created_at: new Date().toISOString(),
     end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
