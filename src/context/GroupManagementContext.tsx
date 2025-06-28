@@ -17,6 +17,9 @@ interface GroupManagementContextType {
   respondToTimeChange: (memberId: string, response: 'accept' | 'decline') => void;
   finalizeTimeChange: () => void;
   cancelTimeChange: () => void;
+  // SPECIFICATION FIX: Add new edge case functions
+  handleFullGroup: () => void;
+  cancelGroup: (productId: string) => void;
 }
 
 const GroupManagementContext = createContext<GroupManagementContextType | undefined>(undefined);
@@ -96,13 +99,50 @@ export const GroupManagementProvider = ({ children }: { children: ReactNode }) =
     });
   };
 
+  // SPECIFICATION FIX: Add function to handle race condition for a full group
+  const handleFullGroup = () => {
+    console.log('🏃‍♂️ RACE CONDITION: Simulating group that just filled up');
+    
+    // In a real app, this would be triggered by a failed API call
+    // For demo purposes, we'll show what happens when someone tries to join a full group
+    
+    // This would typically be called from a failed join attempt
+    return {
+      success: false,
+      message: "Sorry, the last spot was just taken by another user. Please check back for new groups soon!",
+      errorType: 'RACE_CONDITION_FULL_GROUP'
+    };
+  };
+
+  // SPECIFICATION FIX: Add function for farmer-initiated cancellation
+  const cancelGroup = (productId: string) => {
+    console.log(`🚨 CRITICAL ACTION: Farmer has canceled group buy for product ${productId}`);
+    console.log(`💰 TRANSACTION: Processing full refunds for all participants`);
+    console.log(`📧 NOTIFICATIONS: Sending cancellation emails to all group members`);
+    
+    // In a real app, this would:
+    // 1. Update the product/group status to "Canceled"
+    // 2. Process refunds for all authorized payments
+    // 3. Send notifications to all group members
+    // 4. Update the farmer's cancellation history
+    
+    return {
+      success: true,
+      message: "Group buy has been canceled. All card authorizations have been released and refunds are being processed.",
+      refundsProcessed: true,
+      notificationsSent: true
+    };
+  };
+
   return (
     <GroupManagementContext.Provider value={{ 
       groupData, 
       proposeTimeChange, 
       respondToTimeChange, 
       finalizeTimeChange,
-      cancelTimeChange 
+      cancelTimeChange,
+      handleFullGroup,
+      cancelGroup
     }}>
       {children}
     </GroupManagementContext.Provider>

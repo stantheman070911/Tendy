@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext';
+import { useGroupManagement } from '../context/GroupManagementContext';
 import { CheckoutModal } from './CheckoutModal';
 import type { ProductWithFarmer } from '../types';
 
@@ -15,6 +16,8 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
+  // SPECIFICATION FIX: Get edge case functions from context
+  const { handleFullGroup, cancelGroup } = useGroupManagement();
   
   // Local state for interactive demo
   const [currentPledges, setCurrentPledges] = useState(product.spotsTotal - product.spotsLeft);
@@ -22,7 +25,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   const [transactionState, setTransactionState] = useState<'idle' | 'authorizing' | 'authorized' | 'charged' | 'refunded' | 'failed'>('idle');
   const [hasJoined, setHasJoined] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-  const [isSoldOut, setIsSoldOut] = useState(false); // NEW: Race condition state
+  const [isSoldOut, setIsSoldOut] = useState(false);
 
   const moq = product.spotsTotal;
   const progress = status === 'canceled' ? 0 : (currentPledges / moq) * 100;
@@ -95,7 +98,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     }
   };
 
-  // NEW: Race condition simulation function
+  // SPECIFICATION FIX: Connect race condition demo to context function
   const handleRaceConditionDemo = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click navigation
     
@@ -106,6 +109,9 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     try {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Use the context function to handle the race condition
+      const result = handleFullGroup();
       
       // Fill the group to capacity
       setCurrentPledges(moq);
@@ -127,7 +133,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     }
   };
 
-  // Function to simulate farmer canceling the listing
+  // SPECIFICATION FIX: Connect farmer cancellation demo to context function
   const handleCancelListing = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click navigation
     
@@ -138,6 +144,9 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     try {
       // Simulate processing delay
       await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Use the context function to handle the cancellation
+      const result = cancelGroup(product.id);
       
       console.log(`🚨 CRITICAL ACTION: Farmer has canceled listing for ${product.title}.`);
       console.log(`💰 TRANSACTION: Processing full refunds for all ${currentPledges} backers.`);
@@ -367,7 +376,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
                 )}
               </button>
 
-              {/* Demo Buttons */}
+              {/* SPECIFICATION FIX: Demo Buttons for Edge Cases */}
               <div className="space-y-1">
                 {/* Race Condition Demo Button */}
                 {status !== 'canceled' && !isSoldOut && spotsLeft > 0 && (
