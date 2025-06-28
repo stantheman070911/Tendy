@@ -6,7 +6,7 @@ const placeholderUsers = (usersData as any).default || usersData;
 
 // Define the User type
 interface User {
-  userId: string;
+  id: string;
   role: "customer" | "host" | "farmer";
   name: string;
   email: string;
