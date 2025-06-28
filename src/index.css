@@ -520,6 +520,96 @@
       @apply text-xs;
     }
   }
+
+  /* Private Group Invitation Styles */
+  .invite-link-container {
+    @apply flex gap-2;
+  }
+
+  .invite-link-container input {
+    @apply flex-grow h-12 px-4 bg-parchment rounded-md border border-stone/30 text-charcoal font-mono text-sm;
+  }
+
+  .invite-link-container button {
+    @apply h-12 px-6 font-bold rounded-md transition-all;
+  }
+
+  .invite-method-selector {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-md;
+  }
+
+  .invite-method-option {
+    @apply p-md rounded-lg border-2 transition-all cursor-pointer;
+  }
+
+  .invite-method-option.selected {
+    @apply border-evergreen bg-evergreen/5;
+  }
+
+  .invite-method-option:not(.selected) {
+    @apply border-stone/30 hover:border-evergreen/50;
+  }
+
+  .invite-method-icon {
+    @apply text-3xl mb-2 text-harvest-gold;
+  }
+
+  /* Quick share buttons */
+  .quick-share-buttons {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .quick-share-button {
+    @apply h-10 px-4 font-semibold rounded-lg transition-opacity;
+  }
+
+  .quick-share-button:hover {
+    @apply opacity-90;
+  }
+
+  /* Private group card styles */
+  .private-group-card {
+    @apply bg-white rounded-xl border-2 border-evergreen/30 shadow-sm relative;
+  }
+
+  .private-group-badge {
+    @apply absolute top-4 right-4 bg-evergreen text-parchment px-3 py-1 rounded-full text-sm font-bold;
+  }
+
+  .private-group-progress {
+    @apply w-full bg-stone/20 rounded-full h-3 transition-all duration-500;
+  }
+
+  .private-group-progress-bar {
+    @apply h-3 rounded-full transition-all duration-500;
+  }
+
+  /* Member placeholder styles */
+  .member-placeholder {
+    @apply w-10 h-10 rounded-full border-2 border-dashed border-stone/50 flex items-center justify-center;
+  }
+
+  .member-placeholder-icon {
+    @apply text-stone/50;
+  }
+
+  /* Invitation success states */
+  .invitation-success {
+    @apply bg-success/10 border border-success/20 rounded-lg;
+  }
+
+  .invitation-warning {
+    @apply bg-harvest-gold/10 border border-harvest-gold/20 rounded-lg;
+  }
+
+  /* Copy button states */
+  .copy-button-success {
+    @apply bg-success text-white;
+  }
+
+  .copy-button-default {
+    @apply bg-harvest-gold text-evergreen hover:scale-105;
+  }
 }
 
 @layer utilities {
