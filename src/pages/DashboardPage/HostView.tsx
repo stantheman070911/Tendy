@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { CreateProductModal } from '../../components/CreateProductModal';
 import { HostTimeChangeModal } from '../../components/HostTimeChangeModal';
 import { DisputeManagementView } from '../../components/DisputeManagementView';
+import { SimpleBarChart } from '../../components/SimpleBarChart';
 import { useNotifications } from '../../context/NotificationContext';
 import { useGroupManagement } from '../../context/GroupManagementContext';
 import type { HostSection, ProductWithFarmer } from '../../types';
@@ -10,6 +11,69 @@ import type { HostSection, ProductWithFarmer } from '../../types';
 interface HostViewProps {
   activeSection: HostSection;
 }
+
+// SPECIFICATION FIX: Mock data for earnings chart representing last 6 months
+const earningsData = [
+  { label: 'Jan', value: 65 },
+  { label: 'Feb', value: 59 },
+  { label: 'Mar', value: 80 },
+  { label: 'Apr', value: 81 },
+  { label: 'May', value: 56 },
+  { label: 'Jun', value: 95 },
+];
+
+// SPECIFICATION FIX: Mock data for community growth chart
+const communityGrowthData = [
+  { label: 'Jan', value: 12 },
+  { label: 'Feb', value: 18 },
+  { label: 'Mar', value: 25 },
+  { label: 'Apr', value: 32 },
+  { label: 'May', value: 41 },
+  { label: 'Jun', value: 48 },
+];
+
+// SPECIFICATION FIX: Mock data for group success rate
+const groupSuccessData = [
+  { label: 'Jan', value: 85 },
+  { label: 'Feb', value: 92 },
+  { label: 'Mar', value: 88 },
+  { label: 'Apr', value: 95 },
+  { label: 'May', value: 90 },
+  { label: 'Jun', value: 97 },
+];
+
+// SPECIFICATION FIX: Reusable Stat Card component for consistent styling using 8px grid
+const StatCard: React.FC<{ title: string; value: string | number; iconClass: string; trend?: string; trendDirection?: 'up' | 'down' }> = ({ 
+  title, 
+  value, 
+  iconClass, 
+  trend, 
+  trendDirection 
+}) => (
+  <div className="bg-white p-6 rounded-lg border border-stone/10 shadow-sm">
+    <div className="flex items-center">
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-center w-12 h-12 bg-harvest-gold/10 rounded-lg">
+          <i className={`ph-bold ${iconClass} text-harvest-gold text-2xl`}></i>
+        </div>
+      </div>
+      <div className="ml-4 flex-grow">
+        <p className="text-sm font-medium text-charcoal/80 truncate">{title}</p>
+        <p className="text-2xl font-lora text-evergreen font-bold">{value}</p>
+        {trend && (
+          <div className={`flex items-center mt-1 text-sm ${
+            trendDirection === 'up' ? 'text-success' : 'text-error'
+          }`}>
+            <i className={`ph-bold ${
+              trendDirection === 'up' ? 'ph-trend-up' : 'ph-trend-down'
+            } mr-1`}></i>
+            <span>{trend}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+);
 
 export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
   const { user } = useAuth();
@@ -19,6 +83,16 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
   const [isTimeChangeModalOpen, setIsTimeChangeModalOpen] = useState(false);
   const [createdGroups, setCreatedGroups] = useState<ProductWithFarmer[]>([]);
   const [boostingGroupId, setBoostingGroupId] = useState<number | null>(null);
+
+  // SPECIFICATION FIX: Enhanced host stats with more detailed metrics
+  const hostStats = {
+    totalEarnings: 255.75,
+    groupsHosted: 12,
+    communitySize: 48,
+    successRate: 97,
+    avgGroupSize: 8.5,
+    totalRevenue: 3200.50,
+  };
 
   // Mock data for existing groups
   const activeGroups = [
@@ -131,12 +205,99 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
   };
 
   return (
-    <div className="space-y-xl">
+    <div className="space-y-6 sm:space-y-8">
       {/* Manage Groups Section */}
       <section className={activeSection === 'manage-groups' ? '' : 'hidden'}>
-        <div className="flex flex-wrap justify-between items-center gap-md mb-md">
-          <h2 className="text-3xl font-lora">Manage Groups</h2>
-          <div className="flex gap-sm">
+        {/* SPECIFICATION FIX: Dashboard header with consistent spacing */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-lora text-evergreen mb-2">Host Dashboard</h1>
+          <p className="text-lg text-charcoal/80">Manage your community groups and track your hosting performance</p>
+        </div>
+
+        {/* SPECIFICATION FIX: Enhanced stats grid with data visualization */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard 
+            title="Total Earnings" 
+            value={`$${hostStats.totalEarnings.toFixed(2)}`} 
+            iconClass="ph-wallet" 
+            trend="+12% this month"
+            trendDirection="up"
+          />
+          <StatCard 
+            title="Groups Hosted" 
+            value={hostStats.groupsHosted} 
+            iconClass="ph-users-three" 
+            trend="+3 this month"
+            trendDirection="up"
+          />
+          <StatCard 
+            title="Community Size" 
+            value={hostStats.communitySize} 
+            iconClass="ph-hand-heart" 
+            trend="+7 new members"
+            trendDirection="up"
+          />
+          <StatCard 
+            title="Success Rate" 
+            value={`${hostStats.successRate}%`} 
+            iconClass="ph-chart-line-up" 
+            trend="+2% improvement"
+            trendDirection="up"
+          />
+        </div>
+
+        {/* SPECIFICATION FIX: Data Visualization Section with multiple charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Monthly Earnings Chart */}
+          <div className="bg-white p-6 rounded-lg border border-stone/10 shadow-sm">
+            <h2 className="text-2xl font-lora text-evergreen mb-4">
+              Monthly Earnings
+            </h2>
+            <div className="h-72">
+              <SimpleBarChart 
+                data={earningsData} 
+                title=""
+                valuePrefix="$"
+                color="#EAAA00"
+              />
+            </div>
+          </div>
+
+          {/* Community Growth Chart */}
+          <div className="bg-white p-6 rounded-lg border border-stone/10 shadow-sm">
+            <h2 className="text-2xl font-lora text-evergreen mb-4">
+              Community Growth
+            </h2>
+            <div className="h-72">
+              <SimpleBarChart 
+                data={communityGrowthData} 
+                title=""
+                valuePrefix=""
+                color="#2E4034"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* SPECIFICATION FIX: Additional performance metrics */}
+        <div className="bg-white p-6 rounded-lg border border-stone/10 shadow-sm mb-8">
+          <h2 className="text-2xl font-lora text-evergreen mb-4">
+            Group Success Rate
+          </h2>
+          <div className="h-72">
+            <SimpleBarChart 
+              data={groupSuccessData} 
+              title=""
+              valuePrefix=""
+              color="#22c55e"
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
+          <h2 className="text-3xl font-lora text-evergreen">Active Groups</h2>
+          <div className="flex gap-4">
             <button 
               onClick={() => setIsTimeChangeModalOpen(true)}
               className="h-12 px-6 flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg rounded-lg hover:scale-105 transition-transform"
