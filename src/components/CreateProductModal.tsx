@@ -8,13 +8,19 @@ import type { ProductWithFarmer } from '../types';
 interface CreateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (newProduct: ProductWithFarmer) => void;
+  onSuccess: (newProduct: ProductWithFarmer | any) => void;
+  title?: string;
+  submitButtonText?: string;
+  isHostCreated?: boolean;
 }
 
 export const CreateProductModal: React.FC<CreateProductModalProps> = ({ 
   isOpen, 
   onClose, 
-  onSuccess 
+  onSuccess,
+  title = "Create New Product Listing",
+  submitButtonText = "Create Listing",
+  isHostCreated = false
 }) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,15 +53,21 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Get the farmer's ID using the service
-      const farmer = await farmerService.getFarmerByEmail(user.email);
-      
-      if (!farmer) {
-        throw new Error('Farmer profile not found. Please contact support.');
-      }
+      if (isHostCreated) {
+        // For host-created groups, just pass the form data
+        onSuccess(formData);
+      } else {
+        // For farmer-created products, use the existing logic
+        const farmer = await farmerService.getFarmerByEmail(user.email);
+        
+        if (!farmer) {
+          throw new Error('Farmer profile not found. Please contact support.');
+        }
 
-      // Create the new product using the service
-      const newProduct = await productService.createProduct(formData, parseInt(farmer.id));
+        const newProduct = await productService.createProduct(formData, parseInt(farmer.id));
+        onSuccess(newProduct);
+        toast.success('Product listing created successfully!');
+      }
 
       // Reset form
       setFormData({
@@ -69,12 +81,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
         daysActive: 7
       });
 
-      toast.success('Product listing created successfully!');
-      onSuccess(newProduct);
       onClose();
 
     } catch (error) {
-      console.error('Error creating new listing:', error);
+      console.error('Error creating listing:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create listing. Please try again.';
       toast.error(errorMessage);
     } finally {
@@ -89,7 +99,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-lg">
           <div className="flex items-center justify-between mb-lg">
-            <h2 className="text-3xl font-lora text-evergreen">Create New Product Listing</h2>
+            <h2 className="text-3xl font-lora text-evergreen">{title}</h2>
             <button
               onClick={onClose}
               className="text-stone hover:text-charcoal text-3xl"
@@ -97,6 +107,19 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
               <i className="ph-bold ph-x"></i>
             </button>
           </div>
+
+          {isHostCreated && (
+            <div className="bg-harvest-gold/10 rounded-lg p-md mb-lg border border-harvest-gold/20">
+              <div className="flex items-center gap-2 mb-2">
+                <i className="ph-bold ph-info text-harvest-gold"></i>
+                <h3 className="font-semibold text-evergreen">Creating a Host-Curated Group</h3>
+              </div>
+              <p className="text-sm text-charcoal/80">
+                As a verified host, you can create public groups for products you've sourced from local farmers. 
+                This helps build community connections and you'll earn enhanced host rewards.
+              </p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-md">
             <div>
@@ -125,7 +148,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
-                placeholder="Tell customers about your product, growing practices, and what makes it special..."
+                placeholder={isHostCreated 
+                  ? "Describe the product, its source farmer, and why you're excited to share it with your community..."
+                  : "Tell customers about your product, growing practices, and what makes it special..."
+                }
                 className="w-full p-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
                 required
               />
@@ -237,6 +263,22 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
               </div>
             </div>
 
+            {isHostCreated && (
+              <div className="bg-evergreen/5 rounded-lg p-md border border-evergreen/20">
+                <h4 className="font-semibold text-evergreen mb-2">Host Benefits for This Group</h4>
+                <div className="grid md:grid-cols-2 gap-md text-sm text-charcoal/80">
+                  <div>
+                    <span className="font-semibold">Enhanced Rewards:</span>
+                    <p>Earn 3% instead of standard 2% host fee</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Community Impact:</span>
+                    <p>Build stronger neighborhood connections</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-sm pt-md">
               <button
                 type="submit"
@@ -246,10 +288,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 {isSubmitting ? (
                   <>
                     <i className="ph ph-spinner animate-spin mr-2"></i>
-                    Creating Listing...
+                    {isHostCreated ? 'Creating Group...' : 'Creating Listing...'}
                   </>
                 ) : (
-                  'Create Listing'
+                  submitButtonText
                 )}
               </button>
               <button

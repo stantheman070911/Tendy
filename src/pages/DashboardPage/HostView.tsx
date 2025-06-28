@@ -1,291 +1,445 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabaseClient';
-import { toast } from 'react-hot-toast';
-import type { HostSection } from '../../types';
-
-// Mock data for host dashboard
-const activeGroups = [
-    { 
-        id: 1, 
-        name: 'Heirloom Tomatoes', 
-        farmer: 'Rodriguez Farms', 
-        members: 8, 
-        maxMembers: 10, 
-        pickupDate: 'Tomorrow, 5-7 PM',
-        status: 'READY_FOR_PICKUP'
-    },
-    { 
-        id: 2, 
-        name: 'Farm Fresh Eggs', 
-        farmer: 'Sunrise Farm', 
-        members: 12, 
-        maxMembers: 15, 
-        pickupDate: 'Friday, 6-8 PM',
-        status: 'COLLECTING_ORDERS'
-    }
-];
+import { CreateProductModal } from '../../components/CreateProductModal';
+import { useNotifications } from '../../context/NotificationContext';
+import type { HostSection, ProductWithFarmer } from '../../types';
 
 interface HostViewProps {
   activeSection: HostSection;
 }
 
 export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
-    const { user } = useAuth();
-    const [boostingGroupId, setBoostingGroupId] = useState<number | null>(null);
+  const { user } = useAuth();
+  const { addNotification } = useNotifications();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createdGroups, setCreatedGroups] = useState<ProductWithFarmer[]>([]);
+  const [boostingGroupId, setBoostingGroupId] = useState<number | null>(null);
 
-    // Function to call the Community Boost Edge Function
-    const handleBoostClick = async (groupId: number) => {
-        setBoostingGroupId(groupId);
-        
-        const loadingToast = toast.loading('Activating Community Boost...');
-        
-        try {
-            const { data, error } = await supabase.functions.invoke('community-boost', {
-                body: { groupId },
-            });
+  // Mock data for existing groups
+  const activeGroups = [
+    { 
+      id: 1, 
+      name: 'Heirloom Tomatoes', 
+      farmer: 'Rodriguez Farms', 
+      members: 8, 
+      maxMembers: 10, 
+      pickupDate: 'Tomorrow, 5-7 PM',
+      status: 'READY_FOR_PICKUP'
+    },
+    { 
+      id: 2, 
+      name: 'Farm Fresh Eggs', 
+      farmer: 'Sunrise Farm', 
+      members: 12, 
+      maxMembers: 15, 
+      pickupDate: 'Friday, 6-8 PM',
+      status: 'COLLECTING_ORDERS'
+    }
+  ];
 
-            if (error) {
-                throw error;
-            }
-
-            // Show success message with details
-            const message = data.message || 'Community Boost activated!';
-            const details = data.details;
-            
-            toast.success(message, { duration: 4000 });
-            
-            if (details) {
-                toast.success(
-                    `Notified ${details.notificationsSent} neighbors in ${details.zipCode}`, 
-                    { duration: 6000 }
-                );
-            }
-
-        } catch (error) {
-            console.error("Error boosting community:", error);
-            
-            // Show user-friendly error message
-            const errorMessage = error instanceof Error ? error.message : 'Failed to boost the community. Please try again.';
-            toast.error(errorMessage);
-        } finally {
-            toast.dismiss(loadingToast);
-            setBoostingGroupId(null);
-        }
+  const handleCreateNewGroup = (productData: any) => {
+    // Create a new public group with host information
+    const newPublicGroup: ProductWithFarmer = {
+      id: `host-${Date.now()}`,
+      title: productData.title,
+      description: productData.description,
+      weight: productData.weight,
+      price: productData.price,
+      originalPrice: productData.originalPrice,
+      imageUrl: productData.imageUrl,
+      gallery: [productData.imageUrl],
+      farmerId: 'host-farmer-1',
+      farmer: {
+        name: 'Community Marketplace',
+        avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
+        id: 'host-farmer-1',
+        email: 'community@tendy.com',
+        role: 'farmer',
+        bio: 'Host-curated community marketplace',
+        quote: 'Bringing neighbors together through fresh, local food',
+        practices: 'Community-Sourced, Local Partnership',
+        isVerified: true
+      },
+      createdAt: new Date().toISOString(),
+      endDate: new Date(Date.now() + productData.daysActive * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'active',
+      hostId: user?.id || 'host01',
+      host: {
+        name: user?.fullName || 'Community Host',
+        avatar: 'https://i.pravatar.cc/80?img=10'
+      },
+      progress: 0,
+      spotsLeft: productData.spotsTotal,
+      spotsTotal: productData.spotsTotal,
+      daysLeft: productData.daysActive,
+      members: []
     };
 
-    return (
-        <div className="space-y-xl">
-            {/* Manage Groups Section */}
-            <section className={activeSection === 'manage-groups' ? '' : 'hidden'}>
-                <div className="flex flex-wrap justify-between items-center gap-md mb-md">
-                    <h2 className="text-3xl font-lora">Manage Groups</h2>
-                    <button className="h-12 px-6 flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg rounded-lg hover:scale-105 transition-transform">
-                        <i className="ph-bold ph-plus-circle mr-2"></i> Create Public Group
-                    </button>
-                </div>
-                
-                <div className="space-y-md">
-                    {activeGroups.map(group => (
-                        <div key={group.id} className="bg-white rounded-xl p-md border border-stone/10 shadow-sm">
-                            <div className="flex flex-col sm:flex-row items-start gap-md">
-                                <img 
-                                    src="https://images.unsplash.com/photo-1561138244-64942a482381?q=80&w=200&auto=format&fit=crop" 
-                                    alt={group.name} 
-                                    className="w-full sm:w-32 h-32 sm:h-auto object-cover rounded-lg" 
-                                />
-                                <div className="flex-grow">
-                                    <h3 className="text-2xl font-lora">{group.name}</h3>
-                                    <p className="font-semibold text-stone">From: {group.farmer}</p>
-                                    <p className="text-sm text-charcoal/80 mt-1">Pickup: {group.pickupDate}</p>
-                                    <div className="flex justify-between items-center text-sm font-semibold mt-3">
-                                        <span className="text-success">{group.members} / {group.maxMembers} members</span>
-                                        <span className={`px-3 py-1 font-bold text-sm rounded-full ${
-                                            group.status === 'READY_FOR_PICKUP' 
-                                                ? 'bg-success-light text-success' 
-                                                : 'bg-info-light text-info'
-                                        }`}>
-                                            {group.status === 'READY_FOR_PICKUP' ? 'READY FOR PICKUP' : 'COLLECTING ORDERS'}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-2 w-full sm:w-auto">
-                                    <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
-                                        Manage
-                                    </button>
-                                    <button className="h-10 px-4 bg-stone/10 text-charcoal font-semibold rounded-lg hover:bg-stone/20 transition-colors">
-                                        Contact Members
-                                    </button>
-                                    {/* Community Boost Button */}
-                                    <button 
-                                        onClick={() => handleBoostClick(group.id)}
-                                        disabled={boostingGroupId === group.id}
-                                        className={`h-10 px-4 font-semibold rounded-lg transition-all ${
-                                            boostingGroupId === group.id
-                                                ? 'bg-stone/50 text-stone cursor-not-allowed'
-                                                : 'bg-harvest-gold text-evergreen hover:scale-105'
-                                        }`}
-                                    >
-                                        {boostingGroupId === group.id ? (
-                                            <>
-                                                <i className="ph ph-spinner animate-spin mr-1"></i>
-                                                Boosting...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="ph-bold ph-megaphone mr-1"></i>
-                                                Community Boost
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+    // Add to created groups
+    setCreatedGroups(prev => [newPublicGroup, ...prev]);
+    
+    // Log the creation for demo purposes
+    console.log('🎉 HOST CREATED NEW PUBLIC GROUP:', {
+      hostId: user?.id,
+      groupData: newPublicGroup,
+      groupType: 'Public',
+      createdAt: new Date().toISOString(),
+    });
 
-                {/* Community Boost Info */}
-                <div className="mt-lg bg-harvest-gold/10 rounded-xl p-lg border border-harvest-gold/20">
-                    <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
-                        <i className="ph-bold ph-megaphone text-harvest-gold"></i>
-                        About Community Boost
-                    </h3>
-                    <div className="space-y-sm text-charcoal/90">
-                        <p>
-                            <strong>Community Boost</strong> helps you fill your group buys by notifying neighbors in your area who might be interested.
-                        </p>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                            <li>Sends notifications to users in your zip code</li>
-                            <li>Includes details about the product and farmer</li>
-                            <li>Helps build local food community connections</li>
-                            <li>Only available to verified hosts</li>
-                        </ul>
-                        <p className="text-sm text-charcoal/70 mt-md">
-                            <strong>Note:</strong> Use responsibly. Boost notifications are limited to prevent spam.
-                        </p>
-                    </div>
-                </div>
-            </section>
+    addNotification(`🎉 Public group "${productData.title}" created successfully! It's now visible to all customers in your area.`, 'success');
+    
+    // Simulate community notification
+    setTimeout(() => {
+      const notifiedUsers = Math.floor(Math.random() * 30) + 15; // 15-45 users
+      addNotification(`📢 ${notifiedUsers} neighbors have been notified about your new group!`, 'info');
+    }, 2000);
 
-            {/* Host Earnings Section */}
-            <section className={activeSection === 'earnings' ? '' : 'hidden'}>
-                <h2 className="text-3xl font-lora mb-md">Host Earnings & Stats</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
-                    <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
-                        <p className="text-stone font-semibold">Total Credits Earned</p>
-                        <p className="text-3xl font-lora text-evergreen">$89.50</p>
-                    </div>
-                    <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
-                        <p className="text-stone font-semibold">Groups Hosted</p>
-                        <p className="text-3xl font-lora text-evergreen">{user?.groupsHosted || 0}</p>
-                    </div>
-                    <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
-                        <p className="text-stone font-semibold">Members Served</p>
-                        <p className="text-3xl font-lora text-evergreen">{user?.totalMembersServed || 0}</p>
-                    </div>
-                    <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
-                        <p className="text-stone font-semibold">Host Rating</p>
-                        <p className="text-3xl font-lora text-evergreen">4.9 ⭐</p>
-                    </div>
-                </div>
-                
-                <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm">
-                    <h3 className="text-2xl font-lora mb-md">How Host Credits Work</h3>
-                    <div className="space-y-md text-charcoal/90">
-                        <div className="flex items-start gap-3">
-                            <i className="ph-bold ph-percent text-harvest-gold text-2xl mt-1"></i>
-                            <div>
-                                <h4 className="font-semibold">Earn 5-8% on Every Order</h4>
-                                <p className="text-sm">You receive credits based on the total value of orders in your groups</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <i className="ph-bold ph-shopping-cart text-harvest-gold text-2xl mt-1"></i>
-                            <div>
-                                <h4 className="font-semibold">Use Credits for Your Own Orders</h4>
-                                <p className="text-sm">Apply your earned credits to any group buy you join</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <i className="ph-bold ph-gift text-harvest-gold text-2xl mt-1"></i>
-                            <div>
-                                <h4 className="font-semibold">Bonus for Successful Groups</h4>
-                                <p className="text-sm">Extra credits when your hosted groups reach their minimum orders</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    setIsCreateModalOpen(false);
+  };
 
-            {/* Host Profile Section */}
-            <section className={activeSection === 'host-profile' ? '' : 'hidden'}>
-                <h2 className="text-3xl font-lora mb-md">Host Profile Settings</h2>
-                <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm space-y-md">
-                    <div className="flex items-center gap-md">
-                        <img src="https://i.pravatar.cc/80?img=10" alt="Host Avatar" className="w-20 h-20 rounded-full"/>
-                        <div>
-                            <h3 className="text-xl font-semibold">{user?.fullName}</h3>
-                            <p className="text-stone">Verified Host since March 2024</p>
-                            <button className="mt-2 h-10 px-4 bg-evergreen/10 text-evergreen font-bold text-sm rounded-lg hover:bg-evergreen/20">
-                                Change Photo
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label htmlFor="pickup-address" className="font-semibold text-charcoal mb-1 block">Pickup Address</label>
-                        <input 
-                            id="pickup-address" 
-                            type="text" 
-                            defaultValue="123 Maple Street, Springfield, CA 94105" 
-                            className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30" 
-                        />
-                    </div>
+  // Function to call the Community Boost Edge Function
+  const handleBoostClick = async (groupId: number) => {
+    setBoostingGroupId(groupId);
+    
+    const loadingToast = addNotification('Activating Community Boost...', 'info');
+    
+    try {
+      // Simulate the edge function call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock successful response
+      const notificationsSent = Math.floor(Math.random() * 50) + 25;
+      const zipCode = user?.zipCode || '94105';
+      
+      addNotification(`🚀 Community Boost activated! Notified ${notificationsSent} neighbors in ${zipCode}.`, 'success');
+      
+      setTimeout(() => {
+        addNotification(`📊 Boost impact: 3 new members joined in the last hour!`, 'success');
+      }, 3000);
 
-                    <div>
-                        <label htmlFor="zip-code" className="font-semibold text-charcoal mb-1 block">
-                            Zip Code *
-                            <span className="text-sm font-normal text-charcoal/60 ml-2">(Required for Community Boost)</span>
-                        </label>
-                        <input 
-                            id="zip-code" 
-                            type="text" 
-                            defaultValue={user?.zipCode || ''} 
-                            placeholder="Enter your zip code"
-                            className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30" 
-                            required
-                        />
-                    </div>
-                    
-                    <div>
-                        <label htmlFor="pickup-instructions" className="font-semibold text-charcoal mb-1 block">Pickup Instructions</label>
-                        <textarea 
-                            id="pickup-instructions" 
-                            rows={3} 
-                            className="w-full p-4 bg-parchment rounded-md border border-stone/30" 
-                            defaultValue="Ring doorbell for pickup. Orders will be in coolers on the front porch. Please bring your own bags!"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label htmlFor="availability" className="font-semibold text-charcoal mb-1 block">Typical Availability</label>
-                        <select 
-                            id="availability" 
-                            className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30"
-                            defaultValue="weekend-afternoons"
-                        >
-                            <option value="weekday-evenings">Weekday Evenings (5-8 PM)</option>
-                            <option value="weekend-mornings">Weekend Mornings (8-11 AM)</option>
-                            <option value="weekend-afternoons">Weekend Afternoons (1-5 PM)</option>
-                            <option value="flexible">Flexible</option>
-                        </select>
-                    </div>
-                    
-                    <button className="h-12 px-8 flex items-center justify-center bg-evergreen text-parchment font-bold text-lg rounded-lg hover:opacity-90">
-                        Update Profile
-                    </button>
-                </div>
-            </section>
+    } catch (error) {
+      console.error("Error boosting community:", error);
+      addNotification('Failed to boost the community. Please try again.', 'error');
+    } finally {
+      setBoostingGroupId(null);
+    }
+  };
+
+  return (
+    <div className="space-y-xl">
+      {/* Manage Groups Section */}
+      <section className={activeSection === 'manage-groups' ? '' : 'hidden'}>
+        <div className="flex flex-wrap justify-between items-center gap-md mb-md">
+          <h2 className="text-3xl font-lora">Manage Groups</h2>
+          <button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="h-12 px-6 flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg rounded-lg hover:scale-105 transition-transform"
+          >
+            <i className="ph-bold ph-plus-circle mr-2"></i> 
+            Create New Public Group
+          </button>
         </div>
-    );
+
+        {/* Host-Created Groups */}
+        {createdGroups.length > 0 && (
+          <div className="mb-xl">
+            <h3 className="text-2xl font-lora text-evergreen mb-md">Your Created Groups</h3>
+            <div className="space-y-md">
+              {createdGroups.map(group => (
+                <div key={group.id} className="bg-white rounded-xl p-md border border-harvest-gold/30 shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-start gap-md">
+                    <img 
+                      src={group.imageUrl} 
+                      alt={group.title} 
+                      className="w-full sm:w-32 h-32 sm:h-auto object-cover rounded-lg" 
+                    />
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-2xl font-lora">{group.title}</h3>
+                        <span className="px-2 py-1 bg-harvest-gold text-evergreen text-xs font-bold rounded-full">
+                          HOST CREATED
+                        </span>
+                      </div>
+                      <p className="font-semibold text-stone">Price: ${group.price} / {group.weight}</p>
+                      <p className="text-sm text-charcoal/80 mt-1 line-clamp-2">{group.description}</p>
+                      <div className="flex justify-between items-center text-sm font-semibold mt-3">
+                        <span className="text-success">
+                          {group.spotsTotal - group.spotsLeft} / {group.spotsTotal} spots filled
+                        </span>
+                        <span className="text-stone">{group.daysLeft} days left</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 w-full sm:w-auto">
+                      <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                        Manage
+                      </button>
+                      <button 
+                        onClick={() => handleBoostClick(parseInt(group.id))}
+                        disabled={boostingGroupId === parseInt(group.id)}
+                        className={`h-10 px-4 font-semibold rounded-lg transition-all ${
+                          boostingGroupId === parseInt(group.id)
+                            ? 'bg-stone/50 text-stone cursor-not-allowed'
+                            : 'bg-harvest-gold text-evergreen hover:scale-105'
+                        }`}
+                      >
+                        {boostingGroupId === parseInt(group.id) ? (
+                          <>
+                            <i className="ph ph-spinner animate-spin mr-1"></i>
+                            Boosting...
+                          </>
+                        ) : (
+                          <>
+                            <i className="ph-bold ph-megaphone mr-1"></i>
+                            Community Boost
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Existing Groups */}
+        <div className="space-y-md">
+          <h3 className="text-2xl font-lora text-evergreen">Groups You're Hosting</h3>
+          {activeGroups.map(group => (
+            <div key={group.id} className="bg-white rounded-xl p-md border border-stone/10 shadow-sm">
+              <div className="flex flex-col sm:flex-row items-start gap-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1561138244-64942a482381?q=80&w=200&auto=format&fit=crop" 
+                  alt={group.name} 
+                  className="w-full sm:w-32 h-32 sm:h-auto object-cover rounded-lg" 
+                />
+                <div className="flex-grow">
+                  <h3 className="text-2xl font-lora">{group.name}</h3>
+                  <p className="font-semibold text-stone">From: {group.farmer}</p>
+                  <p className="text-sm text-charcoal/80 mt-1">Pickup: {group.pickupDate}</p>
+                  <div className="flex justify-between items-center text-sm font-semibold mt-3">
+                    <span className="text-success">{group.members} / {group.maxMembers} members</span>
+                    <span className={`px-3 py-1 font-bold text-sm rounded-full ${
+                      group.status === 'READY_FOR_PICKUP' 
+                        ? 'bg-success-light text-success' 
+                        : 'bg-info-light text-info'
+                    }`}>
+                      {group.status === 'READY_FOR_PICKUP' ? 'READY FOR PICKUP' : 'COLLECTING ORDERS'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 w-full sm:w-auto">
+                  <button className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                    Manage
+                  </button>
+                  <button className="h-10 px-4 bg-stone/10 text-charcoal font-semibold rounded-lg hover:bg-stone/20 transition-colors">
+                    Contact Members
+                  </button>
+                  <button 
+                    onClick={() => handleBoostClick(group.id)}
+                    disabled={boostingGroupId === group.id}
+                    className={`h-10 px-4 font-semibold rounded-lg transition-all ${
+                      boostingGroupId === group.id
+                        ? 'bg-stone/50 text-stone cursor-not-allowed'
+                        : 'bg-harvest-gold text-evergreen hover:scale-105'
+                    }`}
+                  >
+                    {boostingGroupId === group.id ? (
+                      <>
+                        <i className="ph ph-spinner animate-spin mr-1"></i>
+                        Boosting...
+                      </>
+                    ) : (
+                      <>
+                        <i className="ph-bold ph-megaphone mr-1"></i>
+                        Community Boost
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Host Group Creation Benefits */}
+        <div className="mt-xl bg-harvest-gold/10 rounded-xl p-lg border border-harvest-gold/20">
+          <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+            <i className="ph-bold ph-star text-harvest-gold"></i>
+            Benefits of Creating Public Groups
+          </h3>
+          <div className="grid md:grid-cols-2 gap-md text-sm text-charcoal/90">
+            <div>
+              <h4 className="font-semibold mb-2">🎯 Curate Your Community</h4>
+              <p>Choose products that match your neighborhood's preferences and dietary needs.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">💰 Higher Host Rewards</h4>
+              <p>Earn 3% (instead of 2%) on groups you create, plus standard hosting fees.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">📈 Build Your Reputation</h4>
+              <p>Successful groups increase your host rating and unlock premium features.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">🤝 Strengthen Connections</h4>
+              <p>Become the go-to person for fresh, local food in your neighborhood.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Community Boost Info */}
+        <div className="mt-lg bg-harvest-gold/10 rounded-xl p-lg border border-harvest-gold/20">
+          <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+            <i className="ph-bold ph-megaphone text-harvest-gold"></i>
+            About Community Boost
+          </h3>
+          <div className="space-y-sm text-charcoal/90">
+            <p>
+              <strong>Community Boost</strong> helps you fill your group buys by notifying neighbors in your area who might be interested.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm">
+              <li>Sends notifications to users in your zip code</li>
+              <li>Includes details about the product and farmer</li>
+              <li>Helps build local food community connections</li>
+              <li>Only available to verified hosts</li>
+            </ul>
+            <p className="text-sm text-charcoal/70 mt-md">
+              <strong>Note:</strong> Use responsibly. Boost notifications are limited to prevent spam.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Host Earnings Section */}
+      <section className={activeSection === 'earnings' ? '' : 'hidden'}>
+        <h2 className="text-3xl font-lora mb-md">Host Earnings & Stats</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
+          <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
+            <p className="text-stone font-semibold">Total Credits Earned</p>
+            <p className="text-3xl font-lora text-evergreen">$89.50</p>
+          </div>
+          <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
+            <p className="text-stone font-semibold">Groups Hosted</p>
+            <p className="text-3xl font-lora text-evergreen">{user?.groupsHosted || 0}</p>
+          </div>
+          <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
+            <p className="text-stone font-semibold">Members Served</p>
+            <p className="text-3xl font-lora text-evergreen">{user?.totalMembersServed || 0}</p>
+          </div>
+          <div className="bg-white p-md rounded-xl border border-stone/10 shadow-sm text-center">
+            <p className="text-stone font-semibold">Host Rating</p>
+            <p className="text-3xl font-lora text-evergreen">4.9 ⭐</p>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm">
+          <h3 className="text-2xl font-lora mb-md">How Host Credits Work</h3>
+          <div className="space-y-md text-charcoal/90">
+            <div className="flex items-start gap-3">
+              <i className="ph-bold ph-percent text-harvest-gold text-2xl mt-1"></i>
+              <div>
+                <h4 className="font-semibold">Earn 5-8% on Every Order</h4>
+                <p className="text-sm">You receive credits based on the total value of orders in your groups</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <i className="ph-bold ph-shopping-cart text-harvest-gold text-2xl mt-1"></i>
+              <div>
+                <h4 className="font-semibold">Use Credits for Your Own Orders</h4>
+                <p className="text-sm">Apply your earned credits to any group buy you join</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <i className="ph-bold ph-gift text-harvest-gold text-2xl mt-1"></i>
+              <div>
+                <h4 className="font-semibold">Bonus for Successful Groups</h4>
+                <p className="text-sm">Extra credits when your hosted groups reach their minimum orders</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Host Profile Section */}
+      <section className={activeSection === 'host-profile' ? '' : 'hidden'}>
+        <h2 className="text-3xl font-lora mb-md">Host Profile Settings</h2>
+        <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm space-y-md">
+          <div className="flex items-center gap-md">
+            <img src="https://i.pravatar.cc/80?img=10" alt="Host Avatar" className="w-20 h-20 rounded-full"/>
+            <div>
+              <h3 className="text-xl font-semibold">{user?.fullName}</h3>
+              <p className="text-stone">Verified Host since March 2024</p>
+              <button className="mt-2 h-10 px-4 bg-evergreen/10 text-evergreen font-bold text-sm rounded-lg hover:bg-evergreen/20">
+                Change Photo
+              </button>
+            </div>
+          </div>
+          
+          <div>
+            <label htmlFor="pickup-address" className="font-semibold text-charcoal mb-1 block">Pickup Address</label>
+            <input 
+              id="pickup-address" 
+              type="text" 
+              defaultValue="123 Maple Street, Springfield, CA 94105" 
+              className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30" 
+            />
+          </div>
+
+          <div>
+            <label htmlFor="zip-code" className="font-semibold text-charcoal mb-1 block">
+              Zip Code *
+              <span className="text-sm font-normal text-charcoal/60 ml-2">(Required for Community Boost)</span>
+            </label>
+            <input 
+              id="zip-code" 
+              type="text" 
+              defaultValue={user?.zipCode || ''} 
+              placeholder="Enter your zip code"
+              className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30" 
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="pickup-instructions" className="font-semibold text-charcoal mb-1 block">Pickup Instructions</label>
+            <textarea 
+              id="pickup-instructions" 
+              rows={3} 
+              className="w-full p-4 bg-parchment rounded-md border border-stone/30" 
+              defaultValue="Ring doorbell for pickup. Orders will be in coolers on the front porch. Please bring your own bags!"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="availability" className="font-semibold text-charcoal mb-1 block">Typical Availability</label>
+            <select 
+              id="availability" 
+              className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30"
+              defaultValue="weekend-afternoons"
+            >
+              <option value="weekday-evenings">Weekday Evenings (5-8 PM)</option>
+              <option value="weekend-mornings">Weekend Mornings (8-11 AM)</option>
+              <option value="weekend-afternoons">Weekend Afternoons (1-5 PM)</option>
+              <option value="flexible">Flexible</option>
+            </select>
+          </div>
+          
+          <button className="h-12 px-8 flex items-center justify-center bg-evergreen text-parchment font-bold text-lg rounded-lg hover:opacity-90">
+            Update Profile
+          </button>
+        </div>
+      </section>
+
+      {/* Create Product Modal */}
+      <CreateProductModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateNewGroup}
+        title="Create New Public Group"
+        submitButtonText="Publish Group"
+        isHostCreated={true}
+      />
+    </div>
+  );
 };
