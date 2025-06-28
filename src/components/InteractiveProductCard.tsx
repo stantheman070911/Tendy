@@ -18,16 +18,17 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   
   // Local state for interactive demo
   const [currentPledges, setCurrentPledges] = useState(product.spotsTotal - product.spotsLeft);
-  const [status, setStatus] = useState<'active' | 'successful' | 'canceled'>('active');
+  const [status, setStatus] = useState<'active' | 'successful' | 'canceled' | 'soldout'>('active');
   const [transactionState, setTransactionState] = useState<'idle' | 'authorizing' | 'authorized' | 'charged' | 'refunded' | 'failed'>('idle');
   const [hasJoined, setHasJoined] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isSoldOut, setIsSoldOut] = useState(false); // NEW: Race condition state
 
   const moq = product.spotsTotal;
   const progress = status === 'canceled' ? 0 : (currentPledges / moq) * 100;
-  const isMet = currentPledges >= moq;
+  const isMet = currentPledges >= moq || isSoldOut;
   const isCanceled = status === 'canceled';
-  const spotsLeft = moq - currentPledges;
+  const spotsLeft = isSoldOut ? 0 : Math.max(0, moq - currentPledges);
 
   const handleCardClick = () => {
     if (isLoggedIn) {
@@ -45,13 +46,20 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
       return;
     }
 
-    if (isMet || hasJoined || isCanceled) return;
+    if (isMet || hasJoined || isCanceled || isSoldOut) return;
 
     // Open the checkout modal instead of immediately processing
     setIsCheckoutModalOpen(true);
   };
 
   const handleConfirmCheckout = async () => {
+    // Check for race condition before processing
+    if (isSoldOut) {
+      addNotification('Sorry! The last spot was just taken by another user.', 'error');
+      setIsCheckoutModalOpen(false);
+      return;
+    }
+
     // Start transaction simulation
     setTransactionState('authorizing');
     addNotification('Authorizing payment...', 'info');
@@ -87,7 +95,39 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     }
   };
 
-  // NEW: Function to simulate farmer canceling the listing
+  // NEW: Race condition simulation function
+  const handleRaceConditionDemo = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click navigation
+    
+    if (isSoldOut || isCanceled) return;
+
+    addNotification('Simulating another user taking the last spot...', 'info');
+    
+    try {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Fill the group to capacity
+      setCurrentPledges(moq);
+      setIsSoldOut(true);
+      setStatus('soldout');
+      
+      console.log(`🏃‍♂️ RACE CONDITION: Last spot taken for ${product.title}`);
+      console.log(`📊 FINAL STATUS: ${moq}/${moq} spots filled - Group is now full`);
+      
+      addNotification(`⚡ Race condition! Another user just took the last spot in "${product.title}"`, 'warning');
+      
+      // Show additional context
+      setTimeout(() => {
+        addNotification('💡 This demonstrates real-time inventory management in group buying platforms', 'info');
+      }, 2000);
+      
+    } catch (error) {
+      addNotification('Failed to simulate race condition.', 'error');
+    }
+  };
+
+  // Function to simulate farmer canceling the listing
   const handleCancelListing = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click navigation
     
@@ -115,7 +155,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 
   const getStatusColor = () => {
     if (status === 'canceled') return 'bg-stone';
-    if (status === 'successful') return 'bg-success';
+    if (status === 'successful' || isSoldOut) return 'bg-success';
     if (progress > 70) return 'bg-harvest-gold';
     if (progress > 40) return 'bg-info';
     return 'bg-stone/30';
@@ -123,15 +163,17 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 
   const getStatusText = () => {
     if (status === 'canceled') return 'Canceled by Farmer - Refunds Processed';
+    if (isSoldOut && !hasJoined) return 'Group Full - Last Spot Taken';
     if (hasJoined && isMet) return 'Group Complete - Payment Charged';
     if (hasJoined) return 'Joined - Payment Authorized';
-    if (isMet) return 'Group Full';
+    if (isMet || isSoldOut) return 'Group Full';
     return `${spotsLeft} spots left`;
   };
 
   const getButtonText = () => {
     if (status === 'canceled') return 'Listing Canceled';
     if (!isLoggedIn) return 'Sign In to Join';
+    if (isSoldOut && !hasJoined) return 'Sold Out';
     if (hasJoined && isMet) return 'Successfully Completed!';
     if (hasJoined) return 'Joined Group!';
     if (isMet) return 'Group Full';
@@ -140,6 +182,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 
   const getButtonStyle = () => {
     if (status === 'canceled') return 'bg-stone text-white cursor-not-allowed opacity-60';
+    if (isSoldOut && !hasJoined) return 'bg-error text-white cursor-not-allowed';
     if (hasJoined && isMet) return 'bg-success text-white cursor-default';
     if (hasJoined) return 'bg-harvest-gold text-evergreen cursor-default';
     if (isMet) return 'bg-stone text-white cursor-not-allowed';
@@ -149,6 +192,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 
   const cardBorderStyle = () => {
     if (status === 'canceled') return 'border-stone opacity-60';
+    if (isSoldOut && !hasJoined) return 'border-error';
     if (status === 'successful') return 'border-success';
     if (hasJoined) return 'border-harvest-gold';
     return 'border-stone/10';
@@ -162,7 +206,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
       >
         <div className={`block bg-white border-2 rounded-xl shadow-sm p-4 flex flex-col hover:-translate-y-2 transition-all duration-300 h-full ${cardBorderStyle()} ${
           status === 'canceled' ? 'relative' : ''
-        }`}>
+        } ${isSoldOut && !hasJoined ? 'opacity-75' : ''}`}>
           
           {/* Canceled Overlay */}
           {status === 'canceled' && (
@@ -172,6 +216,13 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
                 <p className="font-bold text-stone">Listing Canceled</p>
                 <p className="text-sm text-stone/80">Refunds Processed</p>
               </div>
+            </div>
+          )}
+
+          {/* Sold Out Overlay */}
+          {isSoldOut && !hasJoined && (
+            <div className="absolute top-4 right-4 bg-error text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+              SOLD OUT
             </div>
           )}
           
@@ -232,7 +283,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
             <div className="flex justify-between items-center text-sm font-semibold mb-2">
               <span className={`${
                 status === 'canceled' ? 'text-stone' :
-                isMet ? 'text-success' : 'text-info'
+                isMet || isSoldOut ? 'text-success' : 'text-info'
               }`}>
                 {status === 'canceled' ? '0' : currentPledges} of {moq} joined
               </span>
@@ -251,6 +302,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
             <div className="text-center mb-3">
               <span className={`text-sm font-semibold ${
                 status === 'canceled' ? 'text-stone' :
+                isSoldOut && !hasJoined ? 'text-error' :
                 isMet ? 'text-success' : 
                 hasJoined ? 'text-harvest-gold' : 'text-charcoal'
               }`}>
@@ -292,7 +344,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
                     </span>
                   )}
                 </div>
-                {!isLoggedIn && status !== 'canceled' && (
+                {!isLoggedIn && status !== 'canceled' && !isSoldOut && (
                   <span className="text-sm font-semibold text-harvest-gold">
                     Sign In to Join →
                   </span>
@@ -302,7 +354,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
               {/* Join Button */}
               <button
                 onClick={handleJoinGroup}
-                disabled={transactionState === 'authorizing' || (hasJoined && isMet) || status === 'canceled'}
+                disabled={transactionState === 'authorizing' || (hasJoined && isMet) || status === 'canceled' || (isSoldOut && !hasJoined)}
                 className={`w-full h-12 flex items-center justify-center font-bold text-lg rounded-lg transition-all shadow-lg mb-2 ${getButtonStyle()}`}
               >
                 {transactionState === 'authorizing' ? (
@@ -315,16 +367,30 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
                 )}
               </button>
 
-              {/* Farmer Cancel Button (Demo Only) */}
-              {status !== 'canceled' && (
-                <button
-                  onClick={handleCancelListing}
-                  className="w-full h-10 flex items-center justify-center border border-stone/30 text-stone font-semibold text-sm rounded-lg hover:bg-stone/10 transition-colors"
-                >
-                  <i className="ph-bold ph-x mr-2"></i>
-                  (Demo) Farmer Cancel Listing
-                </button>
-              )}
+              {/* Demo Buttons */}
+              <div className="space-y-1">
+                {/* Race Condition Demo Button */}
+                {status !== 'canceled' && !isSoldOut && spotsLeft > 0 && (
+                  <button
+                    onClick={handleRaceConditionDemo}
+                    className="w-full h-10 flex items-center justify-center border border-harvest-gold/30 text-harvest-gold font-semibold text-sm rounded-lg hover:bg-harvest-gold/10 transition-colors"
+                  >
+                    <i className="ph-bold ph-lightning mr-2"></i>
+                    (Demo) Take Last Spot
+                  </button>
+                )}
+
+                {/* Farmer Cancel Button */}
+                {status !== 'canceled' && !isSoldOut && (
+                  <button
+                    onClick={handleCancelListing}
+                    className="w-full h-10 flex items-center justify-center border border-stone/30 text-stone font-semibold text-sm rounded-lg hover:bg-stone/10 transition-colors"
+                  >
+                    <i className="ph-bold ph-x mr-2"></i>
+                    (Demo) Farmer Cancel Listing
+                  </button>
+                )}
+              </div>
 
               {/* Transaction Status */}
               {transactionState !== 'idle' && (

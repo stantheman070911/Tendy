@@ -198,6 +198,27 @@
       transform: scale(1) translateY(0);
     }
   }
+
+  /* Race Condition Styles */
+  .sold-out-card {
+    @apply opacity-75 border-error;
+  }
+
+  .sold-out-overlay {
+    @apply absolute top-4 right-4 bg-error text-white px-3 py-1 rounded-full text-sm font-bold z-10;
+  }
+
+  .race-condition-button {
+    @apply border border-harvest-gold/30 text-harvest-gold hover:bg-harvest-gold/10 transition-colors;
+  }
+
+  .race-condition-button:hover {
+    @apply bg-harvest-gold/20;
+  }
+
+  .race-condition-button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
 }
 
 @layer utilities {
