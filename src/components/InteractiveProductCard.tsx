@@ -16,12 +16,14 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   
   // Local state for interactive demo
   const [currentPledges, setCurrentPledges] = useState(product.spotsTotal - product.spotsLeft);
-  const [transactionState, setTransactionState] = useState<'idle' | 'authorizing' | 'authorized' | 'charged' | 'failed'>('idle');
+  const [status, setStatus] = useState<'active' | 'successful' | 'canceled'>('active');
+  const [transactionState, setTransactionState] = useState<'idle' | 'authorizing' | 'authorized' | 'charged' | 'refunded' | 'failed'>('idle');
   const [hasJoined, setHasJoined] = useState(false);
 
   const moq = product.spotsTotal;
-  const progress = (currentPledges / moq) * 100;
+  const progress = status === 'canceled' ? 0 : (currentPledges / moq) * 100;
   const isMet = currentPledges >= moq;
+  const isCanceled = status === 'canceled';
   const spotsLeft = moq - currentPledges;
 
   const handleCardClick = () => {
@@ -40,7 +42,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
       return;
     }
 
-    if (isMet || hasJoined) return;
+    if (isMet || hasJoined || isCanceled) return;
 
     // Start transaction simulation
     setTransactionState('authorizing');
@@ -63,6 +65,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
       
       // Check if MOQ is met to charge payment
       if (newPledgeCount >= moq) {
+        setStatus('successful');
         setTransactionState('charged');
         toast.success(`🎉 Group buy successful! Payment charged for ${product.title}`, { 
           id: 'join-group',
@@ -82,14 +85,45 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     }
   };
 
+  // NEW: Function to simulate farmer canceling the listing
+  const handleCancelListing = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click navigation
+    
+    if (isCanceled) return;
+
+    toast.loading('Processing cancellation...', { id: 'cancel-listing' });
+    
+    try {
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log(`🚨 CRITICAL ACTION: Farmer has canceled listing for ${product.title}.`);
+      console.log(`💰 TRANSACTION: Processing full refunds for all ${currentPledges} backers.`);
+      
+      setStatus('canceled');
+      setTransactionState('refunded');
+      setCurrentPledges(0); // Reset pledges to 0 for visual effect
+      
+      toast.success(`Listing canceled. ${hasJoined ? 'Your payment has been refunded.' : 'All participants will be refunded.'}`, { 
+        id: 'cancel-listing',
+        duration: 5000 
+      });
+      
+    } catch (error) {
+      toast.error('Failed to cancel listing. Please try again.', { id: 'cancel-listing' });
+    }
+  };
+
   const getStatusColor = () => {
-    if (isMet) return 'bg-success';
+    if (status === 'canceled') return 'bg-stone';
+    if (status === 'successful') return 'bg-success';
     if (progress > 70) return 'bg-harvest-gold';
     if (progress > 40) return 'bg-info';
-    return 'bg-stone';
+    return 'bg-stone/30';
   };
 
   const getStatusText = () => {
+    if (status === 'canceled') return 'Canceled by Farmer - Refunds Processed';
     if (hasJoined && isMet) return 'Group Complete - Payment Charged';
     if (hasJoined) return 'Joined - Payment Authorized';
     if (isMet) return 'Group Full';
@@ -97,6 +131,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   };
 
   const getButtonText = () => {
+    if (status === 'canceled') return 'Listing Canceled';
     if (!isLoggedIn) return 'Sign In to Join';
     if (hasJoined && isMet) return 'Successfully Completed!';
     if (hasJoined) return 'Joined Group!';
@@ -105,6 +140,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   };
 
   const getButtonStyle = () => {
+    if (status === 'canceled') return 'bg-stone text-white cursor-not-allowed opacity-60';
     if (hasJoined && isMet) return 'bg-success text-white cursor-default';
     if (hasJoined) return 'bg-harvest-gold text-evergreen cursor-default';
     if (isMet) return 'bg-stone text-white cursor-not-allowed';
@@ -112,14 +148,32 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     return 'bg-evergreen text-parchment hover:opacity-90 hover:scale-105';
   };
 
+  const cardBorderStyle = () => {
+    if (status === 'canceled') return 'border-stone opacity-60';
+    if (status === 'successful') return 'border-success';
+    if (hasJoined) return 'border-harvest-gold';
+    return 'border-stone/10';
+  };
+
   return (
     <div 
       className="flex-shrink-0 w-[90vw] sm:w-[400px] group cursor-pointer"
       onClick={handleCardClick}
     >
-      <div className={`block bg-white border-2 rounded-xl shadow-sm p-4 flex flex-col hover:-translate-y-2 transition-all duration-300 h-full ${
-        isMet ? 'border-success' : hasJoined ? 'border-harvest-gold' : 'border-stone/10'
+      <div className={`block bg-white border-2 rounded-xl shadow-sm p-4 flex flex-col hover:-translate-y-2 transition-all duration-300 h-full ${cardBorderStyle()} ${
+        status === 'canceled' ? 'relative' : ''
       }`}>
+        
+        {/* Canceled Overlay */}
+        {status === 'canceled' && (
+          <div className="absolute inset-0 bg-white/70 rounded-xl z-10 flex items-center justify-center">
+            <div className="text-center">
+              <i className="ph-bold ph-x-circle text-stone text-4xl mb-2"></i>
+              <p className="font-bold text-stone">Listing Canceled</p>
+              <p className="text-sm text-stone/80">Refunds Processed</p>
+            </div>
+          </div>
+        )}
         
         {/* Product Image with Badges */}
         <div className="overflow-hidden rounded-lg relative">
@@ -176,8 +230,11 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
         {/* Group Buy Progress */}
         <div className="mt-auto pt-md">
           <div className="flex justify-between items-center text-sm font-semibold mb-2">
-            <span className={`${isMet ? 'text-success' : 'text-info'}`}>
-              {currentPledges} of {moq} joined
+            <span className={`${
+              status === 'canceled' ? 'text-stone' :
+              isMet ? 'text-success' : 'text-info'
+            }`}>
+              {status === 'canceled' ? '0' : currentPledges} of {moq} joined
             </span>
             <span className="text-stone">{product.daysLeft} days left</span>
           </div>
@@ -193,14 +250,16 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
           {/* Status Text */}
           <div className="text-center mb-3">
             <span className={`text-sm font-semibold ${
-              isMet ? 'text-success' : hasJoined ? 'text-harvest-gold' : 'text-charcoal'
+              status === 'canceled' ? 'text-stone' :
+              isMet ? 'text-success' : 
+              hasJoined ? 'text-harvest-gold' : 'text-charcoal'
             }`}>
               {getStatusText()}
             </span>
           </div>
 
           {/* Member Avatars */}
-          {product.members && product.members.length > 0 && (
+          {product.members && product.members.length > 0 && status !== 'canceled' && (
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center -space-x-2">
                 {(product.members || []).slice(0, 3).map((member) => (
@@ -233,7 +292,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
                   </span>
                 )}
               </div>
-              {!isLoggedIn && (
+              {!isLoggedIn && status !== 'canceled' && (
                 <span className="text-sm font-semibold text-harvest-gold">
                   Sign In to Join →
                 </span>
@@ -243,8 +302,8 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
             {/* Join Button */}
             <button
               onClick={handleJoinGroup}
-              disabled={transactionState === 'authorizing' || (hasJoined && isMet)}
-              className={`w-full h-12 flex items-center justify-center font-bold text-lg rounded-lg transition-all shadow-lg ${getButtonStyle()}`}
+              disabled={transactionState === 'authorizing' || (hasJoined && isMet) || status === 'canceled'}
+              className={`w-full h-12 flex items-center justify-center font-bold text-lg rounded-lg transition-all shadow-lg mb-2 ${getButtonStyle()}`}
             >
               {transactionState === 'authorizing' ? (
                 <>
@@ -256,12 +315,24 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
               )}
             </button>
 
+            {/* Farmer Cancel Button (Demo Only) */}
+            {status !== 'canceled' && (
+              <button
+                onClick={handleCancelListing}
+                className="w-full h-10 flex items-center justify-center border border-stone/30 text-stone font-semibold text-sm rounded-lg hover:bg-stone/10 transition-colors"
+              >
+                <i className="ph-bold ph-x mr-2"></i>
+                (Demo) Farmer Cancel Listing
+              </button>
+            )}
+
             {/* Transaction Status */}
             {transactionState !== 'idle' && (
               <div className="mt-2 text-center">
                 <span className={`text-xs font-semibold ${
                   transactionState === 'charged' ? 'text-success' :
                   transactionState === 'authorized' ? 'text-harvest-gold' :
+                  transactionState === 'refunded' ? 'text-info' :
                   transactionState === 'failed' ? 'text-error' : 'text-info'
                 }`}>
                   Payment Status: {transactionState.charAt(0).toUpperCase() + transactionState.slice(1)}

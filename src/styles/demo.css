@@ -107,3 +107,134 @@
     box-shadow: 0 0 15px rgba(234, 170, 0, 0.6);
   }
 }
+
+/* Canceled state styles */
+.is-canceled {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+  position: relative;
+}
+
+.is-canceled::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 1;
+  border-radius: 12px;
+}
+
+/* Status label styles */
+.status-label {
+  margin-left: 8px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-label.success {
+  color: #22c55e;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.status-label.canceled {
+  color: #dc2626;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.status-label.authorized {
+  color: #EAAA00;
+  background-color: #fffbeb;
+  border: 1px solid #fed7aa;
+}
+
+/* Button styles for different states */
+.btn-secondary {
+  background-color: transparent;
+  color: #A3A3A3;
+  border: 1px solid #A3A3A3;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #A3A3A3;
+  color: white;
+}
+
+.btn-secondary:disabled {
+  background-color: transparent;
+  border-color: #e0e0e0;
+  color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+/* Refund notification styles */
+.refund-notification {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 600;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced transaction status indicators */
+.transaction-status {
+  margin-top: 12px;
+  font-size: 12px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.transaction-status.idle {
+  color: #6b7280;
+}
+
+.transaction-status.authorizing {
+  color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.transaction-status.authorized {
+  color: #EAAA00;
+  background-color: #fffbeb;
+}
+
+.transaction-status.charged {
+  color: #22c55e;
+  background-color: #f0fdf4;
+}
+
+.transaction-status.refunded {
+  color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.transaction-status.failed {
+  color: #dc2626;
+  background-color: #fef2f2;
+}
