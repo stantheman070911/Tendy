@@ -179,7 +179,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                       <div className="flex-grow">
                         <label htmlFor="wasteWarriorCheck" className="font-semibold text-evergreen cursor-pointer flex items-center gap-2">
                           <i className="ph-bold ph-leaf text-success"></i>
-                          This is a "Waste-Warrior" Surplus Listing
+                          This is a "Waste-Warrior\" Surplus Listing
                         </label>
                         <p className="text-sm text-charcoal/80 mt-1">
                           Help reduce food waste! Contents will be variable based on the week's surplus but always meet high quality standards.
