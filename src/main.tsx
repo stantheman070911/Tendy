@@ -4,8 +4,9 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './App.tsx';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-import { DashboardProvider } from './context/DashboardContext';
+import { DashboardProvider } from './context/DashboardProvider';
 import { GroupManagementProvider } from './context/GroupManagementContext';
+import { DisputeProvider } from './context/DisputeContext';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -13,9 +14,11 @@ createRoot(document.getElementById('root')!).render(
     <NotificationProvider>
       <DashboardProvider>
         <GroupManagementProvider>
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
+          <DisputeProvider>
+            <AuthProvider>
+              <RouterProvider router={router} />
+            </AuthProvider>
+          </DisputeProvider>
         </GroupManagementProvider>
       </DashboardProvider>
     </NotificationProvider>

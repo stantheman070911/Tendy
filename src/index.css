@@ -318,6 +318,149 @@
   .response-pending {
     @apply bg-stone/20 text-stone border border-stone/30;
   }
+
+  /* Dispute Management Styles */
+  .dispute-card {
+    @apply bg-white border border-stone/10 rounded-xl shadow-sm overflow-hidden;
+  }
+
+  .dispute-priority-high {
+    @apply border-l-4 border-l-error;
+  }
+
+  .dispute-priority-medium {
+    @apply border-l-4 border-l-harvest-gold;
+  }
+
+  .dispute-priority-low {
+    @apply border-l-4 border-l-info;
+  }
+
+  .dispute-status-open {
+    @apply bg-error/5 border border-error/20;
+  }
+
+  .dispute-status-under-review {
+    @apply bg-harvest-gold/5 border border-harvest-gold/20;
+  }
+
+  .dispute-status-resolved {
+    @apply bg-success/5 border border-success/20;
+  }
+
+  .dispute-status-escalated {
+    @apply bg-purple-50 border border-purple-200;
+  }
+
+  /* Dispute form styling */
+  .dispute-reason-option {
+    @apply block p-3 border rounded-lg cursor-pointer transition-colors;
+  }
+
+  .dispute-reason-option:hover {
+    @apply border-evergreen/50;
+  }
+
+  .dispute-reason-option.selected {
+    @apply border-evergreen bg-evergreen/5;
+  }
+
+  /* File dispute modal */
+  .file-dispute-modal {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+  }
+
+  .file-dispute-content {
+    @apply bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto;
+  }
+
+  /* Dispute management table */
+  .dispute-table {
+    @apply w-full border-collapse;
+  }
+
+  .dispute-table th,
+  .dispute-table td {
+    @apply p-md text-left border-b border-stone/10;
+  }
+
+  .dispute-table th {
+    @apply bg-parchment font-semibold text-charcoal;
+  }
+
+  .dispute-table tr:hover {
+    @apply bg-parchment/50;
+  }
+
+  /* Priority and status badges */
+  .priority-badge {
+    @apply px-2 py-1 rounded-full text-xs font-bold border;
+  }
+
+  .status-badge {
+    @apply px-2 py-1 rounded-full text-xs font-bold border;
+  }
+
+  /* Dispute resolution form */
+  .resolution-form {
+    @apply bg-white rounded-lg p-md border border-stone/20;
+  }
+
+  .resolution-textarea {
+    @apply w-full p-3 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-evergreen;
+  }
+
+  /* Escalation form */
+  .escalation-form {
+    @apply bg-white rounded-lg p-md border border-stone/20;
+  }
+
+  /* Dispute stats grid */
+  .dispute-stats-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-md;
+  }
+
+  .dispute-stat-card {
+    @apply text-center p-md rounded-lg border;
+  }
+
+  /* Dispute timeline */
+  .dispute-timeline {
+    @apply space-y-md;
+  }
+
+  .dispute-timeline-item {
+    @apply flex items-start gap-3 p-md bg-parchment rounded-lg;
+  }
+
+  .dispute-timeline-icon {
+    @apply w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold;
+  }
+
+  /* Dispute action buttons */
+  .dispute-action-btn {
+    @apply h-10 px-4 font-semibold rounded-lg transition-all;
+  }
+
+  .dispute-action-btn.primary {
+    @apply bg-evergreen text-parchment hover:opacity-90;
+  }
+
+  .dispute-action-btn.success {
+    @apply bg-success text-white hover:opacity-90;
+  }
+
+  .dispute-action-btn.warning {
+    @apply bg-harvest-gold text-evergreen hover:opacity-90;
+  }
+
+  .dispute-action-btn.danger {
+    @apply bg-error text-white hover:opacity-90;
+  }
+
+  .dispute-action-btn.secondary {
+    @apply border border-stone/30 text-charcoal hover:bg-stone/10;
+  }
 }
 
 @layer utilities {

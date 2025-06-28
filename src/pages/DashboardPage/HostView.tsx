@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { CreateProductModal } from '../../components/CreateProductModal';
 import { HostTimeChangeModal } from '../../components/HostTimeChangeModal';
+import { DisputeManagementView } from '../../components/DisputeManagementView';
 import { useNotifications } from '../../context/NotificationContext';
 import { useGroupManagement } from '../../context/GroupManagementContext';
 import type { HostSection, ProductWithFarmer } from '../../types';
@@ -476,6 +477,11 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
             Update Profile
           </button>
         </div>
+      </section>
+
+      {/* Dispute Management Section - NEW */}
+      <section className={activeSection === 'dispute-management' ? '' : 'hidden'}>
+        <DisputeManagementView />
       </section>
 
       {/* Create Product Modal */}

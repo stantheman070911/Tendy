@@ -205,7 +205,7 @@ export interface User {
 // Dashboard section types for better type safety
 export type SupporterSection = 'group-buys' | 'order-history' | 'profile';
 export type FarmerSection = 'listings' | 'sales' | 'farm-profile';
-export type HostSection = 'manage-groups' | 'earnings' | 'host-profile';
+export type HostSection = 'manage-groups' | 'earnings' | 'host-profile' | 'dispute-management';
 
 // API response types for better structure
 export interface ApiResponse<T> {
