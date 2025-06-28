@@ -9,7 +9,7 @@ export const AuthPage: React.FC = () => {
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
 
-  const handleDemoLogin = (role: 'supporter' | 'farmer' | 'host') => {
+  const handleDemoLogin = (role: 'customer' | 'farmer' | 'host') => {
     try {
       // Use the placeholder auth system instead of Supabase
       const user = loginAsPlaceholder(role);
@@ -55,7 +55,7 @@ export const AuthPage: React.FC = () => {
              
              <div className="space-y-3">
                <button
-                 onClick={() => handleDemoLogin('supporter')}
+                 onClick={() => handleDemoLogin('customer')}
                  className="w-full h-12 flex items-center justify-center bg-evergreen text-parchment font-bold rounded-lg hover:opacity-90 transition-opacity"
                >
                  <i className="ph-bold ph-shopping-cart mr-2"></i>
