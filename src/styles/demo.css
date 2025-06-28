@@ -1,0 +1,109 @@
+/* Demo-specific styles for interactive components */
+
+.scroll-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Enhanced button animations for demo */
+.demo-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.demo-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.demo-button:active {
+  transform: translateY(0);
+}
+
+/* Progress bar animations */
+.progress-bar-animated {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Status badge animations */
+.status-badge {
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Success state animations */
+.success-animation {
+  animation: successBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes successBounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Loading spinner for transaction states */
+.transaction-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card hover effects for demo */
+.demo-card {
+  transition: all 0.3s ease;
+}
+
+.demo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Verification badge styles */
+.verification-badge {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Waste warrior badge styles */
+.waste-warrior-badge {
+  background: linear-gradient(135deg, #EAAA00, #d97706);
+  color: #2E4034;
+  font-weight: bold;
+  animation: wasteWarriorGlow 3s ease-in-out infinite;
+}
+
+@keyframes wasteWarriorGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(234, 170, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(234, 170, 0, 0.6);
+  }
+}

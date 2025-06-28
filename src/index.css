@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './styles/demo.css';
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -117,6 +119,19 @@
   .product-card:hover {
     @apply -translate-y-2 shadow-lg;
   }
+
+  /* Demo-specific interactive styles */
+  .demo-product-card {
+    @apply product-card demo-card;
+  }
+
+  .demo-join-button {
+    @apply demo-button;
+  }
+
+  .demo-progress-bar {
+    @apply progress-bar-animated;
+  }
 }
 
 @layer utilities {
@@ -127,5 +142,20 @@
   /* Ensure counter text is always visible */
   .text-evergreen {
     color: #2E4034 !important;
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
