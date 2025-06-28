@@ -1,42 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import usersData from "../../public/placeholder-users.json";
 
-// Import placeholder users from JSON
-const placeholderUsers = [
-  {
-    userId: "user001",
-    role: "customer",
-    name: "Alex Smith",
-    email: "alex.smith@example.com",
-    joinDate: "2024-08-15",
-    avatar: "https://i.pravatar.cc/80?img=1",
-    isHost: false
-  },
-  {
-    userId: "host01",
-    role: "host",
-    name: "Charles Green",
-    email: "charles.green@example.com",
-    joinDate: "2024-07-20",
-    verificationStatus: "Completed",
-    groupsManaged: ["group01"],
-    avatar: "https://i.pravatar.cc/80?img=10",
-    successfulGroups: 15,
-    totalMembersServed: 127,
-    hostRating: 4.9,
-    isHost: true
-  },
-  {
-    userId: "farmer01",
-    role: "farmer",
-    name: "Diana Prince",
-    email: "diana@sunriseorganics.com",
-    farmName: "Sunrise Organics",
-    verificationTier: "Level 1: Tendy Sprout",
-    businessLicenseVerified: true,
-    products: ["prod01", "prod02"],
-    avatar: "https://i.pravatar.cc/80?img=3"
-  }
-];
+// The actual array of users is nested under the 'default' key due to Vite's JSON import handling
+const placeholderUsers = (usersData as any).default || usersData;
 
 // Define the User type
 interface User {
@@ -52,6 +18,10 @@ interface User {
   successfulGroups?: number;
   totalMembersServed?: number;
   hostRating?: number;
+  verificationStatus?: string;
+  groupsManaged?: string[];
+  businessLicenseVerified?: boolean;
+  products?: string[];
 }
 
 // Define the shape of the context
@@ -82,14 +52,14 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
     switch (role) {
       case "customer":
         userToLogin = placeholderUsers.find(
-          (u) => u.role === "customer" && !u.isHost
+          (u: User) => u.role === "customer" && !u.isHost
         );
         break;
       case "host":
-        userToLogin = placeholderUsers.find((u) => u.isHost);
+        userToLogin = placeholderUsers.find((u: User) => u.isHost);
         break;
       case "farmer":
-        userToLogin = placeholderUsers.find((u) => u.role === "farmer");
+        userToLogin = placeholderUsers.find((u: User) => u.role === "farmer");
         break;
     }
 
