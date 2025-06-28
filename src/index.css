@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import './styles/demo.css';
+@import './styles/notification.css';
 
 @layer base {
   html {

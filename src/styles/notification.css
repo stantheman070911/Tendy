@@ -1,0 +1,142 @@
+/* Notification Panel Styles */
+
+.notification-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notification-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Slide-in animation for notifications */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Notification type specific styles */
+.notification-item.success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.notification-item.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.notification-item.warning {
+  background: linear-gradient(135deg, #EAAA00, #d97706);
+  border-color: rgba(234, 170, 0, 0.3);
+}
+
+.notification-item.info {
+  background: linear-gradient(135deg, #2E4034, #1a2a20);
+  border-color: rgba(46, 64, 52, 0.3);
+}
+
+/* Hover effects for interactive notifications */
+.notification-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Close button styles */
+.notification-item button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+/* Progress bar for auto-dismiss */
+.notification-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  animation: progress 5s linear;
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .notification-item {
+    max-width: calc(100vw - 2rem);
+    margin: 0 1rem;
+  }
+}
+
+/* Stack multiple notifications */
+.notification-panel {
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.notification-panel::-webkit-scrollbar {
+  display: none;
+}
+
+/* Notification entrance stagger effect */
+.notification-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.notification-item:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.notification-item:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+.notification-item:nth-child(4) {
+  animation-delay: 300ms;
+}
+
+.notification-item:nth-child(5) {
+  animation-delay: 400ms;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
-import { toast } from 'react-hot-toast';
+import { useNotifications } from '../context/NotificationContext';
 import type { ProductWithFarmer } from '../types';
 
 interface CreateGroupFormProps {
@@ -12,6 +12,7 @@ export const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onCreateGroup 
   const [selectedProductId, setSelectedProductId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addNotification } = useNotifications();
 
   // Load all available products
   useEffect(() => {
@@ -24,20 +25,20 @@ export const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onCreateGroup 
         }
       } catch (error) {
         console.error('Error loading products:', error);
-        toast.error('Failed to load products');
+        addNotification('Failed to load products', 'error');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadProducts();
-  }, []);
+  }, [addNotification]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedProductId) {
-      toast.error('Please select a product.');
+      addNotification('Please select a product.', 'warning');
       return;
     }
 
@@ -50,6 +51,8 @@ export const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onCreateGroup 
       if (!productTemplate) {
         throw new Error('Selected product not found');
       }
+
+      addNotification('Creating your private group...', 'info');
 
       // Simulate processing delay
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -72,16 +75,14 @@ export const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onCreateGroup 
 
       onCreateGroup(newGroup);
       
-      toast.success(`Private group created for ${productTemplate.title}! Share the link with friends to invite them.`, {
-        duration: 5000
-      });
+      addNotification(`🎉 Private group created for ${productTemplate.title}! Share the link with friends to invite them.`, 'success');
 
       // Reset form
       setSelectedProductId(allProducts[0]?.id || '');
       
     } catch (error) {
       console.error('Error creating private group:', error);
-      toast.error('Failed to create private group. Please try again.');
+      addNotification('Failed to create private group. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }

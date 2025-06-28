@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InteractiveProductCard } from './InteractiveProductCard';
 import { productService } from '../services/productService';
-import { toast } from 'react-hot-toast';
+import { useNotifications } from '../context/NotificationContext';
 import type { ProductWithFarmer } from '../types';
 
 interface HostUser {
@@ -22,6 +22,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
   const [managedProducts, setManagedProducts] = useState<ProductWithFarmer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [boostingProductId, setBoostingProductId] = useState<string | null>(null);
+  const { addNotification } = useNotifications();
 
   // Load host's managed products
   React.useEffect(() => {
@@ -73,7 +74,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
   const handleCommunityBoost = async (productId: string, productTitle: string) => {
     setBoostingProductId(productId);
     
-    const loadingToast = toast.loading('Activating Community Boost...', { id: 'community-boost' });
+    addNotification('Activating Community Boost...', 'info');
     
     try {
       // Simulate API call delay
@@ -87,21 +88,16 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
       console.log(`📧 NOTIFICATIONS: Sent to ${notificationsSent} neighbors in ${zipCode}`);
       console.log(`🎯 TARGET: Users interested in local produce and group buying`);
       
-      toast.success(`Community Boost activated! Notified ${notificationsSent} neighbors in your area.`, { 
-        id: 'community-boost',
-        duration: 5000 
-      });
+      addNotification(`🚀 Community Boost activated! Notified ${notificationsSent} neighbors in your area.`, 'success');
       
       // Show additional success details
       setTimeout(() => {
-        toast.success(`📧 Boost details: ${notificationsSent} notifications sent to zip code ${zipCode}`, { 
-          duration: 6000 
-        });
+        addNotification(`📧 Boost details: ${notificationsSent} notifications sent to zip code ${zipCode}`, 'info');
       }, 1000);
       
     } catch (error) {
       console.error('Community Boost error:', error);
-      toast.error('Failed to activate Community Boost. Please try again.', { id: 'community-boost' });
+      addNotification('Failed to activate Community Boost. Please try again.', 'error');
     } finally {
       setBoostingProductId(null);
     }

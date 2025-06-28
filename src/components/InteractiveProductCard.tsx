@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import { useNotifications } from '../context/NotificationContext';
 import type { ProductWithFarmer } from '../types';
 
 interface InteractiveProductCardProps {
@@ -13,6 +13,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   isLoggedIn = false 
 }) => {
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
   
   // Local state for interactive demo
   const [currentPledges, setCurrentPledges] = useState(product.spotsTotal - product.spotsLeft);
@@ -46,14 +47,14 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 
     // Start transaction simulation
     setTransactionState('authorizing');
-    toast.loading('Authorizing payment...', { id: 'join-group' });
+    addNotification('Authorizing payment...', 'info');
 
     try {
       // Simulate payment authorization delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       setTransactionState('authorized');
-      toast.loading('Payment authorized! Joining group...', { id: 'join-group' });
+      addNotification('Payment authorized! Joining group...', 'info');
       
       // Update pledge count
       const newPledgeCount = currentPledges + 1;
@@ -67,21 +68,15 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
       if (newPledgeCount >= moq) {
         setStatus('successful');
         setTransactionState('charged');
-        toast.success(`🎉 Group buy successful! Payment charged for ${product.title}`, { 
-          id: 'join-group',
-          duration: 4000 
-        });
+        addNotification(`🎉 Group buy successful! Payment charged for ${product.title}`, 'success');
       } else {
         setTransactionState('authorized');
-        toast.success(`✅ Successfully joined! Payment authorized for ${product.title}`, { 
-          id: 'join-group',
-          duration: 4000 
-        });
+        addNotification(`✅ Successfully joined! Payment authorized for ${product.title}`, 'success');
       }
 
     } catch (error) {
       setTransactionState('failed');
-      toast.error('Failed to join group. Please try again.', { id: 'join-group' });
+      addNotification('Failed to join group. Please try again.', 'error');
     }
   };
 
@@ -91,7 +86,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     
     if (isCanceled) return;
 
-    toast.loading('Processing cancellation...', { id: 'cancel-listing' });
+    addNotification('Processing cancellation...', 'warning');
     
     try {
       // Simulate processing delay
@@ -104,13 +99,10 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
       setTransactionState('refunded');
       setCurrentPledges(0); // Reset pledges to 0 for visual effect
       
-      toast.success(`Listing canceled. ${hasJoined ? 'Your payment has been refunded.' : 'All participants will be refunded.'}`, { 
-        id: 'cancel-listing',
-        duration: 5000 
-      });
+      addNotification(`Listing canceled. ${hasJoined ? 'Your payment has been refunded.' : 'All participants will be refunded.'}`, 'error');
       
     } catch (error) {
-      toast.error('Failed to cancel listing. Please try again.', { id: 'cancel-listing' });
+      addNotification('Failed to cancel listing. Please try again.', 'error');
     }
   };
 
