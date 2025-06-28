@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { productService, type CreateProductData } from '../services/productService';
 import { farmerService } from '../services/farmerService';
 import { toast } from 'react-hot-toast';
@@ -23,7 +24,12 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   isHostCreated = false
 }) => {
   const { user } = useAuth();
+  const { addNotification } = useNotifications();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // State for the Waste-Warrior toggle
+  const [isWasteWarrior, setIsWasteWarrior] = useState(false);
+  
   const [formData, setFormData] = useState<CreateProductData>({
     title: '',
     description: '',
@@ -46,16 +52,40 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.email) {
-      toast.error('User not authenticated');
+      addNotification('User not authenticated', 'error');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // Create enhanced form data with Waste-Warrior information
+      const enhancedFormData = {
+        ...formData,
+        isWasteWarrior: isWasteWarrior,
+        // If it's a waste-warrior listing, adjust the weight field
+        weight: isWasteWarrior ? 'Estimated Weight (contents variable)' : formData.weight,
+        // Add waste-warrior specific description enhancement
+        description: isWasteWarrior 
+          ? `🌱 WASTE-WARRIOR LISTING: ${formData.description}\n\nThis surplus selection helps reduce food waste while providing high-quality produce at reduced prices. Contents are variable based on weekly harvest surplus but always meet our quality standards.`
+          : formData.description
+      };
+
       if (isHostCreated) {
-        // For host-created groups, just pass the form data
-        onSuccess(formData);
+        // For host-created groups, just pass the enhanced form data
+        console.log('🎉 HOST CREATED NEW PUBLIC GROUP:', {
+          hostId: user?.id,
+          productData: enhancedFormData,
+          groupType: 'Public',
+          isWasteWarrior: isWasteWarrior,
+          createdAt: new Date().toISOString(),
+        });
+        
+        onSuccess(enhancedFormData);
+        addNotification(
+          `🎉 ${isWasteWarrior ? 'Waste-Warrior' : 'Public'} group "${formData.title}" created successfully!`, 
+          'success'
+        );
       } else {
         // For farmer-created products, use the existing logic
         const farmer = await farmerService.getFarmerByEmail(user.email);
@@ -64,9 +94,13 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
           throw new Error('Farmer profile not found. Please contact support.');
         }
 
-        const newProduct = await productService.createProduct(formData, parseInt(farmer.id));
+        const newProduct = await productService.createProduct(enhancedFormData, parseInt(farmer.id));
         onSuccess(newProduct);
-        toast.success('Product listing created successfully!');
+        
+        addNotification(
+          `${isWasteWarrior ? 'Waste-Warrior listing' : 'Product listing'} created successfully!`, 
+          'success'
+        );
       }
 
       // Reset form
@@ -80,13 +114,14 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
         spotsTotal: 10,
         daysActive: 7
       });
+      setIsWasteWarrior(false);
 
       onClose();
 
     } catch (error) {
       console.error('Error creating listing:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create listing. Please try again.';
-      toast.error(errorMessage);
+      addNotification(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -122,6 +157,34 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-md">
+            {/* Waste-Warrior Toggle */}
+            <div className="bg-parchment rounded-lg p-md border border-stone/20">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="wasteWarriorCheck"
+                  checked={isWasteWarrior}
+                  onChange={(e) => setIsWasteWarrior(e.target.checked)}
+                  className="mt-1 h-5 w-5 rounded border-stone/50 text-harvest-gold focus:ring-harvest-gold"
+                />
+                <div className="flex-grow">
+                  <label htmlFor="wasteWarriorCheck" className="font-semibold text-evergreen cursor-pointer">
+                    🌱 This is a "Waste-Warrior" Surplus Listing
+                  </label>
+                  <p className="text-sm text-charcoal/80 mt-1">
+                    Help reduce food waste! Contents will be variable based on the week's surplus but always meet high quality standards.
+                  </p>
+                  {isWasteWarrior && (
+                    <div className="mt-2 p-2 bg-harvest-gold/10 rounded border border-harvest-gold/30">
+                      <p className="text-xs text-harvest-gold font-semibold">
+                        ✓ Waste-Warrior listings help reduce food waste while providing customers with high-quality produce at reduced prices.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div>
               <label htmlFor="title" className="block font-semibold text-charcoal mb-2">
                 Product Title *
@@ -132,7 +195,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder="e.g., Heirloom Tomatoes"
+                placeholder={isWasteWarrior ? "e.g., Farmer's Surplus Selection" : "e.g., Heirloom Tomatoes"}
                 className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
                 required
               />
@@ -148,13 +211,21 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
-                placeholder={isHostCreated 
-                  ? "Describe the product, its source farmer, and why you're excited to share it with your community..."
-                  : "Tell customers about your product, growing practices, and what makes it special..."
+                placeholder={
+                  isWasteWarrior
+                    ? "Describe the quality and types of produce customers can generally expect. This field is mandatory for Waste-Warrior listings. Example: 'A surprise mix of cosmetically imperfect but perfectly delicious seasonal vegetables from our weekly harvest surplus.'"
+                    : isHostCreated 
+                    ? "Describe the product, its source farmer, and why you're excited to share it with your community..."
+                    : "Tell customers about your product, growing practices, and what makes it special..."
                 }
                 className="w-full p-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
                 required
               />
+              {isWasteWarrior && (
+                <p className="text-xs text-harvest-gold mt-1">
+                  💡 Tip: Emphasize the quality standards and variety customers can expect, even though contents are variable.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
@@ -162,16 +233,32 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 <label htmlFor="weight" className="block font-semibold text-charcoal mb-2">
                   Weight/Size *
                 </label>
-                <input
-                  type="text"
-                  id="weight"
-                  name="weight"
-                  value={formData.weight}
-                  onChange={handleInputChange}
-                  placeholder="e.g., 5lb Box, 2 Dozen"
-                  className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
-                  required
-                />
+                {isWasteWarrior ? (
+                  <input
+                    type="text"
+                    id="weight"
+                    name="weight"
+                    value="Estimated Weight (e.g., approx. 5kg box)"
+                    disabled
+                    className="w-full h-12 px-4 bg-stone/10 rounded-md border border-stone/30 text-stone cursor-not-allowed"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    id="weight"
+                    name="weight"
+                    value={formData.weight}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 5lb Box, 2 Dozen"
+                    className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
+                    required
+                  />
+                )}
+                {isWasteWarrior && (
+                  <p className="text-xs text-charcoal/60 mt-1">
+                    Weight is estimated for Waste-Warrior listings due to variable contents.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -194,7 +281,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div>
                 <label htmlFor="price" className="block font-semibold text-charcoal mb-2">
-                  Group Buy Price ($) *
+                  {isWasteWarrior ? 'Surplus Price ($) *' : 'Group Buy Price ($) *'}
                 </label>
                 <input
                   type="number"
@@ -204,10 +291,15 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                   onChange={handleInputChange}
                   min="0"
                   step="0.01"
-                  placeholder="18.00"
+                  placeholder={isWasteWarrior ? "15.00" : "18.00"}
                   className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
                   required
                 />
+                {isWasteWarrior && (
+                  <p className="text-xs text-harvest-gold mt-1">
+                    💰 Waste-Warrior prices are typically 30-50% below retail
+                  </p>
+                )}
               </div>
 
               <div>
@@ -222,7 +314,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                   onChange={handleInputChange}
                   min="0"
                   step="0.01"
-                  placeholder="25.00"
+                  placeholder={isWasteWarrior ? "30.00" : "25.00"}
                   className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
                   required
                 />
@@ -263,6 +355,26 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
               </div>
             </div>
 
+            {/* Waste-Warrior Benefits Info */}
+            {isWasteWarrior && (
+              <div className="bg-success/5 rounded-lg p-md border border-success/20">
+                <h4 className="font-semibold text-success mb-2 flex items-center gap-2">
+                  <i className="ph-bold ph-leaf"></i>
+                  Waste-Warrior Impact
+                </h4>
+                <div className="grid md:grid-cols-2 gap-md text-sm text-charcoal/80">
+                  <div>
+                    <span className="font-semibold">Environmental:</span>
+                    <p>Reduces food waste and supports sustainable farming</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Community:</span>
+                    <p>Provides affordable access to high-quality produce</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {isHostCreated && (
               <div className="bg-evergreen/5 rounded-lg p-md border border-evergreen/20">
                 <h4 className="font-semibold text-evergreen mb-2">Host Benefits for This Group</h4>
@@ -291,7 +403,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                     {isHostCreated ? 'Creating Group...' : 'Creating Listing...'}
                   </>
                 ) : (
-                  submitButtonText
+                  <>
+                    {isWasteWarrior && <i className="ph-bold ph-leaf mr-2"></i>}
+                    {submitButtonText}
+                  </>
                 )}
               </button>
               <button
