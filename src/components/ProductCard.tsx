@@ -38,14 +38,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
               width="40"
               height="40"
               className="w-10 h-10 rounded-full border-2 border-white shadow"
-              src={product.farmer.avatar}
-              alt={`${product.farmer.name} Avatar`}
+              src={product.farmer?.avatar || ''}
+              alt={`${product.farmer?.name || 'Farmer'} Avatar`}
             />
             <span
               className="font-semibold text-white"
               style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}
             >
-              {product.farmer.name}
+              {product.farmer?.name || 'Unknown Farmer'}
             </span>
           </div>
         </div>
@@ -53,7 +53,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
         <div className="mt-md flex-grow">
           <h3 className="text-2xl font-semibold">{product.title}</h3>
           <p className="text-lg text-charcoal/80">{product.weight}</p>
-          <p className="mt-sm text-sm text-body line-clamp-2">{product.description.split('\n')[0]}</p>
+          <p className="mt-sm text-sm text-body line-clamp-2">
+            {(product.description || '').split('\n')[0]}
+          </p>
         </div>
         
         <div className="mt-auto pt-md">
@@ -69,7 +71,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
           </div>
           <div className="flex items-center mt-2 justify-between">
             <div className="flex items-center -space-x-2">
-              {product.members.slice(0, 3).map((member) => (
+              {(product.members || []).slice(0, 3).map((member) => (
                 <img
                   key={member.id}
                   width="32"
