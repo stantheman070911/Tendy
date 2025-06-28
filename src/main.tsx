@@ -5,15 +5,18 @@ import { router } from './App.tsx';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { DashboardProvider } from './context/DashboardContext';
+import { SubscriptionProvider } from './context/SubscriptionContext';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <NotificationProvider>
       <DashboardProvider>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
+        <SubscriptionProvider>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </SubscriptionProvider>
       </DashboardProvider>
     </NotificationProvider>
   </StrictMode>
