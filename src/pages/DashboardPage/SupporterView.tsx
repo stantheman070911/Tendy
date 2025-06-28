@@ -4,6 +4,7 @@ import { CreateGroupButtons } from '../../components/CreateGroupButtons';
 import { CustomerGroupView } from '../../components/CustomerGroupView';
 import { HostLeaderboard } from '../../components/HostLeaderboard';
 import { FileDisputeModal } from '../../components/FileDisputeModal';
+import { SubscriptionManagementView } from '../../components/SubscriptionManagementView';
 import type { SupporterSection } from '../../types';
 
 // This could be fetched from an API in a real application
@@ -127,6 +128,11 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
         <div className="mt-xl">
           <HostLeaderboard limit={3} compact={true} />
         </div>
+      </section>
+
+      {/* Subscriptions Section - NEW */}
+      <section className={activeSection === 'subscriptions' ? '' : 'hidden'}>
+        <SubscriptionManagementView />
       </section>
 
       {/* Order History Section */}

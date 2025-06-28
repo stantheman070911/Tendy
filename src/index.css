@@ -610,6 +610,108 @@
   .copy-button-default {
     @apply bg-harvest-gold text-evergreen hover:scale-105;
   }
+
+  /* Subscription Management Styles */
+  .subscription-card {
+    @apply bg-white rounded-xl border border-stone/10 shadow-sm overflow-hidden;
+  }
+
+  .subscription-status-active {
+    @apply border-l-4 border-l-success;
+  }
+
+  .subscription-status-paused {
+    @apply border-l-4 border-l-harvest-gold;
+  }
+
+  .subscription-status-canceled {
+    @apply border-l-4 border-l-error;
+  }
+
+  .subscription-progress-bar {
+    @apply w-full bg-stone/20 rounded-full h-2 transition-all duration-300;
+  }
+
+  .subscription-action-btn {
+    @apply h-10 px-4 font-semibold rounded-lg transition-all;
+  }
+
+  .subscription-action-btn.primary {
+    @apply bg-evergreen text-parchment hover:opacity-90;
+  }
+
+  .subscription-action-btn.success {
+    @apply bg-success text-white hover:opacity-90;
+  }
+
+  .subscription-action-btn.warning {
+    @apply bg-harvest-gold text-evergreen hover:opacity-90;
+  }
+
+  .subscription-action-btn.danger {
+    @apply bg-error text-white hover:opacity-90;
+  }
+
+  .subscription-action-btn.secondary {
+    @apply border border-stone/30 text-charcoal hover:bg-stone/10;
+  }
+
+  /* Subscription frequency selector */
+  .frequency-selector {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-md;
+  }
+
+  .frequency-option {
+    @apply p-md rounded-lg border-2 transition-all cursor-pointer text-center;
+  }
+
+  .frequency-option.selected {
+    @apply border-harvest-gold bg-harvest-gold/5;
+  }
+
+  .frequency-option:not(.selected) {
+    @apply border-stone/30 hover:border-harvest-gold/50;
+  }
+
+  /* Subscription benefits grid */
+  .subscription-benefits {
+    @apply grid md:grid-cols-2 gap-md;
+  }
+
+  .subscription-benefit {
+    @apply p-md rounded-lg border border-stone/20 bg-white;
+  }
+
+  /* Subscription discount indicator */
+  .subscription-discount {
+    @apply bg-success/10 text-success px-2 py-1 rounded text-sm font-semibold;
+  }
+
+  /* Subscription term selector */
+  .subscription-term-selector {
+    @apply space-y-2;
+  }
+
+  .subscription-term-option {
+    @apply p-3 rounded-lg border-2 transition-all cursor-pointer;
+  }
+
+  .subscription-term-option.selected {
+    @apply border-harvest-gold bg-harvest-gold/5;
+  }
+
+  .subscription-term-option:not(.selected) {
+    @apply border-stone/30 hover:border-harvest-gold/50;
+  }
+
+  /* Subscription savings indicator */
+  .subscription-savings {
+    @apply text-success font-semibold;
+  }
+
+  .subscription-total-savings {
+    @apply bg-success/10 text-success p-md rounded-lg border border-success/20;
+  }
 }
 
 @layer utilities {

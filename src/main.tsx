@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './App.tsx';
 import { AuthProvider } from './context/AuthContext';
@@ -7,20 +7,23 @@ import { NotificationProvider } from './context/NotificationContext';
 import { DashboardProvider } from './context/DashboardContext';
 import { GroupManagementProvider } from './context/GroupManagementContext';
 import { DisputeProvider } from './context/DisputeContext';
+import { SubscriptionProvider } from './context/SubscriptionContext';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <NotificationProvider>
       <DashboardProvider>
         <GroupManagementProvider>
           <DisputeProvider>
-            <AuthProvider>
-              <RouterProvider router={router} />
-            </AuthProvider>
+            <SubscriptionProvider>
+              <AuthProvider>
+                <RouterProvider router={router} />
+              </AuthProvider>
+            </SubscriptionProvider>
           </DisputeProvider>
         </GroupManagementProvider>
       </DashboardProvider>
     </NotificationProvider>
-  </React.StrictMode>
+  </StrictMode>
 );
