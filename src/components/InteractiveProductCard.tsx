@@ -37,7 +37,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     if (isLoggedIn) {
       navigate(`/product/${product.id}`);
     } else {
-      navigate('/login');
+      navigate('/login', { state: { from: `/product/${product.id}` } });
     }
   };
 
@@ -45,7 +45,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     e.stopPropagation(); // Prevent card click navigation
     
     if (!isLoggedIn) {
-      navigate('/login');
+      navigate('/login', { state: { from: `/product/${product.id}` } });
       return;
     }
 

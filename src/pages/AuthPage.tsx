@@ -7,6 +7,7 @@ export const AuthPage: React.FC = () => {
   const { loginAsPlaceholder } = usePlaceholderAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
   const handleDemoLogin = (role: 'customer' | 'farmer' | 'host') => {
     try {
@@ -14,8 +15,8 @@ export const AuthPage: React.FC = () => {
       const user = loginAsPlaceholder(role);
       
       if (user) {
-        // Navigate to the homepage (/) after successful login
-        navigate('/', { replace: true });
+        // Navigate to the original page they were trying to access, or homepage as fallback
+        navigate(from, { replace: true });
       } else {
         console.error(`Could not log in as placeholder for role: ${role}`);
         alert(`Setup Error: No placeholder user found for role "${role}". Please check public/placeholder-users.json`);
