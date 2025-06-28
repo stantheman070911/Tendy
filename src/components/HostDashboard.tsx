@@ -22,6 +22,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
   const [managedProducts, setManagedProducts] = useState<ProductWithFarmer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [boostingProductId, setBoostingProductId] = useState<string | null>(null);
+  const [deliveryStatus, setDeliveryStatus] = useState<{ [key: string]: 'pending' | 'confirmed' | 'completed' }>({});
   const { addNotification } = useNotifications();
 
   // Load host's managed products
@@ -35,6 +36,17 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
         const allProducts = await productService.getAllProducts();
         const hostedProducts = allProducts.filter(p => p.host);
         setManagedProducts(hostedProducts);
+        
+        // Initialize delivery status for successful groups
+        const initialStatus: { [key: string]: 'pending' | 'confirmed' | 'completed' } = {};
+        hostedProducts.forEach(product => {
+          const filled = product.spotsTotal - product.spotsLeft;
+          if (filled >= product.spotsTotal * 0.8) { // 80% filled = ready for delivery
+            initialStatus[product.id] = 'pending';
+          }
+        });
+        setDeliveryStatus(initialStatus);
+        
       } catch (error) {
         console.error('Error loading managed products:', error);
       } finally {
@@ -100,6 +112,83 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
       addNotification('Failed to activate Community Boost. Please try again.', 'error');
     } finally {
       setBoostingProductId(null);
+    }
+  };
+
+  // NEW: Delivery Confirmation Function
+  const handleConfirmDelivery = async (productId: string, productTitle: string) => {
+    if (deliveryStatus[productId] !== 'pending') return;
+
+    addNotification('Confirming delivery and processing payouts...', 'info');
+    
+    try {
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update delivery status
+      setDeliveryStatus(prev => ({
+        ...prev,
+        [productId]: 'confirmed'
+      }));
+      
+      // Calculate farmer payout (92% of revenue after 8% platform fee)
+      const product = managedProducts.find(p => p.id === productId);
+      if (product) {
+        const filled = product.spotsTotal - product.spotsLeft;
+        const totalRevenue = filled * product.price;
+        const farmerPayout = totalRevenue * 0.92; // 92% to farmer
+        const hostReward = totalRevenue * 0.02; // 2% to host
+        
+        console.log(`💰 PAYOUT PROCESSED: ${productTitle}`);
+        console.log(`👨‍🌾 FARMER PAYOUT: $${farmerPayout.toFixed(2)} (92% of $${totalRevenue.toFixed(2)})`);
+        console.log(`🏠 HOST REWARD: $${hostReward.toFixed(2)} (2% of $${totalRevenue.toFixed(2)})`);
+        console.log(`🏢 PLATFORM FEE: $${(totalRevenue * 0.06).toFixed(2)} (6% of $${totalRevenue.toFixed(2)})`);
+        
+        addNotification(`✅ Delivery confirmed! Farmer payout of $${farmerPayout.toFixed(2)} has been processed.`, 'success');
+        
+        // Show host reward notification
+        setTimeout(() => {
+          addNotification(`💰 Your host reward of $${hostReward.toFixed(2)} has been added to your wallet!`, 'success');
+        }, 1500);
+        
+        // Mark as completed after a delay
+        setTimeout(() => {
+          setDeliveryStatus(prev => ({
+            ...prev,
+            [productId]: 'completed'
+          }));
+        }, 3000);
+      }
+      
+    } catch (error) {
+      console.error('Delivery confirmation error:', error);
+      addNotification('Failed to confirm delivery. Please try again.', 'error');
+    }
+  };
+
+  const getDeliveryButtonText = (productId: string) => {
+    const status = deliveryStatus[productId];
+    switch (status) {
+      case 'confirmed':
+        return 'Processing Payouts...';
+      case 'completed':
+        return 'Delivery Complete ✓';
+      case 'pending':
+      default:
+        return 'Confirm Delivery & Finalize';
+    }
+  };
+
+  const getDeliveryButtonStyle = (productId: string) => {
+    const status = deliveryStatus[productId];
+    switch (status) {
+      case 'confirmed':
+        return 'bg-harvest-gold text-evergreen cursor-wait';
+      case 'completed':
+        return 'bg-success text-white cursor-default';
+      case 'pending':
+      default:
+        return 'bg-evergreen text-parchment hover:opacity-90';
     }
   };
 
@@ -236,81 +325,123 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
           </div>
         ) : managedProducts.length > 0 ? (
           <div className="space-y-lg">
-            {managedProducts.map(product => (
-              <div key={product.id} className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm">
-                <div className="grid md:grid-cols-3 gap-lg items-center">
-                  {/* Product Info */}
-                  <div className="md:col-span-2">
-                    <div className="flex items-start gap-md">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.title}
-                        className="w-24 h-24 object-cover rounded-lg"
-                      />
-                      <div className="flex-grow">
-                        <h4 className="text-xl font-semibold text-evergreen">{product.title}</h4>
-                        <p className="text-charcoal/80">From {product.farmer.name}</p>
-                        <p className="text-sm text-stone mt-1">
-                          {product.spotsTotal - product.spotsLeft} of {product.spotsTotal} spots filled
-                        </p>
-                        
-                        {/* Progress Bar */}
-                        <div className="w-full bg-stone/20 rounded-full h-2 mt-2">
-                          <div
-                            className="bg-harvest-gold h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${((product.spotsTotal - product.spotsLeft) / product.spotsTotal) * 100}%` }}
-                          ></div>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 mt-3 text-sm">
-                          <span className="text-success font-semibold">
-                            ${((product.spotsTotal - product.spotsLeft) * product.price * platformCommission * hostRewardRate).toFixed(2)} earned
-                          </span>
-                          <span className="text-stone">
-                            {product.daysLeft} days left
-                          </span>
+            {managedProducts.map(product => {
+              const filled = product.spotsTotal - product.spotsLeft;
+              const isReadyForDelivery = filled >= product.spotsTotal * 0.8; // 80% filled
+              const revenue = filled * product.price;
+              const hostReward = revenue * 0.02; // 2% host reward
+              
+              return (
+                <div key={product.id} className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm">
+                  <div className="grid md:grid-cols-3 gap-lg items-center">
+                    {/* Product Info */}
+                    <div className="md:col-span-2">
+                      <div className="flex items-start gap-md">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.title}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                        <div className="flex-grow">
+                          <h4 className="text-xl font-semibold text-evergreen">{product.title}</h4>
+                          <p className="text-charcoal/80">From {product.farmer.name}</p>
+                          <p className="text-sm text-stone mt-1">
+                            {filled} of {product.spotsTotal} spots filled
+                          </p>
+                          
+                          {/* Progress Bar */}
+                          <div className="w-full bg-stone/20 rounded-full h-2 mt-2">
+                            <div
+                              className={`h-2 rounded-full transition-all duration-300 ${
+                                deliveryStatus[product.id] === 'completed' ? 'bg-success' :
+                                isReadyForDelivery ? 'bg-harvest-gold' : 'bg-info'
+                              }`}
+                              style={{ width: `${(filled / product.spotsTotal) * 100}%` }}
+                            ></div>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 mt-3 text-sm">
+                            <span className="text-success font-semibold">
+                              ${hostReward.toFixed(2)} host reward
+                            </span>
+                            <span className="text-stone">
+                              {product.daysLeft} days left
+                            </span>
+                            {deliveryStatus[product.id] === 'completed' && (
+                              <span className="text-success font-semibold">
+                                ✓ Delivery Complete
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Host Actions */}
-                  <div className="space-y-sm">
-                    <button
-                      onClick={() => handleCommunityBoost(product.id, product.title)}
-                      disabled={boostingProductId === product.id}
-                      className={`w-full h-12 flex items-center justify-center font-semibold rounded-lg transition-all ${
-                        boostingProductId === product.id
-                          ? 'bg-stone/50 text-stone cursor-not-allowed'
-                          : 'bg-harvest-gold text-evergreen hover:scale-105'
-                      }`}
-                    >
-                      {boostingProductId === product.id ? (
-                        <>
-                          <i className="ph ph-spinner animate-spin mr-2"></i>
-                          Boosting...
-                        </>
-                      ) : (
-                        <>
-                          <i className="ph-bold ph-megaphone mr-2"></i>
-                          Community Boost
-                        </>
+                    
+                    {/* Host Actions */}
+                    <div className="space-y-sm">
+                      {/* Delivery Confirmation Button - NEW */}
+                      {isReadyForDelivery && (
+                        <button
+                          onClick={() => handleConfirmDelivery(product.id, product.title)}
+                          disabled={deliveryStatus[product.id] === 'confirmed' || deliveryStatus[product.id] === 'completed'}
+                          className={`w-full h-12 flex items-center justify-center font-semibold rounded-lg transition-all ${getDeliveryButtonStyle(product.id)}`}
+                        >
+                          {deliveryStatus[product.id] === 'confirmed' ? (
+                            <>
+                              <i className="ph ph-spinner animate-spin mr-2"></i>
+                              Processing...
+                            </>
+                          ) : deliveryStatus[product.id] === 'completed' ? (
+                            <>
+                              <i className="ph-bold ph-check-circle mr-2"></i>
+                              Complete
+                            </>
+                          ) : (
+                            <>
+                              <i className="ph-bold ph-package mr-2"></i>
+                              {getDeliveryButtonText(product.id)}
+                            </>
+                          )}
+                        </button>
                       )}
-                    </button>
-                    
-                    <button className="w-full h-10 flex items-center justify-center border border-evergreen text-evergreen font-semibold rounded-lg hover:bg-evergreen hover:text-parchment transition-colors">
-                      <i className="ph-bold ph-users mr-2"></i>
-                      Manage Group
-                    </button>
-                    
-                    <button className="w-full h-10 flex items-center justify-center border border-stone/30 text-stone font-semibold rounded-lg hover:bg-stone/10 transition-colors">
-                      <i className="ph-bold ph-chat-circle mr-2"></i>
-                      Contact Members
-                    </button>
+                      
+                      {/* Community Boost Button */}
+                      <button
+                        onClick={() => handleCommunityBoost(product.id, product.title)}
+                        disabled={boostingProductId === product.id || deliveryStatus[product.id] === 'completed'}
+                        className={`w-full h-12 flex items-center justify-center font-semibold rounded-lg transition-all ${
+                          boostingProductId === product.id || deliveryStatus[product.id] === 'completed'
+                            ? 'bg-stone/50 text-stone cursor-not-allowed'
+                            : 'bg-harvest-gold text-evergreen hover:scale-105'
+                        }`}
+                      >
+                        {boostingProductId === product.id ? (
+                          <>
+                            <i className="ph ph-spinner animate-spin mr-2"></i>
+                            Boosting...
+                          </>
+                        ) : (
+                          <>
+                            <i className="ph-bold ph-megaphone mr-2"></i>
+                            Community Boost
+                          </>
+                        )}
+                      </button>
+                      
+                      <button className="w-full h-10 flex items-center justify-center border border-evergreen text-evergreen font-semibold rounded-lg hover:bg-evergreen hover:text-parchment transition-colors">
+                        <i className="ph-bold ph-users mr-2"></i>
+                        Manage Group
+                      </button>
+                      
+                      <button className="w-full h-10 flex items-center justify-center border border-stone/30 text-stone font-semibold rounded-lg hover:bg-stone/10 transition-colors">
+                        <i className="ph-bold ph-chat-circle mr-2"></i>
+                        Contact Members
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-xl">
@@ -327,6 +458,32 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Delivery & Payout Process Info - NEW */}
+      <div className="bg-evergreen/5 rounded-xl p-lg border border-evergreen/20 mb-xl">
+        <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+          <i className="ph-bold ph-package text-harvest-gold"></i>
+          Delivery & Payout Process
+        </h3>
+        <div className="grid md:grid-cols-2 gap-md text-sm text-charcoal/90">
+          <div>
+            <h4 className="font-semibold mb-2">📦 Delivery Confirmation</h4>
+            <p>When a group reaches 80% capacity, you can confirm successful pickup and trigger final payouts to farmers.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">💰 Automatic Payouts</h4>
+            <p>Farmers receive 92% of revenue, you earn 2% as host reward, and 6% covers platform operations.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">🔒 Secure Transactions</h4>
+            <p>All payments are processed securely with instant notifications to all parties involved.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">📊 Transparent Tracking</h4>
+            <p>Real-time updates on delivery status, payout processing, and earnings in your host wallet.</p>
+          </div>
+        </div>
       </div>
 
       {/* Community Boost Info */}

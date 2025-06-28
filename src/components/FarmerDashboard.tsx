@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { InteractiveProductCard } from './InteractiveProductCard';
 import { productService } from '../services/productService';
+import { useNotifications } from '../context/NotificationContext';
 import type { ProductWithFarmer } from '../types';
 
 interface FarmerUser {
@@ -23,6 +24,14 @@ interface FarmerDashboardProps {
 export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
   const [products, setProducts] = useState<ProductWithFarmer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [payoutHistory, setPayoutHistory] = useState<Array<{
+    id: string;
+    productTitle: string;
+    amount: number;
+    date: string;
+    status: 'pending' | 'processed' | 'completed';
+  }>>([]);
+  const { addNotification } = useNotifications();
 
   // Load farmer's products on component mount
   React.useEffect(() => {
@@ -38,6 +47,19 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
           p.farmer.name === farmer.farmName
         );
         setProducts(farmerProducts);
+        
+        // Simulate payout history for completed groups
+        const mockPayouts = farmerProducts
+          .filter(p => (p.spotsTotal - p.spotsLeft) >= p.spotsTotal * 0.8) // 80% filled
+          .map(p => ({
+            id: p.id,
+            productTitle: p.title,
+            amount: (p.spotsTotal - p.spotsLeft) * p.price * 0.92, // 92% to farmer
+            date: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+            status: Math.random() > 0.3 ? 'completed' : 'processed' as 'pending' | 'processed' | 'completed'
+          }));
+        setPayoutHistory(mockPayouts);
+        
       } catch (error) {
         console.error('Error loading farmer products:', error);
       } finally {
@@ -47,6 +69,23 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
 
     loadFarmerProducts();
   }, [farmer]);
+
+  // Simulate receiving a payout notification
+  React.useEffect(() => {
+    const simulatePayoutNotification = () => {
+      if (payoutHistory.length > 0 && Math.random() > 0.7) {
+        const randomPayout = payoutHistory[Math.floor(Math.random() * payoutHistory.length)];
+        setTimeout(() => {
+          addNotification(
+            `💰 Payout received! $${randomPayout.amount.toFixed(2)} for "${randomPayout.productTitle}" has been deposited to your account.`,
+            'success'
+          );
+        }, 3000);
+      }
+    };
+
+    simulatePayoutNotification();
+  }, [payoutHistory, addNotification]);
 
   if (!farmer) {
     return (
@@ -66,6 +105,12 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
     const filled = p.spotsTotal - p.spotsLeft;
     return sum + (filled * p.price);
   }, 0);
+  
+  // Calculate total payouts (92% of revenue after platform fees)
+  const totalPayouts = payoutHistory.reduce((sum, payout) => sum + payout.amount, 0);
+  const pendingPayouts = payoutHistory
+    .filter(p => p.status === 'pending' || p.status === 'processed')
+    .reduce((sum, payout) => sum + payout.amount, 0);
 
   const getVerificationBadgeColor = () => {
     if (farmer.verificationTier.includes('Level 3')) return 'bg-success text-white';
@@ -79,6 +124,30 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
     if (farmer.virtualTourCompleted) features.push('Virtual Farm Tour');
     if (farmer.averageRating) features.push(`${farmer.averageRating}⭐ Average Rating`);
     return features;
+  };
+
+  const getPayoutStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'text-success';
+      case 'processed':
+        return 'text-harvest-gold';
+      case 'pending':
+      default:
+        return 'text-info';
+    }
+  };
+
+  const getPayoutStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'ph-check-circle';
+      case 'processed':
+        return 'ph-clock';
+      case 'pending':
+      default:
+        return 'ph-hourglass';
+    }
   };
 
   return (
@@ -144,6 +213,86 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
         </div>
       </div>
 
+      {/* Farmer Payout Wallet - NEW */}
+      <div className="bg-gradient-to-r from-success/10 to-success/5 rounded-xl p-lg border border-success/20 mb-xl">
+        <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+          <i className="ph-bold ph-wallet text-success"></i>
+          Farmer Payout Wallet
+        </h3>
+        
+        <div className="grid md:grid-cols-3 gap-lg">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-evergreen mb-2">${totalPayouts.toFixed(2)}</div>
+            <div className="text-sm text-charcoal/80">Total Earnings</div>
+            <div className="text-xs text-stone mt-1">From completed deliveries</div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-4xl font-bold text-harvest-gold mb-2">${pendingPayouts.toFixed(2)}</div>
+            <div className="text-sm text-charcoal/80">Pending Payouts</div>
+            <div className="text-xs text-stone mt-1">Processing within 24-48 hours</div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-4xl font-bold text-success mb-2">92%</div>
+            <div className="text-sm text-charcoal/80">Revenue Share</div>
+            <div className="text-xs text-stone mt-1">After platform fees</div>
+          </div>
+        </div>
+        
+        <div className="mt-lg text-center">
+          <button className="h-12 px-8 bg-success text-white font-bold rounded-lg hover:scale-105 transition-transform">
+            <i className="ph-bold ph-bank mr-2"></i>
+            Withdraw Earnings
+          </button>
+        </div>
+      </div>
+
+      {/* Payout History - NEW */}
+      {payoutHistory.length > 0 && (
+        <div className="bg-white rounded-xl p-lg border border-stone/10 shadow-sm mb-xl">
+          <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+            <i className="ph-bold ph-receipt text-harvest-gold"></i>
+            Recent Payouts
+          </h3>
+          
+          <div className="space-y-md">
+            {payoutHistory.slice(0, 5).map((payout) => (
+              <div key={payout.id} className="flex items-center justify-between p-md bg-parchment rounded-lg">
+                <div className="flex items-center gap-3">
+                  <i className={`${getPayoutStatusIcon(payout.status)} ${getPayoutStatusColor(payout.status)} text-2xl`}></i>
+                  <div>
+                    <h4 className="font-semibold text-evergreen">{payout.productTitle}</h4>
+                    <p className="text-sm text-stone">
+                      {new Date(payout.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="text-right">
+                  <div className="text-xl font-bold text-success">${payout.amount.toFixed(2)}</div>
+                  <div className={`text-sm font-semibold capitalize ${getPayoutStatusColor(payout.status)}`}>
+                    {payout.status}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {payoutHistory.length > 5 && (
+            <div className="text-center mt-md">
+              <button className="text-evergreen font-semibold hover:text-harvest-gold transition-colors">
+                View All Payouts →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="grid md:grid-cols-3 gap-md mb-xl">
         <button className="bg-evergreen text-parchment p-lg rounded-xl hover:opacity-90 transition-opacity">
@@ -182,18 +331,31 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
           </div>
         ) : products.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-lg">
-            {products.map(product => (
-              <div key={product.id} className="relative">
-                <InteractiveProductCard product={product} isLoggedIn={true} />
-                {/* Farmer-specific overlay */}
-                <div className="absolute top-4 right-4 bg-white/90 rounded-lg p-2 text-center">
-                  <div className="text-sm font-bold text-evergreen">
-                    ${((product.spotsTotal - product.spotsLeft) * product.price).toFixed(0)}
+            {products.map(product => {
+              const filled = product.spotsTotal - product.spotsLeft;
+              const revenue = filled * product.price;
+              const farmerEarnings = revenue * 0.92; // 92% to farmer
+              
+              return (
+                <div key={product.id} className="relative">
+                  <InteractiveProductCard product={product} isLoggedIn={true} />
+                  {/* Farmer-specific overlay */}
+                  <div className="absolute top-4 right-4 bg-white/90 rounded-lg p-2 text-center">
+                    <div className="text-sm font-bold text-evergreen">
+                      ${farmerEarnings.toFixed(0)}
+                    </div>
+                    <div className="text-xs text-stone">Your Share</div>
                   </div>
-                  <div className="text-xs text-stone">Revenue</div>
+                  
+                  {/* Delivery Status Badge */}
+                  {filled >= product.spotsTotal * 0.8 && (
+                    <div className="absolute bottom-4 left-4 bg-success text-white px-3 py-1 rounded-full text-sm font-bold">
+                      Ready for Delivery
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-xl">
@@ -210,6 +372,32 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({ farmer }) => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Payout Process Info - NEW */}
+      <div className="bg-success/5 rounded-xl p-lg border border-success/20 mb-xl">
+        <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
+          <i className="ph-bold ph-info text-success"></i>
+          How Farmer Payouts Work
+        </h3>
+        <div className="grid md:grid-cols-2 gap-md text-sm text-charcoal/90">
+          <div>
+            <h4 className="font-semibold mb-2">💰 Automatic Processing</h4>
+            <p>When a host confirms delivery, your payout is automatically calculated and processed within 24-48 hours.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">📊 Transparent Fees</h4>
+            <p>You receive 92% of the total revenue. 6% covers platform operations and 2% goes to the host as a reward.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">🔒 Secure Transfers</h4>
+            <p>All payouts are processed through secure banking partners with full transaction tracking and receipts.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">📈 Growth Incentives</h4>
+            <p>Higher verification tiers unlock better visibility, premium features, and reduced platform fees.</p>
+          </div>
+        </div>
       </div>
 
       {/* Farmer Tips */}
