@@ -4,7 +4,7 @@ import usersData from "../../public/placeholder-users.json";
 // The actual array of users is nested under the 'default' key due to Vite's JSON import handling
 const placeholderUsers = (usersData as any).default || usersData;
 
-// Define the User type
+// Define the User type - updated to match the JSON structure exactly
 interface User {
   id: string;
   role: "customer" | "host" | "farmer";
@@ -22,6 +22,9 @@ interface User {
   groupsManaged?: string[];
   businessLicenseVerified?: boolean;
   products?: string[];
+  // Additional properties that might be in the JSON
+  zipCode?: string;
+  verificationLevel?: string;
 }
 
 // Define the shape of the context
@@ -47,6 +50,9 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
 
   // The new function for placeholder login
   const loginAsPlaceholder = (role: "customer" | "host" | "farmer") => {
+    console.log("🔍 Looking for user with role:", role);
+    console.log("📋 Available users:", placeholderUsers);
+    
     let userToLogin: User | undefined;
 
     switch (role) {
@@ -56,12 +62,14 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
         );
         break;
       case "host":
-        userToLogin = placeholderUsers.find((u: User) => u.isHost);
+        userToLogin = placeholderUsers.find((u: User) => u.role === "host" || u.isHost === true);
         break;
       case "farmer":
         userToLogin = placeholderUsers.find((u: User) => u.role === "farmer");
         break;
     }
+
+    console.log("🎯 Found user:", userToLogin);
 
     if (userToLogin) {
       setUser(userToLogin);
@@ -70,6 +78,7 @@ export const PlaceholderAuthProvider: React.FC<{ children: React.ReactNode }> = 
       console.log(`🎭 Demo login successful as ${role}:`, userToLogin.name);
     } else {
       console.error(`No placeholder user found for role: ${role}`);
+      console.error("Available users:", placeholderUsers.map((u: User) => ({ id: u.id, role: u.role, name: u.name })));
     }
   };
 
