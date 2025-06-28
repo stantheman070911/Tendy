@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { CreateGroupButtons } from '../../components/CreateGroupButtons';
+import { HostLeaderboard } from '../../components/HostLeaderboard';
 import type { SupporterSection } from '../../types';
 
 // This could be fetched from an API in a real application
@@ -52,6 +53,11 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Host Leaderboard in Dashboard */}
+        <div className="mt-xl">
+          <HostLeaderboard limit={3} compact={true} />
         </div>
       </section>
 

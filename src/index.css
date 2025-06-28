@@ -219,6 +219,74 @@
   .race-condition-button:disabled {
     @apply opacity-50 cursor-not-allowed;
   }
+
+  /* Host Leaderboard Styles */
+  .leaderboard-container {
+    @apply bg-white rounded-xl p-lg border border-stone/10 shadow-sm max-w-2xl mx-auto;
+  }
+
+  .leaderboard-container.compact {
+    @apply max-w-lg p-md;
+  }
+
+  .leaderboard-item {
+    @apply transition-all duration-300 hover:shadow-md;
+  }
+
+  .leaderboard-item.rank-1 {
+    @apply shadow-lg;
+  }
+
+  .leaderboard-item.rank-1::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-harvest-gold/5 to-transparent rounded-xl pointer-events-none;
+  }
+
+  .leaderboard-item.rank-2::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-stone/5 to-transparent rounded-xl pointer-events-none;
+  }
+
+  .leaderboard-item.rank-3::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-amber-600/5 to-transparent rounded-xl pointer-events-none;
+  }
+
+  /* Leaderboard animations */
+  .leaderboard-item {
+    animation: slideInLeaderboard 0.6s ease-out;
+  }
+
+  .leaderboard-item:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .leaderboard-item:nth-child(2) {
+    animation-delay: 100ms;
+  }
+
+  .leaderboard-item:nth-child(3) {
+    animation-delay: 200ms;
+  }
+
+  .leaderboard-item:nth-child(4) {
+    animation-delay: 300ms;
+  }
+
+  .leaderboard-item:nth-child(5) {
+    animation-delay: 400ms;
+  }
+
+  @keyframes slideInLeaderboard {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 }
 
 @layer utilities {

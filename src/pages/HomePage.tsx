@@ -8,6 +8,7 @@ import { FarmerOfTheWeek } from '../components/FarmerOfTheWeek';
 import { GroupTypes } from '../components/GroupTypes';
 import { ForFarmers } from '../components/ForFarmers';
 import { ForHosts } from '../components/ForHosts';
+import { HostLeaderboard } from '../components/HostLeaderboard';
 import { useAuth } from '../context/AuthContext';
 
 export const HomePage: React.FC = () => {
@@ -47,6 +48,11 @@ export const HomePage: React.FC = () => {
       
       <div className="container mx-auto max-w-screen-xl px-md md:px-lg">
         <ForHosts />
+        
+        {/* Host Leaderboard Section */}
+        <section className="py-xl md:py-2xl">
+          <HostLeaderboard limit={5} />
+        </section>
       </div>
     </main>
   );
