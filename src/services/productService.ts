@@ -14,88 +14,116 @@ export interface CreateProductData {
   daysActive: number;
 }
 
-// --- MOCK DATA ---
+// --- MOCK DATA (Corrected and Standardized) ---
 const mockProducts: ProductWithFarmer[] = [
   {
     id: '1',
-    title: 'Organic Heirloom Tomatoes',
+    name: 'Organic Heirloom Tomatoes',
     description: 'Juicy, ripe heirloom tomatoes, grown with love and no pesticides. Perfect for salads, sauces, or just eating plain.',
     price: 5.99,
-    original_price: 7.99,
-    weight: '1lb',
+    unit: '1lb',
+    spots_total: 20,
     spots_left: 8,
-    days_left: 7,
-    progress: 60,
     image_url: 'https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg',
-    gallery: ['https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg'],
-    farmer_id: 1,
+    farmer_id: 'farmer-1',
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    farmers: {
+    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    host_id: null,
+    farmer: {
+      id: 'farmer-1',
       name: 'Green Thumb Organics',
-      image_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg'
-    }
+      email: 'farmer@example.com',
+      role: 'farmer',
+      avatar_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
+      bio: 'We are a small family farm dedicated to sustainable agriculture.',
+      quote: '"The earth laughs in flowers."',
+      practices: 'Certified Organic, No-Till',
+      created_at: new Date().toISOString(),
+      is_verified: true,
+    },
   },
   {
     id: '2',
-    title: 'Artisanal Sourdough Bread',
+    name: 'Artisanal Sourdough Bread',
     description: 'A crusty loaf of naturally leavened sourdough, made with locally milled flour. Baked fresh daily.',
     price: 8.00,
-    original_price: 10.00,
-    weight: '1 loaf',
+    unit: 'loaf',
+    spots_total: 15,
     spots_left: 3,
-    days_left: 5,
-    progress: 80,
     image_url: 'https://images.pexels.com/photos/209206/pexels-photo-209206.jpeg',
-    gallery: ['https://images.pexels.com/photos/209206/pexels-photo-209206.jpeg'],
-    farmer_id: 2,
+    farmer_id: 'farmer-2',
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    farmers: {
-      name: 'The Rolling Pin Bakery',
-      image_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg'
-    }
+    end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    host_id: 'host-1',
+    farmer: {
+        id: 'farmer-2',
+        name: 'The Rolling Pin Bakery',
+        email: 'baker@example.com',
+        role: 'farmer',
+        avatar_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
+        bio: 'Passionate about the art of traditional bread making.',
+        quote: '"Good bread is the most fundamentally satisfying of all foods."',
+        practices: 'Small Batch, Natural Leavening',
+        created_at: new Date().toISOString(),
+        is_verified: true,
+    },
   },
-  {
+   {
     id: '3',
-    title: 'Fresh Organic Carrots',
-    description: 'Sweet, crunchy carrots harvested at peak freshness. Perfect for snacking, cooking, or juicing.',
-    price: 3.50,
-    original_price: 4.50,
-    weight: '2lbs',
-    spots_left: 12,
-    days_left: 4,
-    progress: 40,
-    image_url: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg',
-    gallery: ['https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg'],
-    farmer_id: 3,
+    name: 'Free-Range Eggs',
+    description: 'A dozen fresh eggs from our happy, pasture-raised hens. Vibrant yolks and unbeatable flavor.',
+    price: 7.50,
+    unit: 'dozen',
+    spots_total: 30,
+    spots_left: 15,
+    image_url: 'https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg',
+    farmer_id: 'farmer-1',
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    farmers: {
-      name: 'Sunrise Farm',
-      image_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg'
-    }
+    end_date: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    host_id: 'host-1',
+    farmer: {
+      id: 'farmer-1',
+      name: 'Green Thumb Organics',
+      email: 'farmer@example.com',
+      role: 'farmer',
+      avatar_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
+      bio: 'We are a small family farm dedicated to sustainable agriculture.',
+      quote: '"The earth laughs in flowers."',
+      practices: 'Certified Organic, No-Till',
+      created_at: new Date().toISOString(),
+      is_verified: true,
+    },
   },
   {
     id: '4',
-    title: 'Farm Fresh Eggs',
-    description: 'Free-range eggs from happy hens. Rich, golden yolks and firm whites make these perfect for any meal.',
-    price: 6.00,
-    original_price: 8.00,
-    weight: '1 dozen',
-    spots_left: 15,
-    days_left: 3,
-    progress: 25,
-    image_url: 'https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg',
-    gallery: ['https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg'],
-    farmer_id: 4,
+    name: 'Raw Wildflower Honey',
+    description: 'Pure, unfiltered honey from bees that foraged on a variety of local wildflowers. A true taste of the season.',
+    price: 12.00,
+    unit: '8oz jar',
+    spots_total: 25,
+    spots_left: 0,
+    image_url: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg',
+    farmer_id: 'farmer-2',
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    farmers: {
-      name: 'Happy Hen Farm',
-      image_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg'
-    }
-  }
+    end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'full',
+    host_id: null,
+    farmer: {
+        id: 'farmer-2',
+        name: 'The Rolling Pin Bakery',
+        email: 'baker@example.com',
+        role: 'farmer',
+        avatar_url: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
+        bio: 'Passionate about the art of traditional bread making.',
+        quote: '"Good bread is the most fundamentally satisfying of all foods."',
+        practices: 'Small Batch, Natural Leavening',
+        created_at: new Date().toISOString(),
+        is_verified: true,
+    },
+  },
 ];
 
 export const productService = {
@@ -174,9 +202,8 @@ export const productService = {
     console.log('Fetching MOCK products...');
 
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Return a sliced version if a limit is provided
     const productsToReturn = limit ? mockProducts.slice(0, limit) : mockProducts;
 
     console.log('Mock products fetched successfully:', productsToReturn);
