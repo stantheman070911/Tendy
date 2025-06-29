@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '@/context/PlaceholderAuthContext';
 
 const benefits = [
   'Earn <strong>5-8% credit</strong> on every group order you host.',
@@ -18,7 +18,7 @@ const FeatureIcon: React.FC<{ iconClass: string }> = ({ iconClass }) => (
 
 export const ForHosts: React.FC = () => {
   const { ref, isIntersecting } = useIntersectionObserver();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user } = usePlaceholderAuth();
 
   // Determine the correct button text and destination based on auth status and role
   const getHostButtonProps = () => {

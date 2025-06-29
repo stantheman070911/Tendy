@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SupporterView } from './DashboardPage/SupporterView';
 import { FarmerView } from './DashboardPage/FarmerView';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '@/context/PlaceholderAuthContext';
 
 type UserType = 'supporter' | 'farmer';
 type SupporterSection = 'group-buys' | 'order-history' | 'profile';
@@ -11,7 +11,7 @@ export const DashboardPage: React.FC = () => {
     const [userType, setUserType] = useState<UserType>('supporter');
     const [activeSupporterSection, setActiveSupporterSection] = useState<SupporterSection>('group-buys');
     const [activeFarmerSection, setActiveFarmerSection] = useState<FarmerSection>('listings');
-    const { logout } = useAuth();
+    const { logout } = usePlaceholderAuth();
 
     const supporterNav = [
         { id: 'group-buys', icon: 'ph-users-three', label: 'My Group Buys' },
