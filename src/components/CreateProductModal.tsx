@@ -62,6 +62,12 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       return;
     }
 
+    // SPECIFICATION FIX: Enforce mandatory description for Waste-Warrior listings
+    if (isWasteWarrior && !formData.description.trim()) {
+      addNotification('A detailed description is required for Waste-Warrior listings to set customer expectations.', 'warning');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -229,7 +235,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
             <div>
               <label htmlFor="description" className="block font-semibold text-charcoal mb-2">
-                Description *
+                Description {isWasteWarrior ? '*' : ''}
               </label>
               <textarea
                 id="description"
@@ -245,7 +251,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                     : "Tell customers about your product, growing practices, and what makes it special..."
                 }
                 className="w-full p-4 bg-parchment rounded-md border border-stone/30 focus:outline-none focus:ring-2 focus:ring-harvest-gold"
-                required
+                required={isWasteWarrior}
               />
               {isWasteWarrior && (
                 <p className="text-xs text-harvest-gold mt-1">
