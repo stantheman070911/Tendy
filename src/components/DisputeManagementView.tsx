@@ -55,6 +55,14 @@ export const DisputeManagementView: React.FC = () => {
     setEscalationReason('');
   };
 
+  // New function to handle quick resolution
+  const handleQuickResolve = (disputeId: string) => {
+    if (window.confirm('Are you sure you want to mark this dispute as resolved?')) {
+      resolveDispute(disputeId, 'Resolved by host after review.', 0);
+      addNotification('Dispute has been marked as resolved', 'success');
+    }
+  };
+
   const getPriorityColor = (priority: Dispute['priority']) => {
     switch (priority) {
       case 'HIGH':
@@ -198,12 +206,25 @@ export const DisputeManagementView: React.FC = () => {
                     </div>
                   </div>
                   
-                  <button
-                    onClick={() => setSelectedDispute(selectedDispute === dispute.id ? null : dispute.id)}
-                    className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity"
-                  >
-                    {selectedDispute === dispute.id ? 'Hide Details' : 'View Details'}
-                  </button>
+                  <div className="flex gap-2">
+                    {/* Quick Resolve Button - NEW */}
+                    {(dispute.status === 'OPEN' || dispute.status === 'UNDER_REVIEW') && (
+                      <button
+                        onClick={() => handleQuickResolve(dispute.id)}
+                        className="h-10 px-4 bg-success text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        <i className="ph-bold ph-check-circle mr-2"></i>
+                        Mark Resolved
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={() => setSelectedDispute(selectedDispute === dispute.id ? null : dispute.id)}
+                      className="h-10 px-4 bg-evergreen text-parchment font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                      {selectedDispute === dispute.id ? 'Hide Details' : 'View Details'}
+                    </button>
+                  </div>
                 </div>
               </div>
 

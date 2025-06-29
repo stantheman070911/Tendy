@@ -19,8 +19,8 @@ export interface Dispute {
 
 interface DisputeContextType {
   disputes: Dispute[];
-  fileDispute: (dispute: Omit<Dispute, 'id' | 'status' | 'createdAt' | 'priority'>) => void;
-  updateDisputeStatus: (disputeId: string, status: Dispute['status'], resolutionNotes?: string) => void;
+  fileDispute: (dispute: Omit<Dispute, 'id' | 'status' | 'createdAt' | 'priority'>) => string;
+  updateDisputeStatus: (disputeId: string, status: Dispute['status']) => void;
   resolveDispute: (disputeId: string, resolutionNotes: string, refundAmount?: number) => void;
   escalateDispute: (disputeId: string, reason: string) => void;
 }
@@ -96,12 +96,11 @@ export const DisputeProvider = ({ children }: { children: ReactNode }) => {
     return dispute.id;
   };
 
-  const updateDisputeStatus = (disputeId: string, status: Dispute['status'], resolutionNotes?: string) => {
+  const updateDisputeStatus = (disputeId: string, status: Dispute['status']) => {
     setDisputes(prev => 
       prev.map(d => d.id === disputeId ? { 
         ...d, 
         status,
-        resolutionNotes: resolutionNotes || d.resolutionNotes,
         resolvedAt: status === 'RESOLVED' ? new Date().toISOString() : d.resolvedAt
       } : d)
     );
