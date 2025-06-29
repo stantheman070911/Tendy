@@ -4,7 +4,9 @@ import { CreateGroupButtons } from '../../components/CreateGroupButtons';
 import { CustomerGroupView } from '../../components/CustomerGroupView';
 import { HostLeaderboard } from '../../components/HostLeaderboard';
 import { FileDisputeModal } from '../../components/FileDisputeModal';
+import { RatingModal } from '../../components/RatingModal';
 import { SubscriptionManagementView } from '../../components/SubscriptionManagementView';
+import { useRatings } from '../../context/RatingContext';
 import type { SupporterSection } from '../../types';
 
 // This could be fetched from an API in a real application
@@ -19,7 +21,8 @@ const orderHistory = [
       date: 'May 15, 2025', 
       price: 22.00, 
       status: 'DELIVERED',
-      farmerName: 'Berry Fresh Farms'
+      farmerName: 'Berry Fresh Farms',
+      farmerId: 'farmer03'
     },
     { 
       id: 'order-002', 
@@ -27,7 +30,8 @@ const orderHistory = [
       date: 'April 28, 2025', 
       price: 8.00, 
       status: 'DELIVERED',
-      farmerName: 'Heritage Bakery'
+      farmerName: 'Heritage Bakery',
+      farmerId: 'farmer02'
     },
     { 
       id: 'order-003', 
@@ -35,7 +39,8 @@ const orderHistory = [
       date: 'April 10, 2025', 
       price: 6.50, 
       status: 'CANCELED',
-      farmerName: 'Green Valley Produce'
+      farmerName: 'Green Valley Produce',
+      farmerId: 'farmer02'
     },
     { 
       id: 'order-004', 
@@ -43,7 +48,8 @@ const orderHistory = [
       date: 'March 22, 2025', 
       price: 18.00, 
       status: 'DELIVERED',
-      farmerName: 'Rodriguez Farms'
+      farmerName: 'Rodriguez Farms',
+      farmerId: 'farmer01'
     },
 ];
 
@@ -53,12 +59,26 @@ interface SupporterViewProps {
 
 export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) => {
   const { user } = useAuth();
+  const { hasUserRatedOrder } = useRatings();
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<typeof orderHistory[0] | null>(null);
 
   const handleFileDispute = (order: typeof orderHistory[0]) => {
     setSelectedOrder(order);
     setIsDisputeModalOpen(true);
+  };
+
+  const handleRateOrder = (order: typeof orderHistory[0]) => {
+    setSelectedOrder(order);
+    setIsRatingModalOpen(true);
+  };
+
+  const handleRatingSubmit = (orderId: string, rating: number, comment: string) => {
+    // This would typically call an API to save the rating
+    console.log(`Rating submitted for order ${orderId}: ${rating} stars, Comment: "${comment}"`);
+    setIsRatingModalOpen(false);
+    setSelectedOrder(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -83,6 +103,20 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
     const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
     
     return daysDiff <= 7; // 7-day dispute window
+  };
+
+  const canRateOrder = (order: typeof orderHistory[0]) => {
+    // Can rate delivered orders within 30 days if not already rated
+    if (order.status !== 'DELIVERED') return false;
+    
+    const orderDate = new Date(order.date);
+    const now = new Date();
+    const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    const withinTimeLimit = daysDiff <= 30; // 30-day rating window
+    const notAlreadyRated = !hasUserRatedOrder(order.id, 'current-user');
+    
+    return withinTimeLimit && notAlreadyRated;
   };
 
   return (
@@ -130,7 +164,7 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
         </div>
       </section>
 
-      {/* Subscriptions Section - NEW */}
+      {/* Subscriptions Section */}
       <section className={activeSection === 'subscriptions' ? '' : 'hidden'}>
         <SubscriptionManagementView />
       </section>
@@ -141,7 +175,7 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
           <h2 className="text-3xl font-lora">Order History</h2>
           <div className="text-sm text-charcoal/60">
             <i className="ph-bold ph-info mr-1"></i>
-            You can file disputes within 7 days of delivery
+            You can file disputes within 7 days and rate orders within 30 days of delivery
           </div>
         </div>
         
@@ -186,6 +220,15 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
                         <button className="h-8 px-3 text-sm bg-evergreen/10 text-evergreen font-semibold rounded hover:bg-evergreen/20 transition-colors">
                           View
                         </button>
+                        {canRateOrder(order) && (
+                          <button
+                            onClick={() => handleRateOrder(order)}
+                            className="h-8 px-3 text-sm bg-harvest-gold/10 text-harvest-gold font-semibold rounded hover:bg-harvest-gold/20 transition-colors"
+                          >
+                            <i className="ph-bold ph-star mr-1"></i>
+                            Rate
+                          </button>
+                        )}
                         {canFileDispute(order) && (
                           <button
                             onClick={() => handleFileDispute(order)}
@@ -201,6 +244,34 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Rating Information */}
+        <div className="mt-lg bg-harvest-gold/10 rounded-xl p-lg border border-harvest-gold/20">
+          <h3 className="text-xl font-semibold text-harvest-gold mb-md flex items-center gap-2">
+            <i className="ph-bold ph-star text-harvest-gold"></i>
+            Help Build Trust in Our Community
+          </h3>
+          <div className="grid md:grid-cols-2 gap-md text-sm text-harvest-gold/80">
+            <div>
+              <h4 className="font-semibold mb-2">Why Rate Your Orders?</h4>
+              <ul className="space-y-1">
+                <li>• Help other customers discover great farmers</li>
+                <li>• Provide valuable feedback to farmers</li>
+                <li>• Build trust and transparency in our community</li>
+                <li>• Improve the overall platform experience</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">Rating Guidelines</h4>
+              <ul className="space-y-1">
+                <li>• Rate based on product quality and freshness</li>
+                <li>• Consider packaging and delivery experience</li>
+                <li>• Be honest and constructive in your feedback</li>
+                <li>• You have 30 days after delivery to rate</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -282,6 +353,21 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
             setSelectedOrder(null);
           }}
           order={selectedOrder}
+        />
+      )}
+
+      {/* Rating Modal */}
+      {selectedOrder && (
+        <RatingModal
+          isOpen={isRatingModalOpen}
+          onClose={() => {
+            setIsRatingModalOpen(false);
+            setSelectedOrder(null);
+          }}
+          orderId={selectedOrder.id}
+          farmerName={selectedOrder.farmerName}
+          productName={selectedOrder.name}
+          onSubmit={handleRatingSubmit}
         />
       )}
     </div>

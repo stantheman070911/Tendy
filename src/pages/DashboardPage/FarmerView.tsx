@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import { productService } from '../../services/productService';
 import { farmerService } from '../../services/farmerService';
 import { CreateProductModal } from '../../components/CreateProductModal';
+import { usePayouts } from '../../context/PayoutContext';
+import { useRatings } from '../../context/RatingContext';
 import { toast } from 'react-hot-toast';
 import type { FarmerSection, ProductWithFarmer } from '../../types';
 
@@ -12,9 +14,20 @@ interface FarmerViewProps {
 
 export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
     const { user } = useAuth();
+    const { getPayoutsByFarmer, getTotalEarnings } = usePayouts();
+    const { getRatingsByFarmer, getAverageRating } = useRatings();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [products, setProducts] = useState<ProductWithFarmer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Get farmer ID based on current user (in a real app, this would come from auth)
+    const farmerId = user?.role === 'farmer' ? 'farmer01' : 'farmer01'; // Default for demo
+
+    // Get payout and rating data
+    const farmerPayouts = getPayoutsByFarmer(farmerId);
+    const earnings = getTotalEarnings(farmerId);
+    const farmerRatings = getRatingsByFarmer(farmerId);
+    const ratingStats = getAverageRating(farmerId);
 
     // Fetch farmer's products
     useEffect(() => {
@@ -81,6 +94,36 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
         } catch (error) {
             console.error('Error deleting product:', error);
             toast.error('Failed to delete product listing');
+        }
+    };
+
+    const getPayoutStatusColor = (status: string) => {
+        switch (status) {
+            case 'Completed':
+                return 'text-success';
+            case 'Processing':
+                return 'text-harvest-gold';
+            case 'Pending':
+                return 'text-info';
+            case 'Failed':
+                return 'text-error';
+            default:
+                return 'text-stone';
+        }
+    };
+
+    const getPayoutStatusIcon = (status: string) => {
+        switch (status) {
+            case 'Completed':
+                return 'ph-check-circle';
+            case 'Processing':
+                return 'ph-clock';
+            case 'Pending':
+                return 'ph-hourglass';
+            case 'Failed':
+                return 'ph-x-circle';
+            default:
+                return 'ph-circle';
         }
     };
 
@@ -166,24 +209,167 @@ export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
                 )}
             </section>
 
-             {/* Sales & Earnings Section */}
+            {/* Sales & Earnings Section */}
             <section className={activeSection === 'sales' ? '' : 'hidden'}>
-                 <h2 className="text-3xl font-lora mb-md">Sales & Earnings</h2>
-                <div className="bg-white rounded-xl p-md border border-stone/10 shadow-sm">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-md mb-lg">
-                        <div className="bg-parchment p-md rounded-lg text-center">
-                            <p className="text-stone font-semibold">Total Revenue</p>
-                            <p className="text-3xl font-lora text-evergreen">$4,280</p>
+                <h2 className="text-3xl font-lora mb-md">Sales & Earnings</h2>
+                
+                {/* Earnings Overview */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-md mb-lg">
+                    <div className="bg-white p-lg rounded-xl border border-stone/10 shadow-sm text-center">
+                        <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-md">
+                            <i className="ph-bold ph-wallet text-success text-3xl"></i>
                         </div>
-                        <div className="bg-parchment p-md rounded-lg text-center">
-                            <p className="text-stone font-semibold">Active Sales</p>
-                            <p className="text-3xl font-lora text-evergreen">{products.filter(p => (p.spotsLeft || 0) > 0 && (p.daysLeft || 0) > 0).length}</p>
-                        </div>
-                        <div className="bg-parchment p-md rounded-lg text-center">
-                            <p className="text-stone font-semibold">Total Listings</p>
-                            <p className="text-3xl font-lora text-evergreen">{products.length}</p>
-                        </div>
+                        <p className="text-stone font-semibold">Total Earnings</p>
+                        <p className="text-3xl font-lora text-evergreen">${earnings.total.toFixed(2)}</p>
+                        <p className="text-sm text-success mt-1">All time</p>
                     </div>
+                    <div className="bg-white p-lg rounded-xl border border-stone/10 shadow-sm text-center">
+                        <div className="w-16 h-16 bg-harvest-gold/10 rounded-full flex items-center justify-center mx-auto mb-md">
+                            <i className="ph-bold ph-clock text-harvest-gold text-3xl"></i>
+                        </div>
+                        <p className="text-stone font-semibold">Pending Payouts</p>
+                        <p className="text-3xl font-lora text-evergreen">${earnings.pending.toFixed(2)}</p>
+                        <p className="text-sm text-harvest-gold mt-1">Processing</p>
+                    </div>
+                    <div className="bg-white p-lg rounded-xl border border-stone/10 shadow-sm text-center">
+                        <div className="w-16 h-16 bg-info/10 rounded-full flex items-center justify-center mx-auto mb-md">
+                            <i className="ph-bold ph-star text-info text-3xl"></i>
+                        </div>
+                        <p className="text-stone font-semibold">Average Rating</p>
+                        <p className="text-3xl font-lora text-evergreen">
+                            {ratingStats.average > 0 ? `${ratingStats.average}⭐` : 'No ratings'}
+                        </p>
+                        <p className="text-sm text-info mt-1">{ratingStats.count} reviews</p>
+                    </div>
+                </div>
+
+                {/* Payout History */}
+                <div className="bg-white rounded-xl border border-stone/10 shadow-sm mb-lg">
+                    <div className="p-lg border-b border-stone/10">
+                        <h3 className="text-2xl font-lora text-evergreen">Payout History</h3>
+                        <p className="text-charcoal/80">Track your earnings and payout status</p>
+                    </div>
+                    
+                    {farmerPayouts.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-parchment border-b border-stone/10">
+                                    <tr>
+                                        <th className="text-left p-md font-semibold text-charcoal">Product</th>
+                                        <th className="text-left p-md font-semibold text-charcoal">Order ID</th>
+                                        <th className="text-left p-md font-semibold text-charcoal">Amount</th>
+                                        <th className="text-left p-md font-semibold text-charcoal">Status</th>
+                                        <th className="text-left p-md font-semibold text-charcoal">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-stone/10">
+                                    {farmerPayouts.map(payout => (
+                                        <tr key={payout.payoutId} className="hover:bg-parchment/50 transition-colors">
+                                            <td className="p-md">
+                                                <p className="font-semibold text-charcoal">{payout.productName}</p>
+                                            </td>
+                                            <td className="p-md">
+                                                <p className="text-charcoal font-mono text-sm">{payout.orderId}</p>
+                                            </td>
+                                            <td className="p-md">
+                                                <p className="font-semibold text-evergreen">${payout.amount.toFixed(2)}</p>
+                                            </td>
+                                            <td className="p-md">
+                                                <div className="flex items-center gap-2">
+                                                    <i className={`ph-bold ${getPayoutStatusIcon(payout.status)} ${getPayoutStatusColor(payout.status)}`}></i>
+                                                    <span className={`font-semibold ${getPayoutStatusColor(payout.status)}`}>
+                                                        {payout.status}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="p-md">
+                                                <p className="text-charcoal">
+                                                    {new Date(payout.dateInitiated).toLocaleDateString()}
+                                                </p>
+                                                {payout.dateCompleted && (
+                                                    <p className="text-sm text-stone">
+                                                        Completed: {new Date(payout.dateCompleted).toLocaleDateString()}
+                                                    </p>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="p-xl text-center">
+                            <i className="ph-bold ph-wallet text-stone text-6xl mb-md"></i>
+                            <h3 className="text-xl font-semibold text-charcoal mb-2">No Payouts Yet</h3>
+                            <p className="text-charcoal/80">
+                                Payouts will appear here when customers complete orders from your listings.
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Customer Reviews */}
+                <div className="bg-white rounded-xl border border-stone/10 shadow-sm">
+                    <div className="p-lg border-b border-stone/10">
+                        <h3 className="text-2xl font-lora text-evergreen">Customer Reviews</h3>
+                        <p className="text-charcoal/80">See what customers are saying about your products</p>
+                    </div>
+                    
+                    {farmerRatings.length > 0 ? (
+                        <div className="p-lg space-y-md">
+                            {farmerRatings.slice(0, 5).map(rating => (
+                                <div key={rating.ratingId} className="border-b border-stone/10 pb-md last:border-b-0">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-semibold text-charcoal">{rating.customerName}</span>
+                                                {rating.isVerified && (
+                                                    <span className="px-2 py-1 bg-success/10 text-success text-xs font-bold rounded-full">
+                                                        Verified Purchase
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                    <span
+                                                        key={star}
+                                                        className={`text-lg ${
+                                                            star <= rating.rating ? 'text-harvest-gold' : 'text-stone/30'
+                                                        }`}
+                                                    >
+                                                        ★
+                                                    </span>
+                                                ))}
+                                                <span className="text-sm text-stone ml-2">
+                                                    {new Date(rating.dateCreated).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm font-semibold text-charcoal mb-1">{rating.productName}</p>
+                                    {rating.comment && (
+                                        <p className="text-charcoal/80">{rating.comment}</p>
+                                    )}
+                                </div>
+                            ))}
+                            
+                            {farmerRatings.length > 5 && (
+                                <div className="text-center pt-md">
+                                    <button className="text-evergreen font-semibold hover:text-harvest-gold transition-colors">
+                                        View All {farmerRatings.length} Reviews →
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="p-xl text-center">
+                            <i className="ph-bold ph-star text-stone text-6xl mb-md"></i>
+                            <h3 className="text-xl font-semibold text-charcoal mb-2">No Reviews Yet</h3>
+                            <p className="text-charcoal/80">
+                                Customer reviews will appear here after they rate your products.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </section>
 

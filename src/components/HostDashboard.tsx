@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { InteractiveProductCard } from './InteractiveProductCard';
 import { productService } from '../services/productService';
 import { useNotifications } from '../context/NotificationContext';
+import { usePayouts } from '../context/PayoutContext';
 import type { ProductWithFarmer } from '../types';
 
 interface HostUser {
@@ -24,6 +25,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
   const [boostingProductId, setBoostingProductId] = useState<string | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<{ [key: string]: 'pending' | 'confirmed' | 'completed' }>({});
   const { addNotification } = useNotifications();
+  const { addPayout } = usePayouts();
 
   // Load host's managed products
   React.useEffect(() => {
@@ -115,7 +117,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
     }
   };
 
-  // NEW: Delivery Confirmation Function
+  // Enhanced Delivery Confirmation Function with Payout Integration
   const handleConfirmDelivery = async (productId: string, productTitle: string) => {
     if (deliveryStatus[productId] !== 'pending') return;
 
@@ -138,6 +140,15 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
         const totalRevenue = filled * product.price;
         const farmerPayout = totalRevenue * 0.92; // 92% to farmer
         const hostReward = totalRevenue * 0.02; // 2% to host
+        
+        // Add payout to the system
+        addPayout(
+          `order-${productId}-${Date.now()}`, 
+          product.farmerId, 
+          product.farmer.name,
+          product.title,
+          farmerPayout
+        );
         
         console.log(`💰 PAYOUT PROCESSED: ${productTitle}`);
         console.log(`👨‍🌾 FARMER PAYOUT: $${farmerPayout.toFixed(2)} (92% of $${totalRevenue.toFixed(2)})`);
@@ -379,7 +390,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
                     
                     {/* Host Actions */}
                     <div className="space-y-sm">
-                      {/* Delivery Confirmation Button - NEW */}
+                      {/* Delivery Confirmation Button */}
                       {isReadyForDelivery && (
                         <button
                           onClick={() => handleConfirmDelivery(product.id, product.title)}
@@ -460,7 +471,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ host }) => {
         )}
       </div>
 
-      {/* Delivery & Payout Process Info - NEW */}
+      {/* Delivery & Payout Process Info */}
       <div className="bg-evergreen/5 rounded-xl p-lg border border-evergreen/20 mb-xl">
         <h3 className="text-2xl font-lora text-evergreen mb-md flex items-center gap-2">
           <i className="ph-bold ph-package text-harvest-gold"></i>
