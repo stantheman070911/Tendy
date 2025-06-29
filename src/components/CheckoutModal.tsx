@@ -10,8 +10,9 @@ interface CheckoutModalProps {
   product: ProductWithFarmer;
 }
 
-// The fee is defined as 8% in the specification
-const BUYER_FEE_PERCENTAGE = 0.08;
+// SPECIFICATION FIX: Implement correct 16% commission structure
+const BUYER_FEE_PERCENTAGE = 0.08; // 8% buyer fee
+const FARMER_DEDUCTION_PERCENTAGE = 0.08; // 8% farmer deduction (total 16% commission)
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onConfirm, product }) => {
   const { addSubscription } = useSubscriptions();
@@ -28,6 +29,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
   const subtotal = product.price;
   const platformFee = subtotal * BUYER_FEE_PERCENTAGE;
   const totalCharge = subtotal + platformFee;
+  
+  // Calculate what farmer receives (subtotal minus 8% farmer deduction)
+  const farmerDeduction = subtotal * FARMER_DEDUCTION_PERCENTAGE;
+  const farmerReceives = subtotal - farmerDeduction;
+  
+  // Host reward calculation (portion of the 16% commission)
+  const hostReward = (platformFee + farmerDeduction) * 0.125; // 12.5% of total commission = 2% of transaction
 
   // Calculate subscription savings
   const getSubscriptionDiscount = () => {
@@ -248,6 +256,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
               </div>
             )}
           </div>
+        </div>
+
+        {/* Fee Distribution Info */}
+        <div className="bg-info/10 rounded-lg p-md mb-lg border border-info/20">
+          <h5 className="font-semibold text-info mb-2 flex items-center gap-2">
+            <i className="ph-bold ph-info text-info"></i>
+            How Fees Work
+          </h5>
+          <ul className="text-xs text-info/80 space-y-1">
+            <li>• Farmer receives: ${farmerReceives.toFixed(2)} (after 8% platform fee)</li>
+            <li>• Host reward: ${hostReward.toFixed(2)} (for community service)</li>
+            <li>• Platform operations: ${(platformFee + farmerDeduction - hostReward).toFixed(2)}</li>
+            <li>• Total commission: 16% (8% buyer fee + 8% farmer deduction)</li>
+          </ul>
         </div>
 
         {/* Important Notice */}
