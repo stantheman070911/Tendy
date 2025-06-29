@@ -7,16 +7,35 @@ export const AuthPage: React.FC = () => {
   const { loginAsPlaceholder } = usePlaceholderAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  
+  // CRITICAL FIX: Extract navigation state to handle post-login redirection
+  const navigationState = location.state as {
+    from?: string;
+    productId?: string;
+    intendedDestination?: string;
+    action?: string;
+  } | null;
 
   const handleDemoLogin = (role: 'customer' | 'farmer' | 'host') => {
     try {
-      // Use the placeholder auth system instead of Supabase
+      // Use the placeholder auth system
       const user = loginAsPlaceholder(role);
       
       if (user) {
-        // Navigate to the original page they were trying to access, or homepage as fallback
-        navigate(from, { replace: true });
+        // CRITICAL FIX: Handle post-login redirection based on navigation state
+        if (navigationState?.intendedDestination) {
+          // User was trying to access a specific product page
+          console.log(`🔄 REDIRECT: User authenticated as ${role}, redirecting to intended destination: ${navigationState.intendedDestination}`);
+          navigate(navigationState.intendedDestination, { replace: true });
+        } else if (navigationState?.from && navigationState.from !== '/login') {
+          // User was on a different page before being redirected to login
+          console.log(`🔄 REDIRECT: User authenticated as ${role}, redirecting back to: ${navigationState.from}`);
+          navigate(navigationState.from, { replace: true });
+        } else {
+          // Default redirect to dashboard
+          console.log(`🔄 REDIRECT: User authenticated as ${role}, redirecting to dashboard`);
+          navigate('/dashboard', { replace: true });
+        }
       } else {
         console.error(`Could not log in as placeholder for role: ${role}`);
         alert(`Setup Error: No placeholder user found for role "${role}". Please check public/placeholder-users.json`);
@@ -43,6 +62,22 @@ export const AuthPage: React.FC = () => {
         
         <div className="p-8 lg:p-12">
            <Link to="/" className="text-center block mb-6 text-4xl font-lora font-bold text-evergreen lg:hidden">Tendy</Link>
+           
+           {/* Show context-aware messaging based on navigation state */}
+           {navigationState?.intendedDestination && (
+             <div className="mb-6 p-4 bg-harvest-gold/10 rounded-lg border border-harvest-gold/20">
+               <div className="flex items-center gap-2 mb-2">
+                 <i className="ph-bold ph-info text-harvest-gold"></i>
+                 <h3 className="font-semibold text-evergreen">Sign in to continue</h3>
+               </div>
+               <p className="text-sm text-charcoal/80">
+                 {navigationState.action === 'join-group' 
+                   ? 'You need to sign in to join this group buy.'
+                   : 'You need to sign in to view product details.'
+                 }
+               </p>
+             </div>
+           )}
            
            {/* Demo Login Section for Judges */}
            <div className="mb-8 p-6 bg-harvest-gold/10 rounded-xl border border-harvest-gold/20">

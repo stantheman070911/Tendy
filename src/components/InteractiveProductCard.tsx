@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext';
 import { useGroupManagement } from '../context/GroupManagementContext';
 import { CheckoutModal } from './CheckoutModal';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import type { ProductWithFarmer } from '../types';
 
 interface InteractiveProductCardProps {
@@ -15,9 +16,14 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   isLoggedIn = false 
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn: authIsLoggedIn } = usePlaceholderAuth();
   const { addNotification } = useNotifications();
   // SPECIFICATION FIX: Get edge case functions from context
   const { handleFullGroup, cancelGroup } = useGroupManagement();
+  
+  // Use the auth context's isLoggedIn state instead of the prop
+  const actualIsLoggedIn = authIsLoggedIn;
   
   // Local state for interactive demo
   const [currentPledges, setCurrentPledges] = useState(product.spotsTotal - product.spotsLeft);
@@ -34,18 +40,33 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
   const spotsLeft = isSoldOut ? 0 : Math.max(0, moq - currentPledges);
 
   const handleCardClick = () => {
-    if (isLoggedIn) {
+    if (actualIsLoggedIn) {
       navigate(`/product/${product.id}`);
     } else {
-      navigate('/login', { state: { from: `/product/${product.id}` } });
+      // CRITICAL FIX: Pass the current location as state to preserve navigation intent
+      navigate('/login', { 
+        state: { 
+          from: location.pathname,
+          productId: product.id,
+          intendedDestination: `/product/${product.id}`
+        } 
+      });
     }
   };
 
   const handleJoinGroup = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click navigation
     
-    if (!isLoggedIn) {
-      navigate('/login', { state: { from: `/product/${product.id}` } });
+    if (!actualIsLoggedIn) {
+      // CRITICAL FIX: Pass the current location and product info as state
+      navigate('/login', { 
+        state: { 
+          from: location.pathname,
+          productId: product.id,
+          intendedDestination: `/product/${product.id}`,
+          action: 'join-group' // Indicate the user wanted to join a group
+        } 
+      });
       return;
     }
 
@@ -181,7 +202,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
 
   const getButtonText = () => {
     if (status === 'canceled') return 'Listing Canceled';
-    if (!isLoggedIn) return 'Sign In to Join';
+    if (!actualIsLoggedIn) return 'Sign In to Join';
     if (isSoldOut && !hasJoined) return 'Sold Out';
     if (hasJoined && isMet) return 'Successfully Completed!';
     if (hasJoined) return 'Joined Group!';
@@ -195,7 +216,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
     if (hasJoined && isMet) return 'bg-success text-white cursor-default';
     if (hasJoined) return 'bg-harvest-gold text-evergreen cursor-default';
     if (isMet) return 'bg-stone text-white cursor-not-allowed';
-    if (!isLoggedIn) return 'bg-evergreen text-parchment hover:opacity-90';
+    if (!actualIsLoggedIn) return 'bg-evergreen text-parchment hover:opacity-90';
     return 'bg-evergreen text-parchment hover:opacity-90 hover:scale-105';
   };
 
@@ -353,7 +374,7 @@ export const InteractiveProductCard: React.FC<InteractiveProductCardProps> = ({
                     </span>
                   )}
                 </div>
-                {!isLoggedIn && status !== 'canceled' && !isSoldOut && (
+                {!actualIsLoggedIn && status !== 'canceled' && !isSoldOut && (
                   <span className="text-sm font-semibold text-harvest-gold">
                     Sign In to Join →
                   </span>

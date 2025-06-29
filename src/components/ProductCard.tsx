@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import type { Product, ProductWithFarmer } from '../types';
 
 interface ProductCardProps {
@@ -9,12 +10,24 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = false }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn: authIsLoggedIn } = usePlaceholderAuth();
+
+  // Use the auth context's isLoggedIn state instead of the prop
+  const actualIsLoggedIn = authIsLoggedIn;
 
   const handleCardClick = () => {
-    if (isLoggedIn) {
+    if (actualIsLoggedIn) {
       navigate(`/product/${product.id}`);
     } else {
-      navigate('/login');
+      // CRITICAL FIX: Pass the current location as state to preserve navigation intent
+      navigate('/login', { 
+        state: { 
+          from: location.pathname,
+          productId: product.id,
+          intendedDestination: `/product/${product.id}`
+        } 
+      });
     }
   };
 
@@ -93,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isLoggedIn = 
                 <span className="text-sm line-through text-stone ml-2">${product.originalPrice}</span>
               </div>
               <span className="text-sm font-semibold text-harvest-gold">
-                {isLoggedIn ? 'View Details →' : 'Sign In to View →'}
+                {actualIsLoggedIn ? 'View Details →' : 'Sign In to View →'}
               </span>
             </div>
           </div>
