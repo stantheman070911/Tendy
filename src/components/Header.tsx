@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import type { NavigationItem } from '../types';
 
@@ -16,6 +16,7 @@ const navigationItems: NavigationItem[] = [
 export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout, user, isLoggedIn: authIsLoggedIn } = useAuth();
+  const location = useLocation();
 
   // Use the auth context's isLoggedIn state instead of the prop
   const actualIsLoggedIn = authIsLoggedIn;
@@ -74,12 +75,14 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
               <>
                 <Link
                   to="/login"
+                  state={{ from: location.pathname }}
                   className="h-12 px-6 flex items-center justify-center text-evergreen font-semibold rounded-full hover:bg-evergreen/10 transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/login"
+                  state={{ from: location.pathname }}
                   className="h-12 px-6 flex items-center justify-center bg-evergreen text-parchment font-semibold rounded-full hover:opacity-90 transition-opacity"
                 >
                   Get Started
@@ -138,6 +141,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
               <Link
                 to="/login"
                 onClick={handleLinkClick}
+                state={{ from: location.pathname }}
                 className="h-14 px-8 flex items-center justify-center text-evergreen font-semibold rounded-full bg-evergreen/10 text-xl"
               >
                 Sign In
@@ -145,6 +149,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
               <Link
                 to="/login"
                 onClick={handleLinkClick}
+                state={{ from: location.pathname }}
                 className="h-14 px-8 flex items-center justify-center bg-evergreen text-parchment font-semibold rounded-full text-xl"
               >
                 Get Started
