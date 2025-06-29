@@ -31,10 +31,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, on
 
   return (
     // Backdrop
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-md">
       
       {/* Modal Panel */}
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-lg text-center animate-fade-in">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-xl text-center animate-fade-in">
         
         {/* Icon */}
         <div className="w-16 h-16 bg-success-light rounded-full flex items-center justify-center mx-auto">
@@ -42,18 +42,18 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, on
         </div>
 
         {/* Heading */}
-        <h2 className="text-3xl font-lora mt-md">Confirm Your Group Join</h2>
+        <h2 className="text-3xl font-lora mt-lg">Confirm Your Group Join</h2>
 
         {/* Content */}
-        <div className="mt-sm space-y-md">
+        <div className="mt-md space-y-lg">
           <p className="text-body">
             You are about to join the group for <strong>{product.title}</strong>
           </p>
 
           {/* SPECIFICATION FIX: Show correct fee breakdown */}
-          <div className="bg-parchment rounded-lg p-md text-left">
-            <h4 className="font-semibold text-evergreen mb-md">Payment Breakdown</h4>
-            <div className="space-y-sm text-sm">
+          <div className="bg-parchment rounded-lg p-lg text-left">
+            <h4 className="font-semibold text-evergreen mb-lg">Payment Breakdown</h4>
+            <div className="space-y-md text-sm">
               <div className="flex justify-between">
                 <span>Product Price:</span>
                 <span className="font-semibold">${subtotal.toFixed(2)}</span>
@@ -71,12 +71,12 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, on
           </div>
 
           {/* Fee Distribution Info */}
-          <div className="bg-info/10 rounded-lg p-md text-left border border-info/20">
-            <h5 className="font-semibold text-info mb-2 flex items-center gap-2">
+          <div className="bg-info/10 rounded-lg p-lg text-left border border-info/20">
+            <h5 className="font-semibold text-info mb-sm flex items-center gap-sm">
               <i className="ph-bold ph-info text-info"></i>
               How Fees Work
             </h5>
-            <ul className="text-xs text-info/80 space-y-1">
+            <ul className="text-xs text-info/80 space-y-xs">
               <li>• Farmer receives: ${farmerReceives.toFixed(2)} (after 8% platform fee)</li>
               <li>• Host reward: ${hostReward.toFixed(2)} (for community service)</li>
               <li>• Platform operations: ${(buyerFee + farmerDeduction - hostReward).toFixed(2)}</li>
@@ -84,9 +84,9 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, on
             </ul>
           </div>
 
-          <div className="bg-harvest-gold/10 rounded-lg p-md border border-harvest-gold/20">
+          <div className="bg-harvest-gold/10 rounded-lg p-lg border border-harvest-gold/20">
             <p className="text-sm text-harvest-gold/80">
-              <i className="ph-bold ph-shield-check mr-1"></i>
+              <i className="ph-bold ph-shield-check mr-xs"></i>
               Your card will only be charged if the group buy is successful. 
               The farmer receives ${farmerReceives.toFixed(2)} after platform fees.
             </p>
@@ -94,12 +94,12 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, on
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-lg flex flex-col sm:flex-row gap-sm">
+        <div className="mt-xl flex flex-col sm:flex-row gap-md">
           <button 
             onClick={onConfirm}
             className="flex-1 h-12 flex items-center justify-center bg-evergreen text-parchment font-bold text-lg rounded-lg hover:opacity-90 transition-opacity"
           >
-            <i className="ph-bold ph-credit-card mr-2"></i>
+            <i className="ph-bold ph-credit-card mr-sm"></i>
             Authorize ${totalCharge.toFixed(2)}
           </button>
           <button 

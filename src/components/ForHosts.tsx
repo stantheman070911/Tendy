@@ -11,7 +11,7 @@ const benefits = [
 
 // SPECIFICATION FIX: Icon component for consistent styling using 8px grid system
 const FeatureIcon: React.FC<{ iconClass: string }> = ({ iconClass }) => (
-  <div className="flex items-center justify-center w-16 h-16 bg-harvest-gold/10 rounded-full mb-4">
+  <div className="flex items-center justify-center w-16 h-16 bg-harvest-gold/10 rounded-full mb-md">
     <i className={`ph-bold ${iconClass} text-harvest-gold text-4xl`}></i>
   </div>
 );
@@ -58,18 +58,18 @@ export const ForHosts: React.FC = () => {
             <FeatureIcon iconClass="ph-house-line" />
             
             {/* SPECIFICATION FIX: Consistent heading with proper spacing */}
-            <h2 className="text-4xl md:text-5xl font-lora text-evergreen mt-4">
+            <h2 className="text-4xl md:text-5xl font-lora text-evergreen mt-md">
               Become a Neighborhood Host
             </h2>
             
-            {/* SPECIFICATION FIX: Consistent paragraph spacing using 8px grid (mt-4) */}
-            <p className="text-lg text-charcoal mt-4 max-w-2xl">
+            {/* SPECIFICATION FIX: Consistent paragraph spacing using 8px grid (mt-md) */}
+            <p className="text-lg text-charcoal mt-md max-w-2xl">
               Be the heart of your local food community. Hosts are the essential link, 
               providing a convenient pickup spot for their neighbors.
             </p>
             
-            {/* SPECIFICATION FIX: Benefits list with consistent spacing (mt-8, space-y-2) */}
-            <ul className="mt-8 space-y-2 text-left">
+            {/* SPECIFICATION FIX: Benefits list with consistent spacing (mt-xl, space-y-sm) */}
+            <ul className="mt-xl space-y-sm text-left">
               {benefits.map((benefit, index) => {
                 const { ref: benefitRef, isIntersecting: benefitVisible } = useIntersectionObserver();
                 
@@ -77,10 +77,10 @@ export const ForHosts: React.FC = () => {
                   <li
                     key={index}
                     ref={benefitRef}
-                    className={`flex items-start gap-3 fade-in-section ${benefitVisible ? 'is-visible' : ''}`}
+                    className={`flex items-start gap-sm fade-in-section ${benefitVisible ? 'is-visible' : ''}`}
                     style={{ transitionDelay: `${index * 200}ms` }}
                   >
-                    <i className="ph-fill ph-check-circle text-success text-2xl mt-1 flex-shrink-0"></i>
+                    <i className="ph-fill ph-check-circle text-success text-2xl mt-xs flex-shrink-0"></i>
                     <span 
                       className="text-charcoal" 
                       dangerouslySetInnerHTML={{ __html: benefit }} 
@@ -90,11 +90,11 @@ export const ForHosts: React.FC = () => {
               })}
             </ul>
             
-            {/* SPECIFICATION FIX: CTA button with consistent spacing (mt-8) */}
-            <div className="mt-8">
+            {/* SPECIFICATION FIX: CTA button with consistent spacing (mt-xl) */}
+            <div className="mt-xl">
               <Link
                 to={buttonProps.to}
-                className="inline-flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg py-4 px-8 rounded-lg hover:scale-105 transition-transform shadow-lg shadow-harvest-gold/20"
+                className="inline-flex items-center justify-center bg-harvest-gold text-evergreen font-bold text-lg py-md px-xl rounded-lg hover:scale-105 transition-transform shadow-lg shadow-harvest-gold/20"
               >
                 {buttonProps.text}
               </Link>
@@ -116,24 +116,24 @@ export const ForHosts: React.FC = () => {
 
         {/* SPECIFICATION FIX: Additional features section with consistent spacing */}
         <div className="mt-16 md:mt-24">
-          <div className="text-center mb-12">
+          <div className="text-center mb-xl">
             <h3 className="text-3xl font-lora text-evergreen">
               Why Become a Host?
             </h3>
-            <p className="mt-4 text-charcoal max-w-2xl mx-auto">
+            <p className="mt-md text-charcoal max-w-2xl mx-auto">
               Hosting is more than just providing a pickup location - you're building community connections.
             </p>
           </div>
 
-          {/* SPECIFICATION FIX: Feature grid with consistent gap (gap-8) */}
-          <div className="grid md:grid-cols-3 gap-8 text-center">
+          {/* SPECIFICATION FIX: Feature grid with consistent gap (gap-xl) */}
+          <div className="grid md:grid-cols-3 gap-xl text-center">
             
             {/* Feature 1 */}
             <div className="flex flex-col items-center">
               <FeatureIcon iconClass="ph-hand-heart" />
               <h4 className="text-2xl font-lora text-evergreen">Earn Rewards</h4>
-              {/* SPECIFICATION FIX: Consistent top margin for paragraph (mt-2) */}
-              <p className="mt-2 text-charcoal">
+              {/* SPECIFICATION FIX: Consistent top margin for paragraph (mt-sm) */}
+              <p className="mt-sm text-charcoal">
                 Receive tangible rewards from the commission of every successful group buy you facilitate.
               </p>
             </div>
@@ -142,8 +142,8 @@ export const ForHosts: React.FC = () => {
             <div className="flex flex-col items-center">
               <FeatureIcon iconClass="ph-users-three" />
               <h4 className="text-2xl font-lora text-evergreen">Build Community</h4>
-              {/* SPECIFICATION FIX: Consistent top margin for paragraph (mt-2) */}
-              <p className="mt-2 text-charcoal">
+              {/* SPECIFICATION FIX: Consistent top margin for paragraph (mt-sm) */}
+              <p className="mt-sm text-charcoal">
                 Create a trusted local network, strengthen neighborhood bonds, and be the reason for fresher food on tables.
               </p>
             </div>
@@ -152,8 +152,8 @@ export const ForHosts: React.FC = () => {
             <div className="flex flex-col items-center">
               <FeatureIcon iconClass="ph-leaf" />
               <h4 className="text-2xl font-lora text-evergreen">Reduce Waste</h4>
-              {/* SPECIFICATION FIX: Consistent top margin for paragraph (mt-2) */}
-              <p className="mt-2 text-charcoal">
+              {/* SPECIFICATION FIX: Consistent top margin for paragraph (mt-sm) */}
+              <p className="mt-sm text-charcoal">
                 Play an active role in our mission by ensuring that fresh, local produce finds a home.
               </p>
             </div>
@@ -161,14 +161,14 @@ export const ForHosts: React.FC = () => {
         </div>
 
         {/* SPECIFICATION FIX: Host requirements section with consistent spacing */}
-        <div className="mt-16 bg-harvest-gold/10 rounded-xl p-8 border border-harvest-gold/20">
-          <h3 className="text-2xl font-lora text-evergreen mb-6 text-center">
+        <div className="mt-16 bg-harvest-gold/10 rounded-xl p-xl border border-harvest-gold/20">
+          <h3 className="text-2xl font-lora text-evergreen mb-lg text-center">
             Host Requirements
           </h3>
-          <div className="grid md:grid-cols-2 gap-6 text-charcoal">
+          <div className="grid md:grid-cols-2 gap-lg text-charcoal">
             <div>
-              <h4 className="font-semibold mb-2">Basic Requirements</h4>
-              <ul className="space-y-1 text-sm">
+              <h4 className="font-semibold mb-sm">Basic Requirements</h4>
+              <ul className="space-y-xs text-sm">
                 <li>• Must be 18+ years old</li>
                 <li>• Reliable availability for scheduled pickup windows</li>
                 <li>• Safe, accessible pickup location</li>
@@ -176,8 +176,8 @@ export const ForHosts: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Commitment</h4>
-              <ul className="space-y-1 text-sm">
+              <h4 className="font-semibold mb-sm">Commitment</h4>
+              <ul className="space-y-xs text-sm">
                 <li>• Commit to hosting for at least 6 months</li>
                 <li>• Respond to group member questions promptly</li>
                 <li>• Maintain pickup location cleanliness</li>

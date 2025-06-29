@@ -29,16 +29,16 @@ export const HowItWorks: React.FC = () => {
     <section
       id="how-it-works-supporter"
       ref={ref}
-      className={`py-xl md:py-3xl scroll-mt-24 fade-in-section ${isIntersecting ? 'is-visible' : ''}`}
+      className={`py-2xl md:py-4xl scroll-mt-24 fade-in-section ${isIntersecting ? 'is-visible' : ''}`}
     >
-      <div className="text-center max-w-3xl mx-auto mb-2xl">
+      <div className="text-center max-w-3xl mx-auto mb-3xl">
         <h2 className="text-4xl md:text-5xl">How Supporting Works</h2>
-        <p className="text-body mt-md">
+        <p className="text-body mt-lg">
           A simple, community-powered way to buy directly from local producers.
         </p>
       </div>
       
-      <div className="grid md:grid-cols-3 gap-lg md:gap-xl text-center">
+      <div className="grid md:grid-cols-3 gap-xl md:gap-2xl text-center">
         {steps.map((step, index) => {
           const { ref: stepRef, isIntersecting: stepVisible } = useIntersectionObserver();
           
@@ -52,8 +52,8 @@ export const HowItWorks: React.FC = () => {
               <div className="w-24 h-24 bg-evergreen/10 rounded-full flex items-center justify-center mx-auto">
                 <i className={`${step.icon} text-evergreen text-5xl`}></i>
               </div>
-              <h3 className="text-2xl mt-md">{step.title}</h3>
-              <p className="text-body mt-2 text-base">{step.description}</p>
+              <h3 className="text-2xl mt-lg">{step.title}</h3>
+              <p className="text-body mt-sm text-base">{step.description}</p>
             </div>
           );
         })}

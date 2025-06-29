@@ -20,16 +20,16 @@ export const GroupTypes: React.FC = () => {
   return (
     <section
       ref={ref}
-      className={`py-xl md:py-3xl fade-in-section ${isIntersecting ? 'is-visible' : ''}`}
+      className={`py-2xl md:py-4xl fade-in-section ${isIntersecting ? 'is-visible' : ''}`}
     >
-      <div className="text-center max-w-3xl mx-auto mb-2xl">
+      <div className="text-center max-w-3xl mx-auto mb-3xl">
         <h2 className="text-4xl md:text-5xl">Two Ways to Join</h2>
-        <p className="text-body mt-md">
+        <p className="text-body mt-lg">
           Whether you want to try something new or stock up on your favorites, there's a group for you.
         </p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-lg md:gap-xl">
+      <div className="grid md:grid-cols-2 gap-xl md:gap-2xl">
         {groupTypes.map((type, index) => {
           const iconColor = index === 0 ? 'text-harvest-gold' : 'text-evergreen';
           const bgColor = index === 0 ? 'bg-harvest-gold/10' : 'bg-evergreen/10';
@@ -37,15 +37,15 @@ export const GroupTypes: React.FC = () => {
           return (
             <div
               key={index}
-              className="bg-white p-lg rounded-xl border border-stone/10 hover:-translate-y-2 transition-transform duration-300"
+              className="bg-white p-xl rounded-xl border border-stone/10 hover:-translate-y-2 transition-transform duration-300"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-md">
                 <div className={`w-16 h-16 ${bgColor} rounded-full flex items-center justify-center`}>
                   <i className={`${type.icon} ${iconColor} text-4xl`}></i>
                 </div>
                 <h3 className="text-3xl">{type.title}</h3>
               </div>
-              <p className="text-body mt-md">{type.description}</p>
+              <p className="text-body mt-lg">{type.description}</p>
             </div>
           );
         })}
