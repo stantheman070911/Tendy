@@ -1,10 +1,10 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import type { DashboardNavItem } from '../types';
 
 export const DashboardLayout: React.FC = () => {
-    const { logout, user } = useAuth();
+    const { logout, user } = usePlaceholderAuth();
 
     const supporterNav: DashboardNavItem[] = [
         { id: 'group-buys', icon: 'ph-users-three', label: 'My Group Buys', path: '/dashboard' },
