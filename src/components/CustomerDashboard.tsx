@@ -3,11 +3,11 @@ import { ProductList } from './ProductList';
 import { InteractiveProductCard } from './InteractiveProductCard';
 import { CreateGroupForm } from './CreateGroupForm';
 import { MyPrivateGroupCard } from './MyPrivateGroupCard';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import type { ProductWithFarmer } from '../types';
 
 export const CustomerDashboard: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = usePlaceholderAuth();
   const [privateGroups, setPrivateGroups] = useState<ProductWithFarmer[]>([]);
 
   // Function to handle creating a new private group

@@ -4,7 +4,7 @@ import { FarmerDashboard } from './FarmerDashboard';
 import { HostDashboard } from './HostDashboard';
 import { NotificationProvider } from '../context/NotificationContext';
 import { NotificationPanel } from './NotificationPanel';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 
 // Import our placeholder data
 const users = [
@@ -62,7 +62,7 @@ type ViewType = 'customer' | 'farmer' | 'host';
 
 export const DemoApp: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('customer');
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = usePlaceholderAuth();
 
   // Find our specific users from the placeholder data for the demo
   const farmerUser = users.find(u => u.role === 'Farmer' && u.verificationTier.includes('Landmark'));
