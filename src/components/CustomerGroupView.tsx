@@ -110,6 +110,17 @@ export const CustomerGroupView: React.FC = () => {
             </div>
           </div>
 
+          {/* Explanatory Text - NEW */}
+          <div className="bg-white/70 rounded-lg p-md mb-md">
+            <p className="text-sm text-charcoal/80 flex items-start gap-2">
+              <i className="ph-bold ph-info text-info mt-1"></i>
+              <span>
+                The pickup time will be officially updated once a majority of the group members approve the change. 
+                This collaborative approach ensures everyone has a chance to adjust their schedules.
+              </span>
+            </p>
+          </div>
+
           {/* Response Statistics */}
           {totalResponses > 0 && (
             <div className="bg-white/50 rounded-lg p-md mb-md">
