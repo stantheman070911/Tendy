@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { productService, type CreateProductData } from '../services/productService';
 import { farmerService } from '../services/farmerService';
 import { toast } from 'react-hot-toast';
 import type { ProductWithFarmer } from '../types';
-import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -24,17 +23,14 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   submitButtonText = "Create Listing",
   isHostCreated = false
 }) => {
-  const { user } = useAuth();
-  const { user: placeholderUser } = usePlaceholderAuth();
+  const { user } = usePlaceholderAuth();
   const { addNotification } = useNotifications();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // SPECIFICATION FIX: Check farmer verification tier for Waste-Warrior eligibility
-  const isEligibleForWasteWarrior = (user?.role === 'farmer' || placeholderUser?.role === 'farmer') && (
-    (user?.verificationTier?.includes('Verified Harvest') || 
-    user?.verificationTier?.includes('Landmark Farm')) ||
-    (placeholderUser?.verificationTier?.includes('Verified Harvest') || 
-    placeholderUser?.verificationTier?.includes('Landmark Farm'))
+  const isEligibleForWasteWarrior = (user?.role === 'farmer') && (
+    user?.verificationTier?.includes('Verified Harvest') || 
+    user?.verificationTier?.includes('Landmark Farm')
   );
   
   // State for the Waste-Warrior toggle
@@ -168,7 +164,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
           <form onSubmit={handleSubmit} className="space-y-md">
             {/* SPECIFICATION FIX: Waste-Warrior Toggle with Eligibility Check */}
-            {(user?.role === 'farmer' || placeholderUser?.role === 'farmer') && (
+            {user?.role === 'farmer' && (
               <div className="bg-parchment rounded-lg p-md border border-stone/20">
                 <div className="flex items-start gap-3">
                   {isEligibleForWasteWarrior ? (
@@ -206,7 +202,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                           Reach 'Tendy Verified Harvest' status to create Waste-Warrior listings and help reduce food waste!
                         </p>
                         <div className="mt-2 text-xs text-info">
-                          Current tier: {user?.verificationTier || placeholderUser?.verificationTier || 'Tendy Sprout'}
+                          Current tier: {user?.verificationTier || 'Tendy Sprout'}
                         </div>
                       </div>
                     </div>

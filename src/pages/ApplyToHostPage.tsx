@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 
 export const ApplyToHostPage: React.FC = () => {
   const [applicationStep, setApplicationStep] = useState<'form' | 'submitted'>('form');
@@ -10,7 +10,7 @@ export const ApplyToHostPage: React.FC = () => {
     experience: '',
     motivation: ''
   });
-  const { user } = useAuth();
+  const { user } = usePlaceholderAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

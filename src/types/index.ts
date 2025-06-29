@@ -5,39 +5,30 @@ export const FarmerSchema = z
   .object({
     id: z.union([z.number(), z.string()]), // Accept both number and string
     name: z.string(),
-    farm_name: z.string().optional(),
-    image_url: z.string().optional(),
-    banner_url: z.string().optional(),
+    farmName: z.string().optional(),
+    imageUrl: z.string().optional(),
+    bannerUrl: z.string().optional(),
     story: z.string().optional(),
     quote: z.string().optional(),
     location: z.string().optional(),
     established: z.number().optional(),
     practices: z.array(z.string()).optional(),
-    created_at: z.string(),
-    // New fields for mock data compatibility
+    createdAt: z.string(),
     email: z.string().optional(),
-    role: z.string().optional(),
-    avatar_url: z.string().optional(),
-    bio: z.string().optional(),
-    is_verified: z.boolean().optional(),
   })
   .transform((data) => ({
     id: data.id.toString(),
     name: data.name,
-    farmName: data.farm_name || '',
-    imageUrl: data.image_url || data.avatar_url || '',
-    bannerUrl: data.banner_url || '',
-    story: data.story || data.bio || '',
+    farmName: data.farmName || '',
+    imageUrl: data.imageUrl || '',
+    bannerUrl: data.bannerUrl || '',
+    story: data.story || '',
     quote: data.quote || '',
     location: data.location || '',
     established: data.established || 0,
     practices: data.practices || [],
-    createdAt: data.created_at,
+    createdAt: data.createdAt,
     email: data.email || '',
-    role: data.role || 'farmer',
-    avatarUrl: data.avatar_url || data.image_url || '',
-    bio: data.bio || data.story || '',
-    isVerified: data.is_verified || false,
   }));
 
 export type Farmer = z.infer<typeof FarmerSchema>;
@@ -46,25 +37,22 @@ export type Farmer = z.infer<typeof FarmerSchema>;
 export const ProductSchema = z
   .object({
     id: z.union([z.number(), z.string()]), // Accept both number and string
-    created_at: z.string(),
-    title: z.string().optional(),
-    name: z.string().optional(), // New field for mock data
+    createdAt: z.string(),
+    title: z.string(),
     description: z.string(),
-    weight: z.string().optional(),
-    unit: z.string().optional(), // New field for mock data
+    weight: z.string(),
     price: z.number(),
-    original_price: z.number().optional(),
-    image_url: z.string(),
+    originalPrice: z.number().optional(),
+    imageUrl: z.string(),
     gallery: z.array(z.string()).nullable().optional(),
-    farmer_id: z.union([z.number(), z.string()]), // Accept both number and string
+    farmerId: z.union([z.number(), z.string()]), // Accept both number and string
     progress: z.number().optional().default(0),
-    spots_left: z.number().optional().default(0),
-    spots_total: z.number().optional(), // New field for mock data
-    days_left: z.number().optional().default(0),
-    end_date: z.string().optional(), // New field for mock data
-    status: z.string().optional(), // New field for mock data
-    host_id: z.string().nullable().optional(),
-    // Add members field for compatibility
+    spotsLeft: z.number().optional().default(0),
+    spotsTotal: z.number().optional(),
+    daysLeft: z.number().optional().default(0),
+    endDate: z.string().optional(),
+    status: z.string().optional(),
+    hostId: z.string().nullable().optional(),
     members: z.array(z.object({
       id: z.string(),
       avatar: z.string(),
@@ -73,22 +61,22 @@ export const ProductSchema = z
   })
   .transform((data) => ({
     id: data.id.toString(),
-    createdAt: data.created_at,
-    title: data.title || data.name || '',
+    createdAt: data.createdAt,
+    title: data.title,
     description: data.description,
-    weight: data.weight || data.unit || '',
+    weight: data.weight,
     price: data.price,
-    originalPrice: data.original_price || 0,
-    imageUrl: data.image_url,
+    originalPrice: data.originalPrice || 0,
+    imageUrl: data.imageUrl,
     gallery: data.gallery ?? [],
-    farmerId: data.farmer_id.toString(),
+    farmerId: data.farmerId.toString(),
     progress: data.progress,
-    spotsLeft: data.spots_left,
-    spotsTotal: data.spots_total || 0,
-    daysLeft: data.days_left || (data.end_date ? Math.ceil((new Date(data.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0),
-    endDate: data.end_date,
+    spotsLeft: data.spotsLeft,
+    spotsTotal: data.spotsTotal || 0,
+    daysLeft: data.daysLeft || (data.endDate ? Math.ceil((new Date(data.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0),
+    endDate: data.endDate,
     status: data.status || 'active',
-    hostId: data.host_id,
+    hostId: data.hostId,
     members: data.members,
   }));
 
@@ -98,44 +86,34 @@ export type Product = z.infer<typeof ProductSchema>;
 export const ProductWithFarmerSchema = z
   .object({
     id: z.union([z.number(), z.string()]), // Accept both number and string
-    created_at: z.string(),
-    title: z.string().optional(),
-    name: z.string().optional(), // New field for mock data
+    createdAt: z.string(),
+    title: z.string(),
     description: z.string(),
-    weight: z.string().optional(),
-    unit: z.string().optional(), // New field for mock data
+    weight: z.string(),
     price: z.number(),
-    original_price: z.number().optional(),
-    image_url: z.string(),
+    originalPrice: z.number().optional(),
+    imageUrl: z.string(),
     gallery: z.array(z.string()).nullable().optional(),
-    farmer_id: z.union([z.number(), z.string()]), // Accept both number and string
+    farmerId: z.union([z.number(), z.string()]), // Accept both number and string
     progress: z.number().optional().default(0),
-    spots_left: z.number().optional().default(0),
-    spots_total: z.number().optional(), // New field for mock data
-    days_left: z.number().optional().default(0),
-    end_date: z.string().optional(), // New field for mock data
-    status: z.string().optional(), // New field for mock data
-    host_id: z.string().nullable().optional(),
-    // Farmer relation - support both old and new structure
-    farmers: z
-      .object({
-        name: z.string(),
-        image_url: z.string(),
-      })
-      .nullable()
-      .optional(),
+    spotsLeft: z.number().optional().default(0),
+    spotsTotal: z.number().optional(),
+    daysLeft: z.number().optional().default(0),
+    endDate: z.string().optional(),
+    status: z.string().optional(),
+    hostId: z.string().nullable().optional(),
+    // Farmer relation - support mock data structure
     farmer: z
       .object({
         id: z.string(),
         name: z.string(),
         email: z.string(),
         role: z.string(),
-        avatar_url: z.string(),
+        avatar: z.string(),
         bio: z.string(),
         quote: z.string(),
         practices: z.string(),
-        created_at: z.string(),
-        is_verified: z.boolean(),
+        isVerified: z.boolean(),
       })
       .optional(),
     // Add members field for compatibility
@@ -152,37 +130,33 @@ export const ProductWithFarmerSchema = z
   })
   .transform((data) => ({
     id: data.id.toString(),
-    createdAt: data.created_at,
-    title: data.title || data.name || '',
+    createdAt: data.createdAt,
+    title: data.title,
     description: data.description,
-    weight: data.weight || data.unit || '',
+    weight: data.weight,
     price: data.price,
-    originalPrice: data.original_price || 0,
-    imageUrl: data.image_url,
+    originalPrice: data.originalPrice || 0,
+    imageUrl: data.imageUrl,
     gallery: data.gallery ?? [],
-    farmerId: data.farmer_id.toString(),
-    farmer: data.farmer
-      ? { 
-          name: data.farmer.name, 
-          avatar: data.farmer.avatar_url,
-          id: data.farmer.id,
-          email: data.farmer.email,
-          role: data.farmer.role,
-          bio: data.farmer.bio,
-          quote: data.farmer.quote,
-          practices: data.farmer.practices,
-          isVerified: data.farmer.is_verified
-        }
-      : data.farmers
-      ? { name: data.farmers.name, avatar: data.farmers.image_url }
-      : { name: 'Unknown Farmer', avatar: '' },
+    farmerId: data.farmerId.toString(),
+    farmer: data.farmer || { 
+      name: 'Unknown Farmer', 
+      avatar: '',
+      id: data.farmerId.toString(),
+      email: '',
+      role: 'farmer',
+      bio: '',
+      quote: '',
+      practices: '',
+      isVerified: false
+    },
     progress: data.progress,
-    spotsLeft: data.spots_left,
-    spotsTotal: data.spots_total || 0,
-    daysLeft: data.days_left || (data.end_date ? Math.ceil((new Date(data.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0),
-    endDate: data.end_date,
+    spotsLeft: data.spotsLeft,
+    spotsTotal: data.spotsTotal || 0,
+    daysLeft: data.daysLeft || (data.endDate ? Math.ceil((new Date(data.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0),
+    endDate: data.endDate,
     status: data.status || 'active',
-    hostId: data.host_id,
+    hostId: data.hostId,
     members: data.members,
     host: data.host,
   }));

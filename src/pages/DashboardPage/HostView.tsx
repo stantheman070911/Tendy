@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { usePlaceholderAuth } from '../../context/PlaceholderAuthContext';
 import { CreateProductModal } from '../../components/CreateProductModal';
 import { HostTimeChangeModal } from '../../components/HostTimeChangeModal';
 import { DisputeManagementView } from '../../components/DisputeManagementView';
@@ -76,7 +76,7 @@ const StatCard: React.FC<{ title: string; value: string | number; iconClass: str
 );
 
 export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
-  const { user } = useAuth();
+  const { user } = usePlaceholderAuth();
   const { addNotification } = useNotifications();
   const { groupData } = useGroupManagement();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -144,7 +144,7 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
       status: 'active',
       hostId: user?.id || 'host01',
       host: {
-        name: user?.fullName || 'Community Host',
+        name: user?.name || 'Community Host',
         avatar: 'https://i.pravatar.cc/80?img=10'
       },
       progress: 0,
@@ -577,7 +577,7 @@ export const HostView: React.FC<HostViewProps> = ({ activeSection }) => {
           <div className="flex items-center gap-md">
             <img src="https://i.pravatar.cc/80?img=10" alt="Host Avatar" className="w-20 h-20 rounded-full"/>
             <div>
-              <h3 className="text-xl font-semibold">{user?.fullName}</h3>
+              <h3 className="text-xl font-semibold">{user?.name}</h3>
               <p className="text-stone">Verified Host since March 2024</p>
               <button className="mt-2 h-10 px-4 bg-evergreen/10 text-evergreen font-bold text-sm rounded-lg hover:bg-evergreen/20">
                 Change Photo

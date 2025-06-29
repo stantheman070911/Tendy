@@ -4,10 +4,10 @@ import { Toaster } from 'react-hot-toast';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { NotificationPanel } from './NotificationPanel';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 
 export const Layout: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = usePlaceholderAuth();
 
   return (
     <div className="bg-parchment font-inter text-charcoal">

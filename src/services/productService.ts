@@ -1,6 +1,3 @@
-import { supabase } from '../lib/supabaseClient';
-import { ProductSchema, ProductWithFarmerSchema } from '../types';
-import { z } from 'zod';
 import type { ProductWithFarmer } from '../types';
 
 export interface CreateProductData {
@@ -25,7 +22,7 @@ const mockProducts: ProductWithFarmer[] = [
     weight: '2kg bag',
     imageUrl: 'https://images.unsplash.com/photo-1593280424033-4c969b854817?q=80&w=2940&auto=format&fit=crop',
     gallery: ['https://images.unsplash.com/photo-1593280424033-4c969b854817?q=80&w=2940&auto=format&fit=crop'],
-    farmerId: 'farmer01',
+    farmerId: '1',
     createdAt: new Date().toISOString(),
     endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
@@ -35,10 +32,10 @@ const mockProducts: ProductWithFarmer[] = [
     spotsTotal: 20,
     daysLeft: 5,
     farmer: {
-      name: 'Sunrise Organics',
-      avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
-      id: 'farmer01',
-      email: 'diana@sunriseorganics.com',
+      name: 'Rodriguez Farms',
+      avatar: 'https://i.pravatar.cc/160?img=3',
+      id: '1',
+      email: 'maria@rodriguezfarms.com',
       role: 'farmer',
       bio: 'Level 1: Tendy Sprout - Family-owned organic farm specializing in premium apples and seasonal produce.',
       quote: '"Every apple tells the story of our soil, our care, and our commitment to quality."',
@@ -64,7 +61,7 @@ const mockProducts: ProductWithFarmer[] = [
     weight: '1kg mix',
     imageUrl: 'https://images.unsplash.com/photo-1588650364232-38997a78336b?q=80&w=2940&auto=format&fit=crop',
     gallery: ['https://images.unsplash.com/photo-1588650364232-38997a78336b?q=80&w=2940&auto=format&fit=crop'],
-    farmerId: 'farmer01',
+    farmerId: '1',
     createdAt: new Date().toISOString(),
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
@@ -74,10 +71,10 @@ const mockProducts: ProductWithFarmer[] = [
     spotsTotal: 30,
     daysLeft: 3,
     farmer: {
-      name: 'Sunrise Organics',
-      avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
-      id: 'farmer01',
-      email: 'diana@sunriseorganics.com',
+      name: 'Rodriguez Farms',
+      avatar: 'https://i.pravatar.cc/160?img=3',
+      id: '1',
+      email: 'maria@rodriguezfarms.com',
       role: 'farmer',
       bio: 'Level 1: Tendy Sprout - Family-owned organic farm specializing in premium apples and seasonal produce.',
       quote: '"Every apple tells the story of our soil, our care, and our commitment to quality."',
@@ -97,13 +94,13 @@ const mockProducts: ProductWithFarmer[] = [
   {
     id: 'prod03',
     title: 'Free-Range Eggs - Dozen',
-    description: 'Farm fresh, large brown eggs from our happy, free-range chickens at Green Valley Produce. Rich, golden yolks and superior taste from pasture-raised hens.',
+    description: 'Farm fresh, large brown eggs from our happy, free-range chickens at Sunrise Farm. Rich, golden yolks and superior taste from pasture-raised hens.',
     price: 5.25,
     originalPrice: 7.50,
     weight: 'dozen',
     imageUrl: 'https://images.unsplash.com/photo-1587486913049-52fc082a934b?q=80&w=2894&auto=format&fit=crop',
     gallery: ['https://images.unsplash.com/photo-1587486913049-52fc082a934b?q=80&w=2894&auto=format&fit=crop'],
-    farmerId: 'farmer02',
+    farmerId: '2',
     createdAt: new Date().toISOString(),
     endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
@@ -113,10 +110,10 @@ const mockProducts: ProductWithFarmer[] = [
     spotsTotal: 40,
     daysLeft: 2,
     farmer: {
-      name: 'Green Valley Produce',
-      avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
-      id: 'farmer02',
-      email: 'edward@greenvalley.com',
+      name: 'Sunrise Farm',
+      avatar: 'https://i.pravatar.cc/160?img=5',
+      id: '2',
+      email: 'tom@sunrisefarm.com',
       role: 'farmer',
       bio: 'Level 2: Tendy Verified Harvest - Specializing in free-range eggs and artisanal baked goods.',
       quote: '"Happy chickens make the best eggs - it\'s that simple."',
@@ -138,7 +135,7 @@ const mockProducts: ProductWithFarmer[] = [
     weight: 'large loaf',
     imageUrl: 'https://images.unsplash.com/photo-1533083328223-2396395d8523?q=80&w=2940&auto=format&fit=crop',
     gallery: ['https://images.unsplash.com/photo-1533083328223-2396395d8523?q=80&w=2940&auto=format&fit=crop'],
-    farmerId: 'farmer02',
+    farmerId: '2',
     createdAt: new Date().toISOString(),
     endDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
@@ -148,10 +145,10 @@ const mockProducts: ProductWithFarmer[] = [
     spotsTotal: 15,
     daysLeft: 6,
     farmer: {
-      name: 'Green Valley Produce',
-      avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
-      id: 'farmer02',
-      email: 'edward@greenvalley.com',
+      name: 'Sunrise Farm',
+      avatar: 'https://i.pravatar.cc/160?img=5',
+      id: '2',
+      email: 'tom@sunrisefarm.com',
       role: 'farmer',
       bio: 'Level 2: Tendy Verified Harvest - Specializing in free-range eggs and artisanal baked goods.',
       quote: '"Happy chickens make the best eggs - it\'s that simple."',
@@ -172,7 +169,7 @@ const mockProducts: ProductWithFarmer[] = [
     weight: 'approx. 5-7kg',
     imageUrl: 'https://images.unsplash.com/photo-1598254505245-5ecd46d79a24?q=80&w=2940&auto=format&fit=crop',
     gallery: ['https://images.unsplash.com/photo-1598254505245-5ecd46d79a24?q=80&w=2940&auto=format&fit=crop'],
-    farmerId: 'farmer03',
+    farmerId: '3',
     createdAt: new Date().toISOString(),
     endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
@@ -182,10 +179,10 @@ const mockProducts: ProductWithFarmer[] = [
     spotsTotal: 10,
     daysLeft: 4,
     farmer: {
-      name: 'Landmark Heritage Farm',
-      avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
-      id: 'farmer03',
-      email: 'fiona@landmarkfarm.com',
+      name: 'Golden Bee Apiary',
+      avatar: 'https://i.pravatar.cc/160?img=9',
+      id: '3',
+      email: 'sarah@goldenbeeapiary.com',
       role: 'farmer',
       bio: 'Level 3: Tendy Landmark Farm - Heritage farm committed to zero waste and sustainable practices.',
       quote: '"Every imperfect vegetable has perfect flavor - waste not, want not."',
@@ -206,7 +203,7 @@ const mockProducts: ProductWithFarmer[] = [
     weight: '500g jar',
     imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=800&auto=format&fit=crop',
     gallery: ['https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=800&auto=format&fit=crop'],
-    farmerId: 'farmer03',
+    farmerId: '3',
     createdAt: new Date().toISOString(),
     endDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
@@ -216,10 +213,10 @@ const mockProducts: ProductWithFarmer[] = [
     spotsTotal: 25,
     daysLeft: 8,
     farmer: {
-      name: 'Landmark Heritage Farm',
-      avatar: 'https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg',
-      id: 'farmer03',
-      email: 'fiona@landmarkfarm.com',
+      name: 'Golden Bee Apiary',
+      avatar: 'https://i.pravatar.cc/160?img=9',
+      id: '3',
+      email: 'sarah@goldenbeeapiary.com',
       role: 'farmer',
       bio: 'Level 3: Tendy Landmark Farm - Heritage farm committed to zero waste and sustainable practices.',
       quote: '"Every imperfect vegetable has perfect flavor - waste not, want not."',
@@ -232,72 +229,55 @@ const mockProducts: ProductWithFarmer[] = [
   }
 ];
 
+// In-memory storage for new products
+let mockProductsStorage = [...mockProducts];
+
 export const productService = {
   // Create a new product
   async createProduct(formData: CreateProductData, farmerId: number) {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([{
-          title: formData.title,
-          description: formData.description,
-          weight: formData.weight,
-          price: formData.price,
-          original_price: formData.originalPrice,
-          image_url: formData.imageUrl,
-          farmer_id: farmerId,
-          progress: 0,
-          spots_left: formData.spotsTotal,
-          days_left: formData.daysActive,
-          gallery: [formData.imageUrl]
-        }])
-        .select(`
-          *,
-          farmers (
-            name,
-            image_url
-          )
-        `)
-        .single();
+    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
+    
+    const newProduct: ProductWithFarmer = {
+      id: `prod-${Date.now()}`,
+      title: formData.title,
+      description: formData.description,
+      weight: formData.weight,
+      price: formData.price,
+      originalPrice: formData.originalPrice,
+      imageUrl: formData.imageUrl,
+      gallery: [formData.imageUrl],
+      farmerId: farmerId.toString(),
+      createdAt: new Date().toISOString(),
+      endDate: new Date(Date.now() + formData.daysActive * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'active',
+      hostId: null,
+      progress: 0,
+      spotsLeft: formData.spotsTotal,
+      spotsTotal: formData.spotsTotal,
+      daysLeft: formData.daysActive,
+      farmer: {
+        name: 'New Farmer',
+        avatar: 'https://i.pravatar.cc/160?img=1',
+        id: farmerId.toString(),
+        email: 'farmer@example.com',
+        role: 'farmer',
+        bio: 'New farmer on the platform',
+        quote: 'Growing fresh produce for the community',
+        practices: 'Sustainable Farming',
+        isVerified: false
+      },
+      members: []
+    };
 
-      if (error) {
-        console.error('Supabase error creating product:', error);
-        throw new Error(error.message || 'Failed to create product');
-      }
-
-      // Parse and transform the response using Zod
-      return ProductWithFarmerSchema.parse(data);
-    } catch (error) {
-      console.error('Error in createProduct:', error);
-      throw error;
-    }
+    mockProductsStorage.push(newProduct);
+    return newProduct;
   },
 
   // Get products by farmer ID
   async getProductsByFarmerId(farmerId: number) {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          farmers (
-            name,
-            image_url
-          )
-        `)
-        .eq('farmer_id', farmerId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Supabase error fetching products by farmer:', error);
-        throw new Error(error.message || 'Failed to fetch products');
-      }
-
-      return z.array(ProductWithFarmerSchema).parse(data || []);
-    } catch (error) {
-      console.error('Error in getProductsByFarmerId:', error);
-      throw error;
-    }
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    
+    return mockProductsStorage.filter(product => product.farmerId === farmerId.toString());
   },
 
   /**
@@ -311,7 +291,7 @@ export const productService = {
     // Simulate realistic network delay
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    const productsToReturn = limit ? mockProducts.slice(0, limit) : mockProducts;
+    const productsToReturn = limit ? mockProductsStorage.slice(0, limit) : mockProductsStorage;
 
     console.log(`Mock products fetched successfully: ${productsToReturn.length} products from ${new Set(productsToReturn.map(p => p.farmer.name)).size} different farms`);
     
@@ -324,78 +304,52 @@ export const productService = {
 
   // Join a group buy
   async joinGroup(productId: string) {
-    try {
-      const { data, error } = await supabase.rpc('join_group', {
-        product_id_to_join: productId
-      });
-
-      if (error) {
-        console.error('Supabase error joining group:', error);
-        throw new Error(error.message || 'Failed to join group');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error in joinGroup:', error);
-      throw error;
+    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
+    
+    const productIndex = mockProductsStorage.findIndex(p => p.id === productId);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
     }
+
+    if (mockProductsStorage[productIndex].spotsLeft > 0) {
+      mockProductsStorage[productIndex].spotsLeft -= 1;
+      mockProductsStorage[productIndex].progress = 
+        ((mockProductsStorage[productIndex].spotsTotal - mockProductsStorage[productIndex].spotsLeft) / 
+         mockProductsStorage[productIndex].spotsTotal) * 100;
+    }
+
+    return { success: true };
   },
 
   // Update product
   async updateProduct(productId: string, updates: Partial<CreateProductData>) {
-    try {
-      const updateData: any = {};
-      
-      if (updates.title) updateData.title = updates.title;
-      if (updates.description) updateData.description = updates.description;
-      if (updates.weight) updateData.weight = updates.weight;
-      if (updates.price) updateData.price = updates.price;
-      if (updates.originalPrice) updateData.original_price = updates.originalPrice;
-      if (updates.imageUrl) updateData.image_url = updates.imageUrl;
-
-      const { data, error } = await supabase
-        .from('products')
-        .update(updateData)
-        .eq('id', productId)
-        .select(`
-          *,
-          farmers (
-            name,
-            image_url
-          )
-        `)
-        .single();
-
-      if (error) {
-        console.error('Supabase error updating product:', error);
-        throw new Error(error.message || 'Failed to update product');
-      }
-
-      return ProductWithFarmerSchema.parse(data);
-    } catch (error) {
-      console.error('Error in updateProduct:', error);
-      throw error;
+    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
+    
+    const productIndex = mockProductsStorage.findIndex(p => p.id === productId);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
     }
+
+    const updatedProduct = {
+      ...mockProductsStorage[productIndex],
+      ...updates
+    };
+
+    mockProductsStorage[productIndex] = updatedProduct;
+    return updatedProduct;
   },
 
   // Delete product
   async deleteProduct(productId: string) {
-    try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
-
-      if (error) {
-        console.error('Supabase error deleting product:', error);
-        throw new Error(error.message || 'Failed to delete product');
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error in deleteProduct:', error);
-      throw error;
+    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
+    
+    const productIndex = mockProductsStorage.findIndex(p => p.id === productId);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
     }
+
+    mockProductsStorage.splice(productIndex, 1);
+    return true;
   },
 
   // Load placeholder data from JSON files (for future use)

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { usePlaceholderAuth } from '../../context/PlaceholderAuthContext';
 import { CreateGroupButtons } from '../../components/CreateGroupButtons';
 import { CustomerGroupView } from '../../components/CustomerGroupView';
 import { HostLeaderboard } from '../../components/HostLeaderboard';
@@ -58,7 +58,7 @@ interface SupporterViewProps {
 }
 
 export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) => {
-  const { user } = useAuth();
+  const { user } = usePlaceholderAuth();
   const { hasUserRatedOrder } = useRatings();
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
@@ -317,7 +317,7 @@ export const SupporterView: React.FC<SupporterViewProps> = ({ activeSection }) =
               <input 
                 id="supporter-name" 
                 type="text" 
-                defaultValue={user?.fullName || ''} 
+                defaultValue={user?.name || ''} 
                 className="w-full h-12 px-4 bg-parchment rounded-md border border-stone/30"
               />
             </div>

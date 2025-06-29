@@ -1,9 +1,9 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import type { GroupPermissions } from '../types';
 
 export const CreateGroupButtons: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = usePlaceholderAuth();
 
   // Determine permissions based on user role
   const getGroupPermissions = (): GroupPermissions => {

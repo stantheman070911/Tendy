@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { usePlaceholderAuth } from '../../context/PlaceholderAuthContext';
 import { productService } from '../../services/productService';
 import { farmerService } from '../../services/farmerService';
 import { CreateProductModal } from '../../components/CreateProductModal';
@@ -13,7 +13,7 @@ interface FarmerViewProps {
 }
 
 export const FarmerView: React.FC<FarmerViewProps> = ({ activeSection }) => {
-    const { user } = useAuth();
+    const { user } = usePlaceholderAuth();
     const { getPayoutsByFarmer, getTotalEarnings } = usePayouts();
     const { getRatingsByFarmer, getAverageRating } = useRatings();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

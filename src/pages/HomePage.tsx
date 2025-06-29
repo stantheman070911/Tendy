@@ -9,10 +9,10 @@ import { GroupTypes } from '../components/GroupTypes';
 import { ForFarmers } from '../components/ForFarmers';
 import { ForHosts } from '../components/ForHosts';
 import { HostLeaderboard } from '../components/HostLeaderboard';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 
 export const HomePage: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = usePlaceholderAuth();
 
   return (
     <main>

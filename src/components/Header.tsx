@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { usePlaceholderAuth } from '../context/PlaceholderAuthContext';
 import type { NavigationItem } from '../types';
 
 interface HeaderProps {
@@ -15,7 +15,7 @@ const navigationItems: NavigationItem[] = [
 
 export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { logout, user, isLoggedIn: authIsLoggedIn } = useAuth();
+  const { logout, user, isLoggedIn: authIsLoggedIn } = usePlaceholderAuth();
   const location = useLocation();
 
   // Use the auth context's isLoggedIn state instead of the prop
@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
             {actualIsLoggedIn ? (
               <div className="flex items-center space-x-sm">
                 <Link to="/dashboard" className="flex items-center gap-3">
-                  <span className="font-semibold text-charcoal">{user?.fullName}</span>
+                  <span className="font-semibold text-charcoal">{user?.name}</span>
                   <img src="https://i.pravatar.cc/40?img=10" alt="User Avatar" className="w-10 h-10 rounded-full border-2 border-harvest-gold"/>
                 </Link>
                 <button

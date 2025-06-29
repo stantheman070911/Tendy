@@ -1,6 +1,5 @@
-import { supabase } from '../lib/supabaseClient';
-import { FarmerSchema } from '../types';
-import { z } from 'zod';
+import { farmers, getFarmerById, getFarmerByEmail, getAllFarmers } from '../data/farmers';
+import type { Farmer } from '../types';
 
 export interface CreateFarmerData {
   name: string;
@@ -15,102 +14,75 @@ export interface CreateFarmerData {
   practices: string[];
 }
 
+// In-memory storage for new farmers
+let mockFarmers = [...farmers];
+
 export const farmerService = {
   // Get farmer by ID
   async getFarmerById(farmerId: string) {
-    const { data, error } = await supabase
-      .from('farmers')
-      .select('*')
-      .eq('id', farmerId)
-      .single();
-
-    if (error) {
-      throw new Error(error.message || 'Failed to fetch farmer');
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    
+    const farmer = getFarmerById(farmerId);
+    if (!farmer) {
+      throw new Error('Farmer not found');
     }
-
-    return FarmerSchema.parse(data);
+    
+    return farmer;
   },
 
   // Get farmer by email
   async getFarmerByEmail(email: string) {
-    const { data, error } = await supabase
-      .from('farmers')
-      .select('*')
-      .eq('email', email)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      throw new Error(error.message || 'Failed to fetch farmer');
-    }
-
-    return data ? FarmerSchema.parse(data) : null;
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    
+    return getFarmerByEmail(email);
   },
 
   // Create a new farmer
   async createFarmer(farmerData: CreateFarmerData) {
-    const { data, error } = await supabase
-      .from('farmers')
-      .insert([{
-        name: farmerData.name,
-        email: farmerData.email,
-        farm_name: farmerData.farmName,
-        location: farmerData.location,
-        established: farmerData.established,
-        story: farmerData.story,
-        quote: farmerData.quote,
-        image_url: farmerData.imageUrl,
-        banner_url: farmerData.bannerUrl,
-        practices: farmerData.practices
-      }])
-      .select()
-      .single();
+    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
+    
+    const newFarmer: Farmer = {
+      id: `farmer-${Date.now()}`,
+      name: farmerData.name,
+      farmName: farmerData.farmName,
+      location: farmerData.location,
+      established: farmerData.established,
+      practices: farmerData.practices,
+      imageUrl: farmerData.imageUrl,
+      bannerUrl: farmerData.bannerUrl,
+      quote: farmerData.quote,
+      story: farmerData.story,
+      email: farmerData.email,
+      createdAt: new Date().toISOString()
+    };
 
-    if (error) {
-      throw new Error(error.message || 'Failed to create farmer profile');
-    }
-
-    return FarmerSchema.parse(data);
+    mockFarmers.push(newFarmer);
+    return newFarmer;
   },
 
   // Update farmer profile
   async updateFarmer(farmerId: string, updates: Partial<CreateFarmerData>) {
-    const updateData: any = {};
+    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
     
-    if (updates.name) updateData.name = updates.name;
-    if (updates.farmName) updateData.farm_name = updates.farmName;
-    if (updates.location) updateData.location = updates.location;
-    if (updates.established) updateData.established = updates.established;
-    if (updates.story) updateData.story = updates.story;
-    if (updates.quote) updateData.quote = updates.quote;
-    if (updates.imageUrl) updateData.image_url = updates.imageUrl;
-    if (updates.bannerUrl) updateData.banner_url = updates.bannerUrl;
-    if (updates.practices) updateData.practices = updates.practices;
-
-    const { data, error } = await supabase
-      .from('farmers')
-      .update(updateData)
-      .eq('id', farmerId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(error.message || 'Failed to update farmer profile');
+    const farmerIndex = mockFarmers.findIndex(f => f.id === farmerId);
+    if (farmerIndex === -1) {
+      throw new Error('Farmer not found');
     }
 
-    return FarmerSchema.parse(data);
+    const updatedFarmer = {
+      ...mockFarmers[farmerIndex],
+      ...updates,
+      farmName: updates.farmName || mockFarmers[farmerIndex].farmName
+    };
+
+    mockFarmers[farmerIndex] = updatedFarmer;
+    return updatedFarmer;
   },
 
   // Get all farmers
   async getAllFarmers() {
-    const { data, error } = await supabase
-      .from('farmers')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw new Error(error.message || 'Failed to fetch farmers');
-    }
-
-    return z.array(FarmerSchema).parse(data || []);
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    
+    return getAllFarmers();
   }
 };
